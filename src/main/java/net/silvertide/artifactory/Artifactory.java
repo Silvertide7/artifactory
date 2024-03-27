@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 public class Artifactory
 {
     public static final String MOD_ID = "artifactory";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public Artifactory()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
