@@ -24,18 +24,16 @@ public class EventHandler {
 
         Map<ResourceLocation, ItemAttunementData> itemAttunementDataMap = AttuneableItems.DATA_LOADER.getData();
 
-        Artifactory.LOGGER.info("Datapack map:");
-
-        for(Map.Entry<ResourceLocation, ItemAttunementData> attunementData : itemAttunementDataMap.entrySet()) {
-            Artifactory.LOGGER.info(attunementData.getKey().toString() + " has " + attunementData.getValue().toString());
-        }
-
         ItemStack stack = tossEvent.getEntity().getItem();
 
         if(!stack.isEmpty()) {
 //            ArtifactUtil.sendSystemMessage(player, "Item is an artifact:");
             ResourceLocation resourceLocation = BuiltInRegistries.ITEM.getKey(stack.getItem());
-            Artifactory.LOGGER.info("Item thrown: " + resourceLocation.toString());
+            if(itemAttunementDataMap.containsKey(resourceLocation)) {
+                Artifactory.LOGGER.info("Item thrown: " + resourceLocation.toString());
+                ItemAttunementData attunementData = itemAttunementDataMap.get(resourceLocation);
+                Artifactory.LOGGER.info("Item is attuneable: \n" + attunementData.toString());
+            }
         }
 
     }
