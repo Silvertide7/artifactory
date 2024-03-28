@@ -34,9 +34,8 @@ public class AttunedItemsImpl implements AttunedItems {
             AttunedItem attunedItem = attunedItems.get(i);
             CompoundTag itemTag = new CompoundTag();
 
-            itemTag.putUUID(AttunedItem.UUID_NBT_KEY, attunedItem.id());
-            itemTag.putString(AttunedItem.NAME_NBT_KEY, attunedItem.name());
-            itemTag.putInt(AttunedItem.SLOT_INDEX_NBT_KEY, attunedItem.slotIndex());
+            itemTag.putUUID(AttunedItem.ITEM_CAP_UUID_NBT_KEY, attunedItem.id());
+            itemTag.putString(AttunedItem.RESOURCE_LOCATION_NBT_KEY, attunedItem.resourceLocation());
             itemTag.putInt(AttunedItem.NUM_SLOTS_TAKEN_NBT_KEY, attunedItem.numSlotsTaken());
 
             nbt.put(attunedItem.id().toString(), itemTag);

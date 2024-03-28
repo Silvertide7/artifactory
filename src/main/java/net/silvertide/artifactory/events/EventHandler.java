@@ -30,7 +30,7 @@ public class EventHandler {
 //            ArtifactUtil.sendSystemMessage(player, "Item is an artifact:");
             ResourceLocation resourceLocation = BuiltInRegistries.ITEM.getKey(stack.getItem());
             if(itemAttunementDataMap.containsKey(resourceLocation)) {
-                Artifactory.LOGGER.info("Item thrown: " + resourceLocation.toString());
+                Artifactory.LOGGER.info("Item thrown: " + resourceLocation);
                 ItemAttunementData attunementData = itemAttunementDataMap.get(resourceLocation);
                 Artifactory.LOGGER.info("Item is attuneable: \n" + attunementData.toString());
             }
