@@ -13,11 +13,11 @@ public class TabRegistry {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Artifactory.MOD_ID);
 
     public static final RegistryObject<CreativeModeTab> COURSE_TAB = CREATIVE_MODE_TABS.register("homebound_tab",
-            () -> CreativeModeTab.builder().icon(() -> ItemStack.EMPTY)
+            () -> CreativeModeTab.builder().icon(() -> new ItemStack(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get()))
                     .title(Component.translatable("creativetab.artifactory_tab"))
                     .displayItems((displayParameters, output) -> {
                         // Items
-
+                    output.accept(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get());
 
                     }).build());
     public static void register(IEventBus eventBus) {
