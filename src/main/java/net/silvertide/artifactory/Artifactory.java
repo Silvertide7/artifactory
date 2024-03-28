@@ -7,6 +7,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.silvertide.artifactory.registry.AttributeRegistry;
+import net.silvertide.artifactory.registry.ItemRegistry;
+import net.silvertide.artifactory.registry.TabRegistry;
 import org.slf4j.Logger;
 
 @Mod(Artifactory.MOD_ID)
@@ -22,7 +24,8 @@ public class Artifactory
         modEventBus.addListener(this::commonSetup);
 
         AttributeRegistry.register(modEventBus);
-
+        TabRegistry.register(modEventBus);
+        ItemRegistry.register(modEventBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
