@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.screen;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -9,15 +10,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
+import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
-import net.silvertide.artifactory.registry.BlockEntityRegistry;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
-import org.jetbrains.annotations.Nullable;
+import net.silvertide.artifactory.util.ArtifactUtil;
+import org.jetbrains.annotations.NotNull;
 
 public class AttunementNexusMenu extends AbstractContainerMenu {
     public final AttunementNexusBlockEntity blockEntity;
     private final Level level;
+    private final Player player;
     private final ContainerData data;
 
     public AttunementNexusMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
@@ -28,19 +31,63 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
         checkContainerSize(inv, 2);
         this.blockEntity = (AttunementNexusBlockEntity) blockEntity;
+        this.player = inv.player;
         level = inv.player.level();
         this.data = containerData;
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
+
+
         this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
-            this.addSlot(new SlotItemHandler(iItemHandler, 0, 80, 11));
-            this.addSlot(new SlotItemHandler(iItemHandler, 1, 80, 59));
+            Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 11) {
+                @Override
+                public boolean mayPlace(@NotNull ItemStack stack) {
+                    if(!ArtifactUtil.isAttuneable(stack)) return false;
+                    return super.mayPlace(stack);
+                }
+
+                @Override
+                public void setChanged() {
+//                    Artifactory.LOGGER.info("Side: " + player.level().isClientSide());
+                    ((AttunementNexusBlockEntity) blockEntity).setPlayerToAttuneUUID(player);
+                    super.setChanged();
+                }
+            };
+            this.addSlot(customInputSlot);
+
+            Slot customOutputSlot = new SlotItemHandler(iItemHandler, 1, 80, 59) {
+                @Override
+                public boolean mayPlace(@NotNull ItemStack stack) {
+                    return false;
+                }
+            };
+            this.addSlot(customOutputSlot);
         });
 
         addDataSlots(data);
+//        addItemAddedListener(inv.player);
     }
+
+//    private void addItemAddedListener(Player player) {
+//        ContainerListener slotListener = new ContainerListener() {
+//            @Override
+//            public void slotChanged(AbstractContainerMenu pContainerToSend, int pDataSlotIndex, ItemStack pStack) {
+//                if(pDataSlotIndex == 36 && ArtifactUtil.isAttuneable(pContainerToSend.slots.get(36).getItem())) {
+//                    Artifactory.LOGGER.info("Added player uuid to block entity");
+//                    blockEntity.setPlayerToAttuneToUUID(player);
+//                }
+//            }
+//
+//            @Override
+//            public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {
+//
+//            }
+//        };
+//
+//        this.addSlotListener(slotListener);
+//    }
 
     public boolean isCrafting() {
         return data.get(0) > 0;
@@ -53,6 +100,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
+
+
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     // must assign a slot number to each of the slots used by the GUI.
@@ -108,6 +157,18 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get());
     }
+
+    @Override
+    public void slotsChanged(Container pContainer) {
+        Artifactory.LOGGER.info("container changed:" + pContainer);
+        Artifactory.LOGGER.info("Slots changed brah");
+//        if(pDataSlotIndex == 36 && ArtifactUtil.isAttuneable(pContainerToSend.slots.get(36).getItem())) {
+//            Artifactory.LOGGER.info("Added player uuid to block entity");
+//            blockEntity.setPlayerToAttuneToUUID(player);
+//        }
+        super.slotsChanged(pContainer);
+    }
+
 
     private void addPlayerInventory(Inventory playerInventory) {
         for(int i = 0; i < 3; ++i) {

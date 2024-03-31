@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AttunedItemsAttacher {
-    private static class WarpCapProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-        public static final ResourceLocation IDENTIFIER = new ResourceLocation(Artifactory.MOD_ID, "attuned_items");
+    private static class AttunedItemsProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
+        public static final ResourceLocation IDENTIFIER = new ResourceLocation(Artifactory.MOD_ID, "player_attuned_items");
         private final AttunedItems backend = new AttunedItemsImpl();
         private final LazyOptional<AttunedItems> optionalData = LazyOptional.of(() -> backend);
         @NotNull
@@ -40,8 +40,8 @@ public class AttunedItemsAttacher {
         }
     }
     public static void attach(final AttachCapabilitiesEvent<Entity> event) {
-        final WarpCapProvider provider = new WarpCapProvider();
-        event.addCapability(WarpCapProvider.IDENTIFIER, provider);
+        final AttunedItemsProvider provider = new AttunedItemsProvider();
+        event.addCapability(AttunedItemsProvider.IDENTIFIER, provider);
     }
 }
 

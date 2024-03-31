@@ -4,7 +4,7 @@ import java.util.List;
 
 public class AttuneableItems {
     public static final MergeableCodecDataManager<ItemAttunementData, ItemAttunementData> DATA_LOADER = new MergeableCodecDataManager<>(
-            "attuneable_items",
+            "artifactory",
             ItemAttunementData.CODEC,
             AttuneableItems::processItemAttunements);
 

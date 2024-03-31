@@ -8,7 +8,6 @@ import net.silvertide.artifactory.Artifactory;
 
 public class ItemRegistry {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Artifactory.MOD_ID);
-
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);
     }
