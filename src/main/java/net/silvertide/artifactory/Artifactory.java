@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.silvertide.artifactory.events.ClientEvents;
 import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
 import org.slf4j.Logger;
@@ -50,6 +51,7 @@ public class Artifactory
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), AttunementNexusScreen::new);
+            MinecraftForge.EVENT_BUS.register(new ClientEvents());
         }
     }
 }

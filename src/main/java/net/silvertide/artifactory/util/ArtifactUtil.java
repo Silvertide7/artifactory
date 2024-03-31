@@ -1,6 +1,5 @@
 package net.silvertide.artifactory.util;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +40,7 @@ public final class ArtifactUtil {
         Optional<ItemAttunementData> itemAttunementData = getAttunementData(stack);
         itemAttunementData.ifPresent( attunementData -> {
             if(isAttunementAllowed(player, stack, attunementData)) {
-                setupStack(stack);
+                setupStackToAttune(stack);
                 AttunedItem.buildAttunedItem(stack, attunementData).ifPresent(attunedItem -> {
                     boolean succeeded = addAttunementToPlayer(player, attunedItem);
                     if (succeeded) addAttunementToStack(player, stack);
@@ -50,7 +49,7 @@ public final class ArtifactUtil {
         });
     }
 
-    private static void setupStack(ItemStack stack) {
+    private static void setupStackToAttune(ItemStack stack) {
         if(NBTUtil.artifactoryTagExists(stack)) NBTUtil.removeArtifactoryTag(stack);
         NBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
     }
@@ -71,6 +70,10 @@ public final class ArtifactUtil {
         return NBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
+    public static boolean isItemAttuned(ItemStack stack) {
+        return !stack.isEmpty() && NBTUtil.containsAttunedToUUID(stack);
+    }
+
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
         return CapabilityUtil.getAttunedItems(player).map(attunedItemsCap -> {
                 Optional<UUID> itemAttunementUUID = NBTUtil.getItemAttunementUUID(stack);
@@ -82,7 +85,7 @@ public final class ArtifactUtil {
         }).orElse(false);
     }
 
-    public static boolean arePlayerAndStackAttuned(Player player, ItemStack stack) {
+    public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
         return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
     }
 
@@ -106,12 +109,5 @@ public final class ArtifactUtil {
         return getAttunementData(stack).isPresent();
     }
 
-    public static void displayClientMessage(Player player, String message) {
-        player.displayClientMessage(Component.literal(message), true);
-    }
-
-    public static void sendSystemMessage(Player player, String message) {
-        player.sendSystemMessage(Component.literal(message));
-    }
 
 }
