@@ -3,21 +3,40 @@ package net.silvertide.artifactory.config.codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-public record ItemAttunementData(boolean replace, int attunementSlotsUsed, boolean isUnbreakable, boolean canBeSoulbound, boolean useWithoutAttunement) {
+import java.util.List;
+import java.util.Map;
+
+public record ItemAttunementData(int attunementSlotsUsed, Map<String, List<String>> modifications, boolean useWithoutAttunement, boolean replace) {
     public static final Codec<ItemAttunementData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace),
-            Codec.INT.fieldOf("attunement_slots_used").forGetter(ItemAttunementData::attunementSlotsUsed),
-            Codec.BOOL.optionalFieldOf("unbreakable", true).forGetter(ItemAttunementData::isUnbreakable),
-            Codec.BOOL.optionalFieldOf("can_be_soulbound", true).forGetter(ItemAttunementData::canBeSoulbound),
-            Codec.BOOL.optionalFieldOf("use_without_attunement", false).forGetter(ItemAttunementData::useWithoutAttunement))
+            Codec.INT.fieldOf("slots_used").forGetter(ItemAttunementData::attunementSlotsUsed),
+            Codec.unboundedMap(Codec.STRING, Codec.list(Codec.STRING)).fieldOf("modifications").forGetter(ItemAttunementData::modifications),
+            Codec.BOOL.optionalFieldOf("use_without_attunement", false).forGetter(ItemAttunementData::useWithoutAttunement),
+            Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace))
             .apply(instance, ItemAttunementData::new)
     );
 
+    public int getAttunementSlotsUsed() {
+        if(attunementSlotsUsed < 0) return 0;
+        return attunementSlotsUsed;
+    }
+
     public String toString() {
-        return "replace: " + this.replace() + "\n" +
-                "attunement_slots_used: " + this.attunementSlotsUsed() + "\n" +
-                "unbreakable: " + this.isUnbreakable() + "\n" +
-                "can_be_soulbound: " + this.canBeSoulbound() + "\n" +
-                "use_without_attunement: " + this.useWithoutAttunement();
+        StringBuilder attunementString = new StringBuilder();
+
+        for(Map.Entry<String, List<String>> attunementLevel :  modifications.entrySet()){
+            String levelOfAttunement = attunementLevel.getKey();
+            List<String> effects = attunementLevel.getValue();
+
+            attunementString.append(levelOfAttunement).append(": \n");
+            for (String effect : effects) {
+                attunementString.append("  - ").append(effect).append("\n");
+            }
+        }
+
+
+        return "replace: " + replace + "\n" +
+                "attunement_slots_used: " + getAttunementSlotsUsed() + "\n" +
+                "use_without_attunement: " + useWithoutAttunement + "\n" +
+                attunementString;
     }
 }
