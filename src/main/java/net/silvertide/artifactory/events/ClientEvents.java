@@ -8,10 +8,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.ArtifactUtil;
-import net.silvertide.artifactory.util.NBTUtil;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.silvertide.artifactory.util.StackNBTUtil;
 
 public class ClientEvents {
 
@@ -30,7 +27,7 @@ public class ClientEvents {
 
         if (ArtifactUtil.isItemAttuned(stack)) {
             hoverText = Component.translatable("hovertext.artifactory.attunedItem").withStyle(ChatFormatting.LIGHT_PURPLE);
-            NBTUtil.getAttunedToName(stack).ifPresent(name -> {
+            StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
                 hoverText.append(Component.literal(" to " + name).withStyle(ChatFormatting.LIGHT_PURPLE));
             });
         } else {

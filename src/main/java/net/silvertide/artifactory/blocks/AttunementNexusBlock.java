@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -19,7 +20,11 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
 import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
+import net.silvertide.artifactory.capabilities.AttunedItems;
 import net.silvertide.artifactory.registry.BlockEntityRegistry;
+import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.CapabilityUtil;
+import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.Nullable;
 
 public class AttunementNexusBlock extends BaseEntityBlock {
@@ -54,16 +59,31 @@ public class AttunementNexusBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if(!pLevel.isClientSide()) {
-            BlockEntity entity = pLevel.getBlockEntity(pPos);
-            if(entity instanceof AttunementNexusBlockEntity attunementNexusBlockEntity) {
-                NetworkHooks.openScreen((ServerPlayer) pPlayer, attunementNexusBlockEntity, pPos);
+
+
+
+            if(pPlayer.isCrouching()) {
+                if(pPlayer.getMainHandItem().isEmpty()) {
+                    CapabilityUtil.getAttunedItems(pPlayer).ifPresent(attunedItems -> {
+                        PlayerMessenger.sendSystemMessage(pPlayer, "You have attuned " + attunedItems.getNumAttunedItems() + " out of " + ArtifactUtil.getMaxAttunementSlots(pPlayer) + " Breaking them.");
+                        CapabilityUtil.getAttunedItems(pPlayer).ifPresent(AttunedItems::breakAllAttunements);
+                    });
+                }
+                return InteractionResult.SUCCESS;
             } else {
-                throw new IllegalStateException("Out Container provider is missing!");
+                BlockEntity entity = pLevel.getBlockEntity(pPos);
+                if(entity instanceof AttunementNexusBlockEntity attunementNexusBlockEntity) {
+                    NetworkHooks.openScreen((ServerPlayer) pPlayer, attunementNexusBlockEntity, pPos);
+                } else {
+                    throw new IllegalStateException("Out Container provider is missing!");
+                }
             }
         }
 
         return InteractionResult.sidedSuccess(pLevel.isClientSide());
     }
+
+
 
     @Nullable
     @Override

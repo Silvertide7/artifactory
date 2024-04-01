@@ -7,8 +7,6 @@ import net.silvertide.artifactory.capabilities.AttunedItem;
 import net.silvertide.artifactory.capabilities.AttunedItems;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.modifications.AttributeModification;
-import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.AttunementModificationFactory;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
@@ -39,7 +37,7 @@ public final class ArtifactUtil {
     }
 
     public static boolean isAttunementAllowed(Player player, ItemStack stack, ItemAttunementData attunementData) {
-        boolean attuneable = isAttuneable(stack);
+        boolean attuneable = isAvailableToAttune(stack);
         boolean canPlayerAttune = canPlayerAttuneItem(player, attunementData);
         return !stack.isEmpty() && attuneable && canPlayerAttune;
     }
@@ -49,7 +47,6 @@ public final class ArtifactUtil {
             if(isAttunementAllowed(player, stack, attunementData)) {
                 setupStackToAttune(stack);
                 linkPlayerAndItem(player, stack, attunementData);
-
                 //TODO: This is hardcoded to level 1 for now. Eventually this will need to be dynamic
                 updateItemWithAttunementModifications(stack, attunementData, 1);
             }
@@ -57,8 +54,8 @@ public final class ArtifactUtil {
     }
 
     private static void setupStackToAttune(ItemStack stack) {
-        if(NBTUtil.artifactoryTagExists(stack)) NBTUtil.removeArtifactoryTag(stack);
-        NBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
+        if(StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
+        StackNBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
     }
 
     public static void linkPlayerAndItem(Player player, ItemStack stack, ItemAttunementData attunementData){
@@ -91,21 +88,21 @@ public final class ArtifactUtil {
     }
 
     private static void addAttunementToStack(Player player, ItemStack stack) {
-        NBTUtil.putPlayerDataInArtifactoryTag(player, stack);
+        StackNBTUtil.putPlayerDataInArtifactoryTag(player, stack);
     }
 
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
-        if(stack.isEmpty() || !NBTUtil.containsAttunedToUUID(stack)) return false;
-        return NBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
+        if(stack.isEmpty() || !StackNBTUtil.containsAttunedToUUID(stack)) return false;
+        return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
     public static boolean isItemAttuned(ItemStack stack) {
-        return !stack.isEmpty() && NBTUtil.containsAttunedToUUID(stack);
+        return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
     }
 
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
         return CapabilityUtil.getAttunedItems(player).map(attunedItemsCap -> {
-            Optional<UUID> itemAttunementUUID = NBTUtil.getItemAttunementUUID(stack);
+            Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
             return itemAttunementUUID.filter(uuid -> attunedItemsCap.getAttunedItem(uuid).isPresent()).isPresent();
         }).orElse(false);
     }
@@ -114,9 +111,13 @@ public final class ArtifactUtil {
         return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
     }
 
-    public static boolean isAttuneable(ItemStack stack) {
+    public static boolean isAvailableToAttune(ItemStack stack) {
         // TODO: Might want to check if the player still has the item attuned here and break the connection if not.
-        return !stack.isEmpty() && !NBTUtil.containsAttunedToUUID(stack) && hasAttunementData(stack);
+        return isAttuneableItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
+    }
+
+    public static boolean isAttuneableItem(ItemStack stack) {
+        return !stack.isEmpty() && hasAttunementData(stack);
     }
 
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {

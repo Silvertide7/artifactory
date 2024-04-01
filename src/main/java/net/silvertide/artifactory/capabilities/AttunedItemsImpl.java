@@ -45,6 +45,16 @@ public class AttunedItemsImpl implements AttunedItems {
     }
 
     @Override
+    public void breakAttunement(AttunedItem attunedItem) {
+        this.attunedItems.remove(attunedItem.id());
+    }
+
+    @Override
+    public void breakAllAttunements() {
+        this.attunedItems.clear();
+    }
+
+    @Override
     public void addAttunedItem(AttunedItem itemToAttune) {
         attunedItems.put(itemToAttune.id(), itemToAttune);
     }

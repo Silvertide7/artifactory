@@ -8,10 +8,12 @@ import net.silvertide.artifactory.Artifactory;
 import java.util.Optional;
 import java.util.UUID;
 
-public class NBTUtil {
+public class StackNBTUtil {
     private static final String ITEM_ATTUNEMENT_UUID_NBT_KEY = "attunement_uuid";
     private static final String ATTUNED_TO_UUID_NBT_KEY = "attuned_to_uuid";
     private static final String ATTUNED_TO_NAME_NBT_KEY = "attuned_to_name";
+    private static final String MODIFICATION_SOULBOUND_NBT_KEY = "soulbound";
+    private static final String MODIFICATION_INVULNERABLE_NBT_KEY = "invulnerable";
 
     // BASIC TAG FUNCTIONS
 
@@ -27,6 +29,27 @@ public class NBTUtil {
 
     public static void setItemAttunementUUID(ItemStack stack, UUID attunementUUID) {
         setArtifactoryUUID(stack, ITEM_ATTUNEMENT_UUID_NBT_KEY, attunementUUID);
+    }
+
+    public static void setSoulbound(ItemStack stack) {
+        setArtifactoryBoolean(stack, MODIFICATION_SOULBOUND_NBT_KEY, true);
+    }
+
+    public static boolean isSoulbound(ItemStack stack){
+        return stackArtifactoryTagContainsTag(stack, MODIFICATION_SOULBOUND_NBT_KEY) && getArtifactoryBoolean(stack, MODIFICATION_SOULBOUND_NBT_KEY);
+    }
+
+    public static void setInvulnerable(ItemStack stack) {
+        setArtifactoryBoolean(stack, MODIFICATION_INVULNERABLE_NBT_KEY, true);
+    }
+
+    public static boolean isInvulnerable(ItemStack stack){
+        return stackArtifactoryTagContainsTag(stack, MODIFICATION_INVULNERABLE_NBT_KEY) && getArtifactoryBoolean(stack, MODIFICATION_INVULNERABLE_NBT_KEY);
+    }
+
+    public static void setUnbreakable(ItemStack stack) {
+        stack.setDamageValue(0);
+        setBoolean(stack, "Unbreakable", true);
     }
 
     public static Optional<UUID> getItemAttunementUUID(ItemStack stack) {
@@ -73,6 +96,15 @@ public class NBTUtil {
     private static void setArtifactoryString(ItemStack stack, String tag, String value) {
         CompoundTag artifactoryCT = getOrCreateArtifactoryCompoundTag(stack);
         artifactoryCT.putString(tag, value);
+    }
+
+    private static boolean getArtifactoryBoolean(ItemStack stack, String tag) {
+        return getOrCreateArtifactoryCompoundTag(stack).getBoolean(tag);
+    }
+
+    private static void setArtifactoryBoolean(ItemStack stack, String tag, boolean value) {
+        CompoundTag artifactoryCT = getOrCreateArtifactoryCompoundTag(stack);
+        artifactoryCT.putBoolean(tag, value);
     }
 
     // Artifactory UUID Methods

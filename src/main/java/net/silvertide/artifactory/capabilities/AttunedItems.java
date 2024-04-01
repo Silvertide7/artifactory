@@ -18,4 +18,6 @@ public interface AttunedItems extends INBTSerializable<CompoundTag> {
     Optional<List<AttunedItem>> getAttunedItemsAsList();
     Map<UUID, AttunedItem> getAttunedItemsMap();
     void setAttunedItems(Map<UUID, AttunedItem> attunedItems);
+    void breakAttunement(AttunedItem attunedItem);
+    void breakAllAttunements();
 }

@@ -1,7 +1,7 @@
 {
   "slots_used": 1,
   "modifications": {
-    "1": ["unbreakable", "no_despawn", "fireproof"],
+    "1": ["unbreakable", "invulnerable"],
     "2": ["soulbound"]
   },
   "use_without_attunement": false

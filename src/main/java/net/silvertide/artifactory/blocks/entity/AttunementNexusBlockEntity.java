@@ -132,7 +132,7 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     }
 
     private boolean canAttune() {
-        if(!inputSlotEmpty() && ArtifactUtil.isAttuneable(getStackInSlot(INPUT_SLOT))) {
+        if(!inputSlotEmpty() && ArtifactUtil.isAvailableToAttune(getStackInSlot(INPUT_SLOT))) {
             return outputSlotEmpty();
         }
         return false;

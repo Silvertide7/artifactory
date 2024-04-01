@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.util.NBTUtil;
+import net.silvertide.artifactory.util.StackNBTUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Optional;
@@ -20,7 +20,7 @@ public record AttunedItem(UUID id, String resourceLocation, int numSlotsTaken) {
     }
 
     public static Optional<AttunedItem> buildAttunedItem(ItemStack stack, ItemAttunementData data) {
-        return NBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
+        return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
             int numSlotsTaken = data.getAttunementSlotsUsed();
             return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), numSlotsTaken));
