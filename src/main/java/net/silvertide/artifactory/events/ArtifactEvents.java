@@ -9,6 +9,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.config.codecs.AttuneableItems;
+import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.CapabilityUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
@@ -27,7 +29,7 @@ public class ArtifactEvents {
 
             ItemStack stackInHand = player.getMainHandItem();
             ArtifactUtil.getAttunementData(stackInHand).ifPresent(itemAttunementData -> {
-                if(!ArtifactUtil.arePlayerAndItemAttuned(player, stackInHand)) {
+                if(!itemAttunementData.useWithoutAttunement() && !ArtifactUtil.arePlayerAndItemAttuned(player, stackInHand)) {
                     event.setCanceled(true);
                     PlayerMessenger.displayClientMessage(player, "Must attune to item to attack.");
                 }
@@ -49,7 +51,10 @@ public class ArtifactEvents {
                     }
                 });
             });
+
+            ArtifactUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
             Artifactory.LOGGER.info("Item thrown attuned to player: " + ArtifactUtil.arePlayerAndItemAttuned(player, stack));
+
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
         }
 

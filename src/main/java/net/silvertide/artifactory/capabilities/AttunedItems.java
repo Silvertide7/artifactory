@@ -9,9 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AttunedItems extends INBTSerializable<CompoundTag> {
-    public static final String ITEM_CAP_UUID_NBT_KEY = "itemAttunementUUID";
-    public static final String RESOURCE_LOCATION_NBT_KEY = "itemResourceLocation";
-    public static final String NUM_SLOTS_TAKEN_NBT_KEY = "numSlotsTaken";
+    String ITEM_CAP_UUID_NBT_KEY = "itemAttunementUUID";
+    String RESOURCE_LOCATION_NBT_KEY = "itemResourceLocation";
+    String NUM_SLOTS_TAKEN_NBT_KEY = "numSlotsTaken";
     int getNumAttunedItems();
     void addAttunedItem(AttunedItem itemToAttune);
     Optional<AttunedItem> getAttunedItem(UUID attunedItemId);

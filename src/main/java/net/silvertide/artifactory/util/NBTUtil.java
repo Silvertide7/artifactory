@@ -13,6 +13,13 @@ public class NBTUtil {
     private static final String ATTUNED_TO_UUID_NBT_KEY = "attuned_to_uuid";
     private static final String ATTUNED_TO_NAME_NBT_KEY = "attuned_to_name";
 
+    // BASIC TAG FUNCTIONS
+
+    public static void setBoolean(ItemStack stack, String key, boolean value) {
+        stack.getOrCreateTag().putBoolean(key, value);
+    }
+
+    // ATTUNEMENT TAG FUNCTIONS
     public static void putPlayerDataInArtifactoryTag(Player player, ItemStack stack) {
         setAttunedToUUID(stack, player.getUUID());
         setAttunedToName(stack, player.getName().toString());
@@ -109,4 +116,5 @@ public class NBTUtil {
     private static boolean stackContainsTag(ItemStack stack, String tag) {
         return !stack.isEmpty() && stack.hasTag() && stack.getOrCreateTag().contains(tag);
     }
+
 }

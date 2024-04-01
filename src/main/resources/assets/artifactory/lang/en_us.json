@@ -1,4 +1,8 @@
 {
   "creativetab.artifactory_tab": "Artifactory",
-  "block.artifactory.attunement_nexus": "Attunement Nexus"
+  "block.artifactory.attunement_nexus": "Attunement Nexus",
+
+  "hovertext.artifactory.attunedItem": "Attuned",
+  "hovertext.artifactory.attuneableItem": "Attuneable",
+  "hovertext.artifactory.onlyUseIfAttuned": "- Use Restricted"
 }

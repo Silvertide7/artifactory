@@ -16,7 +16,7 @@ public class AttributeRegistry {
     public static void register(IEventBus eventBus) {
         ATTRIBUTES.register(eventBus);
     }
-    public static final RegistryObject<Attribute> MAX_ATTUNEMENT_SLOTS = ATTRIBUTES.register("max_attunement_slots", () -> new RangedAttribute("attribute.artifactory.max_attunement_slots", 1.0D, 0.0D, 100.0D).setSyncable(true));
+    public static final RegistryObject<Attribute> MAX_ATTUNEMENT_SLOTS = ATTRIBUTES.register("max_attunement_slots", () -> new RangedAttribute("attribute.artifactory.max_attunement_slots", 6.0D, 0.0D, 100.0D).setSyncable(true));
 
     @SubscribeEvent
     public static void modifyEntityAttributes(EntityAttributeModificationEvent e) {

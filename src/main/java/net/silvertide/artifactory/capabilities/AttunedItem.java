@@ -20,12 +20,10 @@ public record AttunedItem(UUID id, String resourceLocation, int numSlotsTaken) {
     }
 
     public static Optional<AttunedItem> buildAttunedItem(ItemStack stack, ItemAttunementData data) {
-        return NBTUtil.getItemAttunementUUID(stack).map(itemUUID -> {
+        return NBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-            int numSlotsTaken = data.attunementSlotsUsed();
+            int numSlotsTaken = data.getAttunementSlotsUsed();
             return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), numSlotsTaken));
-
-        }).orElse(Optional.empty());
-
+        });
     }
 }

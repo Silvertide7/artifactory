@@ -16,6 +16,8 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
 import org.slf4j.Logger;
 
+
+// TODO: Move attuned items out of capability and into SavedData probably
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
