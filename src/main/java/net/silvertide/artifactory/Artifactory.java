@@ -7,10 +7,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.events.ClientEvents;
 import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
@@ -39,6 +41,11 @@ public class Artifactory
         BlockEntityRegistry.register(modEventBus);
 
         MenuRegistry.register(modEventBus);
+
+        if (ModList.get().isLoaded("curios")) {
+            MinecraftForge.EVENT_BUS.addListener(CuriosCompat::onCuriosEquip);
+            MinecraftForge.EVENT_BUS.addListener(CuriosCompat::keepCurios);
+        }
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
