@@ -59,9 +59,6 @@ public class AttunementNexusBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if(!pLevel.isClientSide()) {
-
-
-
             if(pPlayer.isCrouching()) {
                 if(pPlayer.getMainHandItem().isEmpty()) {
                     CapabilityUtil.getAttunedItems(pPlayer).ifPresent(attunedItems -> {
