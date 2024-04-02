@@ -2,7 +2,6 @@ package net.silvertide.artifactory;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -18,8 +17,11 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
 import org.slf4j.Logger;
 
-
-// TODO: Move attuned items out of capability and into SavedData probably
+// TODO: Move attuned items out of player capability and into SavedData probably
+// TODO: Add attribute modifications
+// TODO: Add enchantment modifications
+// TODO: Add effect modifications
+// TODO: Create GUI's and textures
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
@@ -29,7 +31,6 @@ public class Artifactory
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
         AttributeRegistry.register(modEventBus);
@@ -47,11 +48,7 @@ public class Artifactory
             MinecraftForge.EVENT_BUS.addListener(CuriosCompat::keepCurios);
         }
 
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-//        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     private void commonSetup(final FMLCommonSetupEvent event) {}
 

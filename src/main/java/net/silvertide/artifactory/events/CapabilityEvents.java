@@ -13,9 +13,8 @@ import net.silvertide.artifactory.capabilities.AttunedItems;
 import net.silvertide.artifactory.capabilities.AttunedItemsAttacher;
 import net.silvertide.artifactory.util.CapabilityUtil;
 
-@Mod.EventBusSubscriber(modid= Artifactory.MOD_ID, bus= Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CapabilityEvents {
-
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
         event.register(AttunedItems.class);

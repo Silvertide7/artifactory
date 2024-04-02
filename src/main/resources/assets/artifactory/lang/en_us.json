@@ -2,7 +2,10 @@
   "creativetab.artifactory_tab": "Artifactory",
   "block.artifactory.attunement_nexus": "Attunement Nexus",
 
-  "hovertext.artifactory.attunedItem": "Attuned",
-  "hovertext.artifactory.attuneableItem": "Attuneable",
-  "hovertext.artifactory.onlyUseIfAttuned": "- Use Restricted"
+  "hovertext.artifactory.attuned_item": "Attuned",
+  "hovertext.artifactory.use_without_attunement": "Can attune",
+  "hovertext.artifactory.use_with_attunement": "Attune to use",
+
+  "playermessage.artifactory.item_not_usable": "Must attune to item to use",
+  "playermessage.artifactory.item_not_equippable": "Must attune to item to equip"
 }

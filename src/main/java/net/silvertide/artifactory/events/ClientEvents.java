@@ -11,7 +11,6 @@ import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 public class ClientEvents {
-
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent evt) {
         ItemStack stack = evt.getItemStack();
@@ -24,20 +23,33 @@ public class ClientEvents {
 
     private MutableComponent createAttunementHoverComponent(ItemAttunementData itemAttunementData, ItemStack stack) {
         MutableComponent hoverText;
+        ChatFormatting chatFormatting;
 
         if (ArtifactUtil.isItemAttuned(stack)) {
-            hoverText = Component.translatable("hovertext.artifactory.attunedItem").withStyle(ChatFormatting.LIGHT_PURPLE);
-            StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
-                hoverText.append(Component.literal(" to " + name).withStyle(ChatFormatting.LIGHT_PURPLE));
-            });
+            chatFormatting = ChatFormatting.LIGHT_PURPLE;
+            hoverText = createAttunedHoverText(stack, chatFormatting);
         } else {
-            hoverText = Component.translatable("hovertext.artifactory.attuneableItem").withStyle(ChatFormatting.DARK_PURPLE);
-            if (!itemAttunementData.useWithoutAttunement()){
-                hoverText.append(Component.translatable("hovertext.artifactory.onlyUseIfAttuned").withStyle(ChatFormatting.RED));
-            }
+            chatFormatting = ChatFormatting.DARK_PURPLE;
+            hoverText = createUnattunedHoverText(itemAttunementData.useWithoutAttunement(), chatFormatting);
         }
-        hoverText.append(Component.literal(" (" + itemAttunementData.getAttunementSlotsUsed() + ")").withStyle(ChatFormatting.YELLOW));
+        hoverText.append(Component.literal(" (" + itemAttunementData.getAttunementSlotsUsed() + ")").withStyle(chatFormatting));
         return hoverText;
+    }
+
+    private MutableComponent createAttunedHoverText(ItemStack stack, ChatFormatting chatFormatting){
+        MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(chatFormatting);
+        StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
+            hoverText.append(Component.literal(" (" + name + ")").withStyle(chatFormatting));
+        });
+        return hoverText;
+    }
+
+    private MutableComponent createUnattunedHoverText(boolean useWithoutAttunement, ChatFormatting chatFormatting) {
+        if(useWithoutAttunement){
+            return Component.translatable("hovertext.artifactory.use_without_attunement").withStyle(chatFormatting);
+        } else {
+            return Component.translatable("hovertext.artifactory.use_with_attunement").withStyle(chatFormatting);
+        }
     }
 }
 

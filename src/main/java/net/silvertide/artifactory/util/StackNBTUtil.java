@@ -24,7 +24,7 @@ public class StackNBTUtil {
     // ATTUNEMENT TAG FUNCTIONS
     public static void putPlayerDataInArtifactoryTag(Player player, ItemStack stack) {
         setAttunedToUUID(stack, player.getUUID());
-        setAttunedToName(stack, player.getName().toString());
+        setAttunedToName(stack, player.getDisplayName().getString());
     }
 
     public static void setItemAttunementUUID(ItemStack stack, UUID attunementUUID) {

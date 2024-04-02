@@ -17,7 +17,8 @@ import java.util.UUID;
 
 public final class ArtifactUtil {
 
-    private ArtifactUtil() {}
+    private ArtifactUtil() {
+    }
 
     public static int getMaxAttunementSlots(Player player) {
         return (int) player.getAttributeValue(AttributeRegistry.MAX_ATTUNEMENT_SLOTS.get());
@@ -33,7 +34,7 @@ public final class ArtifactUtil {
     public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {
         int openSlots = getOpenAttunementSlots(player);
         int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
-        return  openSlots >= attunementSlotsRequired;
+        return openSlots >= attunementSlotsRequired;
     }
 
     public static boolean isAttunementAllowed(Player player, ItemStack stack, ItemAttunementData attunementData) {
@@ -43,8 +44,8 @@ public final class ArtifactUtil {
     }
 
     public static void attuneItem(Player player, ItemStack stack) {
-        getAttunementData(stack).ifPresent( attunementData -> {
-            if(isAttunementAllowed(player, stack, attunementData)) {
+        getAttunementData(stack).ifPresent(attunementData -> {
+            if (isAttunementAllowed(player, stack, attunementData)) {
                 setupStackToAttune(stack);
                 linkPlayerAndItem(player, stack, attunementData);
                 //TODO: This is hardcoded to level 1 for now. Eventually this will need to be dynamic
@@ -54,11 +55,11 @@ public final class ArtifactUtil {
     }
 
     private static void setupStackToAttune(ItemStack stack) {
-        if(StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
+        if (StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
         StackNBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
     }
 
-    public static void linkPlayerAndItem(Player player, ItemStack stack, ItemAttunementData attunementData){
+    public static void linkPlayerAndItem(Player player, ItemStack stack, ItemAttunementData attunementData) {
         AttunedItem.buildAttunedItem(stack, attunementData).ifPresent(attunedItem -> {
             boolean succeeded = addAttunementToPlayer(player, attunedItem);
             if (succeeded) addAttunementToStack(player, stack);
@@ -66,9 +67,9 @@ public final class ArtifactUtil {
     }
 
     public static void updateItemWithAttunementModifications(ItemStack stack, ItemAttunementData attunementData, int level) {
-        if(attunementData.modifications().containsKey(String.valueOf(level))) {
+        if (attunementData.modifications().containsKey(String.valueOf(level))) {
             List<String> modifications = attunementData.modifications().get(String.valueOf(level));
-            for(String modification : modifications){
+            for (String modification : modifications) {
                 applyAttunementModification(stack, modification);
             }
         }
@@ -92,12 +93,20 @@ public final class ArtifactUtil {
     }
 
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
-        if(stack.isEmpty() || !StackNBTUtil.containsAttunedToUUID(stack)) return false;
+        if (stack.isEmpty() || !StackNBTUtil.containsAttunedToUUID(stack)) return false;
         return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
     public static boolean isItemAttuned(ItemStack stack) {
         return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
+    }
+
+    public static boolean isItemUseable(Player player, ItemStack stack) {
+        return getAttunementData(stack).map(itemAttunementData -> {
+            boolean canUseWithoutAttunement = itemAttunementData.useWithoutAttunement();
+            boolean isAttuned = ArtifactUtil.arePlayerAndItemAttuned(player, stack);
+            return canUseWithoutAttunement || isAttuned;
+        }).orElse(true);
     }
 
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
@@ -122,18 +131,10 @@ public final class ArtifactUtil {
 
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-        Map<ResourceLocation, ItemAttunementData> itemAttunementDataMap = AttuneableItems.DATA_LOADER.getData();
-
-        if(itemAttunementDataMap.containsKey(stackResourceLocation)) {
-            return Optional.of(itemAttunementDataMap.get(stackResourceLocation));
-        } else {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(stackResourceLocation));
     }
 
     public static boolean hasAttunementData(ItemStack stack) {
         return getAttunementData(stack).isPresent();
     }
-
-
 }

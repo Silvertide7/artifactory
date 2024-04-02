@@ -20,7 +20,7 @@ import net.silvertide.artifactory.util.StackNBTUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid= Artifactory.MOD_ID, bus= Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SoulboundEvents {
     public static final String ARTIFACTORY_INV_TAG = "artifactoryInventory";
 

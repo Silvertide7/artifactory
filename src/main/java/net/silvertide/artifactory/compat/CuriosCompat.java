@@ -24,7 +24,7 @@ public class CuriosCompat {
             if(slotContext.entity() instanceof Player player && !player.level().isClientSide()){
                 ItemStack stack = event.getStack();
                 if(ArtifactUtil.isAttuneableItem(stack) && !ArtifactUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
-                    PlayerMessenger.displayClientMessage(player,"Item must be attuned to equip.");
+                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
                     event.setResult(Event.Result.DENY);
                 }
             }
