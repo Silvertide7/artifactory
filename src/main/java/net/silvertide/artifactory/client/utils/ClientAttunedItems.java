@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.client.utils;
 
+import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunedItem;
 
 import java.util.*;
@@ -7,12 +8,26 @@ import java.util.*;
 public class ClientAttunedItems {
     private static Map<UUID, AttunedItem> myAttunedItems = new HashMap<>();
 
-    public static void syncAttunedItem(AttunedItem attunedItem) {
+    public static void setAttunedItem(AttunedItem attunedItem) {
         myAttunedItems.put(attunedItem.itemUUID(), attunedItem);
+        onChange();
+    }
+
+    private static void onChange() {
+        Artifactory.LOGGER.info("CLIENT DATA -------");
+        for(Map.Entry<UUID, AttunedItem> attunedItem : myAttunedItems.entrySet()) {
+            Artifactory.LOGGER.info("Attuned item : " + attunedItem);
+        }
     }
 
     public static void clearAllAttunedItems() {
         myAttunedItems = new HashMap<>();
+        onChange();
+    }
+
+    public static void removeAttunedItem(UUID itemUUIDToRemove) {
+        myAttunedItems.remove(itemUUIDToRemove);
+        onChange();
     }
 
 //    public static int getNumAttunedItems() {

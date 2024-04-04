@@ -21,14 +21,9 @@ import net.minecraftforge.network.NetworkHooks;
 import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
 import net.silvertide.artifactory.registry.BlockEntityRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class AttunementNexusBlock extends BaseEntityBlock {
 
@@ -65,7 +60,7 @@ public class AttunementNexusBlock extends BaseEntityBlock {
             if(pPlayer.isCrouching()) {
                 if(pPlayer.getMainHandItem().isEmpty()) {
                     PlayerMessenger.sendSystemMessage(pPlayer, "You have used " + ArtifactUtil.getAttunementSlotsUsed(pPlayer)+ " out of " + ArtifactUtil.getMaxAttunementSlots(pPlayer) + " attunement slots. Breaking them.");
-                    ArtifactorySavedData.get().breakAllAttunements(pPlayer.getUUID());
+                    ArtifactorySavedData.get().removeAllAttunedItems(pPlayer.getUUID());
                 }
                 return InteractionResult.SUCCESS;
             } else {

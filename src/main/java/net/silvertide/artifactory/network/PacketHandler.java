@@ -25,16 +25,16 @@ public class PacketHandler {
 
         INSTANCE = net;
 
-        net.messageBuilder(CB_UpdateAttunedItemMessage.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(CB_UpdateAttunedItemMessage::new)
-                .encoder(CB_UpdateAttunedItemMessage::encode)
-                .consumerMainThread(CB_UpdateAttunedItemMessage::handle)
+        net.messageBuilder(CB_UpdateAttunedItem.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_UpdateAttunedItem::new)
+                .encoder(CB_UpdateAttunedItem::encode)
+                .consumerMainThread(CB_UpdateAttunedItem::handle)
                 .add();
 
-        net.messageBuilder(CB_ResetAttunedItemsMessage.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(CB_ResetAttunedItemsMessage::new)
-                .encoder(CB_ResetAttunedItemsMessage::encode)
-                .consumerMainThread(CB_ResetAttunedItemsMessage::handle)
+        net.messageBuilder(CB_ResetAttunedItems.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_ResetAttunedItems::new)
+                .encoder(CB_ResetAttunedItems::encode)
+                .consumerMainThread(CB_ResetAttunedItems::handle)
                 .add();
 
     }

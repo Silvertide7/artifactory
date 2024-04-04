@@ -1,7 +1,7 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.silvertide.artifactory.network.CB_UpdateAttunedItemMessage;
+import net.silvertide.artifactory.network.CB_UpdateAttunedItem;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.storage.AttunedItem;
 
@@ -13,7 +13,7 @@ public class NetworkUtil {
 
     public static void updateAllAttunedItems(ServerPlayer serverPlayer, Map<UUID, AttunedItem> attunedItems) {
         for(Map.Entry<UUID, AttunedItem> playersAttunedItems : attunedItems.entrySet()) {
-            PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunedItemMessage(playersAttunedItems.getValue()));
+            PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunedItem(playersAttunedItems.getValue()));
         }
     }
 }

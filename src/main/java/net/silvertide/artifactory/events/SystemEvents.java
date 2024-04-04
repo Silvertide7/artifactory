@@ -7,8 +7,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.network.CB_UpdateAttunedItemMessage;
-import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.NetworkUtil;
