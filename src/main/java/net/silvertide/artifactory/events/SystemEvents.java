@@ -11,6 +11,7 @@ import net.silvertide.artifactory.network.CB_UpdateAttunedItemMessage;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,12 +23,10 @@ public class SystemEvents {
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
 
-        if (player.level().isClientSide()) {
+        if (!player.level().isClientSide()) {
             //===========UPDATE DATA MIRROR=======================
             Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
-            for(Map.Entry<UUID, AttunedItem> playersAttunedItems : attunedItems.entrySet()) {
-                PacketHandler.sendToClient((ServerPlayer) player, new CB_UpdateAttunedItemMessage(playersAttunedItems.getValue()));
-            }
+            NetworkUtil.updateAllAttunedItems((ServerPlayer) player, attunedItems);
         }
     }
 }

@@ -26,7 +26,7 @@ public record AttunedItem(UUID itemUUID, String resourceLocation, int attunement
     public static Optional<AttunedItem> buildAttunedItem(Player player, ItemStack stack) {
         return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-            int numAttunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID()).size();
+            int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
             return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), 1, numAttunedItems + 1));
         });
     }
