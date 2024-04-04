@@ -15,5 +15,4 @@ public final class ResourceLocationUtil {
     public static ResourceLocation getResourceLocation(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem());
     }
-
 }

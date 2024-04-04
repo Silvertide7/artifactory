@@ -3,8 +3,8 @@ package net.silvertide.artifactory.util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.capabilities.AttunedItem;
-import net.silvertide.artifactory.capabilities.AttunedItems;
+import net.silvertide.artifactory.storage.ArtifactorySavedData;
+import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.modifications.AttunementModificationFactory;
@@ -16,19 +16,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class ArtifactUtil {
-
-    private ArtifactUtil() {
-    }
+    private ArtifactUtil() {}
 
     public static int getMaxAttunementSlots(Player player) {
         return (int) player.getAttributeValue(AttributeRegistry.MAX_ATTUNEMENT_SLOTS.get());
     }
 
-    public static int getOpenAttunementSlots(Player player) {
-        int maxAttunementSlots = (int) player.getAttributeValue(AttributeRegistry.MAX_ATTUNEMENT_SLOTS.get());
+    public static int getAttunementSlotsUsed(Player player) {
+        Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
+        int numAttunementSlotsUsed = 0;
+        for(AttunedItem attunedItem : attunedItems.values()) {
+            numAttunementSlotsUsed += ArtifactUtil.getAttunementData(new ResourceLocation(attunedItem.resourceLocation())).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
+        }
+        return numAttunementSlotsUsed;
+    }
 
-        int slotsUsed = CapabilityUtil.getAttunedItems(player).map(AttunedItems::getNumAttunedItems).orElse(0);
-        return maxAttunementSlots - slotsUsed;
+    public static int getOpenAttunementSlots(Player player) {
+        return getMaxAttunementSlots(player) - getAttunementSlotsUsed(player);
     }
 
     public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {
@@ -47,7 +51,7 @@ public final class ArtifactUtil {
         getAttunementData(stack).ifPresent(attunementData -> {
             if (isAttunementAllowed(player, stack, attunementData)) {
                 setupStackToAttune(stack);
-                linkPlayerAndItem(player, stack, attunementData);
+                linkPlayerAndItem(player, stack);
                 //TODO: This is hardcoded to level 1 for now. Eventually this will need to be dynamic
                 updateItemWithAttunementModifications(stack, attunementData, 1);
             }
@@ -59,10 +63,10 @@ public final class ArtifactUtil {
         StackNBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
     }
 
-    public static void linkPlayerAndItem(Player player, ItemStack stack, ItemAttunementData attunementData) {
-        AttunedItem.buildAttunedItem(stack, attunementData).ifPresent(attunedItem -> {
-            boolean succeeded = addAttunementToPlayer(player, attunedItem);
-            if (succeeded) addAttunementToStack(player, stack);
+    public static void linkPlayerAndItem(Player player, ItemStack stack) {
+        AttunedItem.buildAttunedItem(player, stack).ifPresent(attunedItem -> {
+            addAttunementToPlayer(player, attunedItem);
+            addAttunementToStack(player, stack);
         });
     }
 
@@ -81,11 +85,8 @@ public final class ArtifactUtil {
         });
     }
 
-    private static boolean addAttunementToPlayer(Player player, AttunedItem attunedItem) {
-        return CapabilityUtil.getAttunedItems(player).map(attunedItemsCap -> {
-            attunedItemsCap.addAttunedItem(attunedItem);
-            return true;
-        }).orElse(false);
+    private static void addAttunementToPlayer(Player player, AttunedItem attunedItem) {
+        ArtifactorySavedData.get().setAttunedItem(player.getUUID(), attunedItem);
     }
 
     private static void addAttunementToStack(Player player, ItemStack stack) {
@@ -110,10 +111,9 @@ public final class ArtifactUtil {
     }
 
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
-        return CapabilityUtil.getAttunedItems(player).map(attunedItemsCap -> {
-            Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
-            return itemAttunementUUID.filter(uuid -> attunedItemsCap.getAttunedItem(uuid).isPresent()).isPresent();
-        }).orElse(false);
+        return StackNBTUtil.getItemAttunementUUID(stack).map(itemAttunementUUID ->
+                ArtifactorySavedData.get().getAttunedItem(player.getUUID(), itemAttunementUUID).isPresent())
+                .orElse(false);
     }
 
     public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
@@ -132,6 +132,10 @@ public final class ArtifactUtil {
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(stackResourceLocation));
+    }
+
+    public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
+        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(resourceLocation));
     }
 
     public static boolean hasAttunementData(ItemStack stack) {

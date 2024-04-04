@@ -50,8 +50,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
                 @Override
                 public void setChanged() {
-//                    Artifactory.LOGGER.info("Side: " + player.level().isClientSide());
-                    ((AttunementNexusBlockEntity) blockEntity).setPlayerToAttuneUUID(player);
+                    // TODO: Make sure the player itemUUID reference is cleared when the item is removed.
+                    if(this.hasItem()){
+                        ((AttunementNexusBlockEntity) blockEntity).setPlayerToAttuneUUID(player);
+                    } else {
+                        ((AttunementNexusBlockEntity) blockEntity).clearPlayerToAttuneToUUID();
+                    }
                     super.setChanged();
                 }
             };

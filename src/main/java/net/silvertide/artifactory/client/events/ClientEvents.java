@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.events;
+package net.silvertide.artifactory.client.events;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

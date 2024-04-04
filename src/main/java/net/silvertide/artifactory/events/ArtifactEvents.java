@@ -14,8 +14,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.ArtifactUtil;
-import net.silvertide.artifactory.util.CapabilityUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
@@ -76,12 +76,11 @@ public class ArtifactEvents {
         ItemStack stack = tossEvent.getEntity().getItem();
 
         if(!stack.isEmpty()) {
-            CapabilityUtil.getAttunedItems(player).ifPresent(attunedItems -> {
-                attunedItems.getAttunedItemsAsList().ifPresent(items -> {
-                    for(int i = 0; i < items.size(); i++) {
-                        Artifactory.LOGGER.info("Attuned item " + i + ": " + items.get(i));
-                    }
-                });
+            ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
+            artifactorySavedData.getAttunedItemsAsList(player.getUUID()).ifPresent(attunedItemsList -> {
+                for(int i = 0; i < attunedItemsList.size(); i++) {
+                    Artifactory.LOGGER.info("Attuned item " + i + ": " + attunedItemsList.get(i));
+                }
             });
 
             ArtifactUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));

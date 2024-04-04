@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
@@ -146,7 +147,7 @@ public class StackNBTUtil {
 
     // Helper Methods
     private static boolean stackContainsTag(ItemStack stack, String tag) {
-        return !stack.isEmpty() && stack.hasTag() && stack.getOrCreateTag().contains(tag);
+        return !stack.isEmpty() && stack.hasTag() && stack.getOrCreateTag().contains(tag, Tag.TAG_COMPOUND);
     }
 
 }

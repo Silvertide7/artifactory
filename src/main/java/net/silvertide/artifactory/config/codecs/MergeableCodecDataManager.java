@@ -83,7 +83,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * @param merger A merging function that uses a list of java-objects-that-were-parsed-from-json to create a final object.
      * The list contains all successfully-parsed objects with the same ID from all mods and datapacks.
      * (for a json located at "data/modid/folderName/name.json", the object's ID is "modid:name")
-     * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name id,
+     * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name itemUUID,
      * and then all tag jsons defined with the same ID are merged additively into a single set of items, etc
      */
     public MergeableCodecDataManager(final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger)
@@ -144,7 +144,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     protected void apply(final Map<ResourceLocation, FINE> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         // now that we're on the main thread, we can finalize the data
-        this.data = processedData;
+        this.data.putAll(processedData);
     }
 
     /**
