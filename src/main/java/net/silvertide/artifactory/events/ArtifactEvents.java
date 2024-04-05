@@ -118,7 +118,7 @@ public class ArtifactEvents {
                 if (!stack.isEmpty() && ArtifactUtil.isUseRestricted(player, stack)) {
                     MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("minecraft:slowness"));
                     if(effect != null){
-                        MobEffectInstance mobEffectInstance = new MobEffectInstance(effect, 15, 3);
+                        MobEffectInstance mobEffectInstance = new MobEffectInstance(effect, 15, 3, false, false);
                         if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 10) {
                             player.addEffect(mobEffectInstance);
                         }

@@ -104,8 +104,11 @@ public final class ArtifactUtil {
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
         return getAttunementData(stack).map(itemAttunementData -> {
-            boolean isAttuned = ArtifactUtil.arePlayerAndItemAttuned(player, stack);
-            return !itemAttunementData.useWithoutAttunement() && !isAttuned;
+            boolean isAttunedToPlayer = ArtifactUtil.arePlayerAndItemAttuned(player, stack);
+            boolean isItemAttuned = ArtifactUtil.isItemAttuned(stack);
+            boolean isItemAttunedToAnotherPlayer = isItemAttuned && !isAttunedToPlayer;
+            boolean isNotUseableAndNotAttunedToPlayer = !itemAttunementData.useWithoutAttunement() && !isAttunedToPlayer;
+            return isItemAttunedToAnotherPlayer || isNotUseableAndNotAttunedToPlayer;
         }).orElse(false);
     }
 

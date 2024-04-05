@@ -1,0 +1,9 @@
+{
+  "slots_used": 2,
+  "attunements": {
+    "1": {
+      "modifications": ["unbreakable", "invulnerable"]
+    }
+  },
+  "use_without_attunement": true
+}

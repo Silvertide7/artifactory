@@ -57,6 +57,14 @@ public class SoulboundEvents {
             }
         }
 
+        for (int i = 0; i < player.getInventory().armor.size(); i++) {
+            ItemStack armorStack = player.getInventory().armor.get(i);
+            if (!armorStack.isEmpty() && StackNBTUtil.isSoulbound(armorStack)) {
+                keepInventory.armor.set(i, armorStack.copy());
+                player.getInventory().armor.set(i, ItemStack.EMPTY);
+            }
+        }
+
         ItemStack offhandItemStack = player.getInventory().offhand.get(0);
         if (!offhandItemStack.isEmpty() && StackNBTUtil.isSoulbound(offhandItemStack)) {
             keepInventory.offhand.set(0, player.getInventory().offhand.get(0).copy());
