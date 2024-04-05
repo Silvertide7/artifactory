@@ -20,9 +20,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
 import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
 import net.silvertide.artifactory.registry.BlockEntityRegistry;
-import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.util.ArtifactUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.Nullable;
 
 public class AttunementNexusBlock extends BaseEntityBlock {
@@ -57,22 +54,13 @@ public class AttunementNexusBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if(!pLevel.isClientSide()) {
-            if(pPlayer.isCrouching()) {
-                if(pPlayer.getMainHandItem().isEmpty()) {
-                    PlayerMessenger.sendSystemMessage(pPlayer, "You have used " + ArtifactUtil.getAttunementSlotsUsed(pPlayer)+ " out of " + ArtifactUtil.getMaxAttunementSlots(pPlayer) + " attunement slots. Breaking them.");
-                    ArtifactorySavedData.get().removeAllAttunedItems(pPlayer.getUUID());
-                }
-                return InteractionResult.SUCCESS;
+            BlockEntity entity = pLevel.getBlockEntity(pPos);
+            if(entity instanceof AttunementNexusBlockEntity attunementNexusBlockEntity) {
+                NetworkHooks.openScreen((ServerPlayer) pPlayer, attunementNexusBlockEntity, pPos);
             } else {
-                BlockEntity entity = pLevel.getBlockEntity(pPos);
-                if(entity instanceof AttunementNexusBlockEntity attunementNexusBlockEntity) {
-                    NetworkHooks.openScreen((ServerPlayer) pPlayer, attunementNexusBlockEntity, pPos);
-                } else {
-                    throw new IllegalStateException("Out Container provider is missing!");
-                }
+                throw new IllegalStateException("Out Container provider is missing!");
             }
         }
-
         return InteractionResult.sidedSuccess(pLevel.isClientSide());
     }
 

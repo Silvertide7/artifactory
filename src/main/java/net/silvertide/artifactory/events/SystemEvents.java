@@ -2,11 +2,13 @@ package net.silvertide.artifactory.events;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.commands.CmdRoot;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.NetworkUtil;
@@ -26,5 +28,10 @@ public class SystemEvents {
             Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
             NetworkUtil.updateAllAttunedItems((ServerPlayer) player, attunedItems);
         }
+    }
+
+    @SubscribeEvent
+    public static void onCommandRegister(RegisterCommandsEvent event) {
+        CmdRoot.register(event.getDispatcher());
     }
 }

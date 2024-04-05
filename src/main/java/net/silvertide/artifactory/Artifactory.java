@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -11,14 +12,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.silvertide.artifactory.commands.CmdRoot;
 import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.client.events.ClientEvents;
 import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
 import org.slf4j.Logger;
 
-// TODO: Redo item attunement datapack structure
-// TODO: Add command system to get information and break attunements
 // TODO: Add negative effect if wearing unattuned and unuseable item
 // TODO: Add attribute modifications
 // TODO: Add enchantment modifications
@@ -36,6 +36,7 @@ public class Artifactory
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::commonSetup);
 
         AttributeRegistry.register(modEventBus);
