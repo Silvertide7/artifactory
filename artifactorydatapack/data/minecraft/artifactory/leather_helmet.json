@@ -1,8 +1,9 @@
 {
-  "slots_used": 2,
-  "modifications": {
-    "1": ["unbreakable","soulbound"],
-    "2": ["invulnerable"]
+  "slots_used": 1,
+  "attunements": {
+    "1": {
+      "modifications": ["unbreakable", "invulnerable"]
+    }
   },
-  "use_without_attunement": true
+  "use_without_attunement": false
 }

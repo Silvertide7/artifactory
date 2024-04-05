@@ -17,8 +17,9 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.screen.AttunementNexusScreen;
 import org.slf4j.Logger;
 
-// TODO: Move attuned items out of player capability and into SavedData probably
+// TODO: Redo item attunement datapack structure
 // TODO: Add command system to get information and break attunements
+// TODO: Add negative effect if wearing unattuned and unuseable item
 // TODO: Add attribute modifications
 // TODO: Add enchantment modifications
 // TODO: Add effect modifications

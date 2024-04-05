@@ -3,6 +3,7 @@ package net.silvertide.artifactory.util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
@@ -71,9 +72,9 @@ public final class ArtifactUtil {
     }
 
     public static void updateItemWithAttunementModifications(ItemStack stack, ItemAttunementData attunementData, int level) {
-        if (attunementData.modifications().containsKey(String.valueOf(level))) {
-            List<String> modifications = attunementData.modifications().get(String.valueOf(level));
-            for (String modification : modifications) {
+        if (attunementData.attunements().containsKey(String.valueOf(level))) {
+            AttunementLevel attunementLevel = attunementData.attunements().get(String.valueOf(level));
+            for (String modification : attunementLevel.modifications()) {
                 applyAttunementModification(stack, modification);
             }
         }

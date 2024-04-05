@@ -1,8 +1,16 @@
 {
-  "slots_used": 1,
-  "modifications": {
-    "1": ["unbreakable", "invulnerable"],
-    "2": ["soulbound"]
+  "slots_used": 6,
+  "attunements": {
+    "1": {
+      "modifications": ["unbreakable", "invulnerable"]
+    },
+    "2": {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "kills": 100,
+        "feats": ["easy"]
+      }
+    }
   },
   "use_without_attunement": false
 }
