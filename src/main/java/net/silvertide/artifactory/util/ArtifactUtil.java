@@ -11,7 +11,6 @@ import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.modifications.AttunementModificationFactory;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,12 +102,11 @@ public final class ArtifactUtil {
         return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
     }
 
-    public static boolean isItemUseable(Player player, ItemStack stack) {
+    public static boolean isUseRestricted(Player player, ItemStack stack) {
         return getAttunementData(stack).map(itemAttunementData -> {
-            boolean canUseWithoutAttunement = itemAttunementData.useWithoutAttunement();
             boolean isAttuned = ArtifactUtil.arePlayerAndItemAttuned(player, stack);
-            return canUseWithoutAttunement || isAttuned;
-        }).orElse(true);
+            return !itemAttunementData.useWithoutAttunement() && !isAttuned;
+        }).orElse(false);
     }
 
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {

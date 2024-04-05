@@ -1,10 +1,17 @@
 package net.silvertide.artifactory.events;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -19,6 +26,8 @@ import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
+import java.util.List;
+
 
 @Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ArtifactEvents {
@@ -32,7 +41,7 @@ public class ArtifactEvents {
             if (target == null) return;
 
             ItemStack stackInHand = player.getMainHandItem();
-            if(!ArtifactUtil.isItemUseable(player, stackInHand)) {
+            if(ArtifactUtil.isUseRestricted(player, stackInHand)) {
                 event.setCanceled(true);
                 PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
             }
@@ -45,7 +54,7 @@ public class ArtifactEvents {
         if(event.isCanceled()) return;
 
         ItemStack stack = event.getItemStack();
-        if(!ArtifactUtil.isItemUseable(player, stack)){
+        if(ArtifactUtil.isUseRestricted(player, stack)){
             event.setUseItem(Event.Result.DENY);
             event.setUseBlock(Event.Result.DENY);
             event.setCanceled(true);
@@ -62,7 +71,7 @@ public class ArtifactEvents {
         // is attuned to the player to have the player see what is really happening. Only sending messages from the
         // server side seems to fix this though.
         ItemStack stack = event.getItemStack();
-        if(!ArtifactUtil.isItemUseable(player, stack)){
+        if(ArtifactUtil.isUseRestricted(player, stack)){
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
             if(!player.level().isClientSide()) PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
@@ -87,6 +96,35 @@ public class ArtifactEvents {
             Artifactory.LOGGER.info("Item thrown attuned to player: " + ArtifactUtil.arePlayerAndItemAttuned(player, stack));
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
+        }
+    }
+
+    // This implementation of checking the players items and giving negative effects based on the attunement requirements
+    // was adapted from Project MMO
+    //https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
+    private static short ticksIgnoredSinceLastProcess = 0;
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent playerTickEvent) {
+        ticksIgnoredSinceLastProcess++;
+        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 10) return;
+        Player player = playerTickEvent.player;
+
+        if (player instanceof ServerPlayer) {
+            Inventory inv = player.getInventory();
+
+            List<ItemStack> items = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
+
+            for (ItemStack stack : items) {
+                if (!stack.isEmpty() && ArtifactUtil.isUseRestricted(player, stack)) {
+                    MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("minecraft:slowness"));
+                    if(effect != null){
+                        MobEffectInstance mobEffectInstance = new MobEffectInstance(effect, 15, 3);
+                        if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 10) {
+                            player.addEffect(mobEffectInstance);
+                        }
+                    }
+                }
+            }
         }
     }
 
