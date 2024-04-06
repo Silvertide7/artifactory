@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -91,6 +92,16 @@ public class ArtifactEvents {
             Artifactory.LOGGER.info("Item thrown attuned to player: " + ArtifactUtil.arePlayerAndItemAttuned(player, stack));
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
+
+            ArtifactUtil.removeAttunement(stack);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
+        ItemStack stack = itemExpireEvent.getEntity().getItem();
+        if(!stack.isEmpty() && ArtifactUtil.isItemAttuned(stack)) {
+            ArtifactUtil.removeAttunement(stack);
         }
     }
 

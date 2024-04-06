@@ -37,6 +37,12 @@ public class PacketHandler {
                 .consumerMainThread(CB_ResetAttunedItems::handle)
                 .add();
 
+        net.messageBuilder(CB_RemoveAttunedItem.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_RemoveAttunedItem::new)
+                .encoder(CB_RemoveAttunedItem::encode)
+                .consumerMainThread(CB_RemoveAttunedItem::handle)
+                .add();
+
     }
 
     public static <MSG> void sendToServer(MSG message) {
