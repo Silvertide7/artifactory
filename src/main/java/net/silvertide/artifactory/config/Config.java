@@ -1,64 +1,39 @@
 package net.silvertide.artifactory.config;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.silvertide.artifactory.Artifactory;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+public class Config {
+    private static final ForgeConfigSpec.Builder BUILDER;
+    public static final ForgeConfigSpec COMMON_CONFIG;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Forge's config APIs
-@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class Config
-{
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_THRESHOLD;
+    public static final ForgeConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
+    public static final ForgeConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
+    public static final ForgeConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
 
-    private static final ForgeConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
-            .comment("Whether to log the dirt block on common setup")
-            .define("logDirtBlock", true);
+    static {
+        BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.IntValue MAGIC_NUMBER = BUILDER
-            .comment("A magic number")
-            .defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
+        BUILDER.push("Homebound Configs");
 
-    public static final ForgeConfigSpec.ConfigValue<String> MAGIC_NUMBER_INTRODUCTION = BUILDER
-            .comment("What you want the introduction message to be for the magic number")
-            .define("magicNumberIntroduction", "The magic number is... ");
+        BUILDER.comment("General");
+        BUILDER.comment("How many levels you need to have to start the attunement process.");
+        XP_LEVELS_TO_ATTUNE_THRESHOLD = BUILDER.defineInRange("Attune XP Levels Threshold", 35, 0, Integer.MAX_VALUE);
+        BUILDER.comment("How many levels are consumed when you attune an item.");
+        XP_LEVELS_TO_ATTUNE_CONSUMED = BUILDER.defineInRange("Attune XP Levels Consumed", 20, 0, Integer.MAX_VALUE);
 
-    // a list of strings that are treated as resource locations for items
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
-            .comment("A list of items to log on common setup.")
-            .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), Config::validateItemName);
+        BUILDER.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
+        BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed at");
+        BUILDER.comment("level 3 and poisoned at level 1 you would put \"minecraft:slowness/3;minecraft:poison/1\".");
+        WEAR_EFFECTS_WHEN_USE_RESTRICTED = BUILDER.define("Wear Use Restricted Effects", "minecraft:slowness/3");
 
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+        BUILDER.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
+        BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed and poisoned");
+        BUILDER.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
+        EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.define("Effect When Holding Other Player Item", "minecraft:slowness/3;minecraft:poison/1");
 
-    public static boolean logDirtBlock;
-    public static int magicNumber;
-    public static String magicNumberIntroduction;
-    public static Set<Item> items;
+        BUILDER.pop();
 
-    private static boolean validateItemName(final Object obj)
-    {
-        return obj instanceof final String itemName && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(itemName));
-    }
-
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent event)
-    {
-        logDirtBlock = LOG_DIRT_BLOCK.get();
-        magicNumber = MAGIC_NUMBER.get();
-        magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
-
-        // convert the list of strings into a set of items
-        items = ITEM_STRINGS.get().stream()
-                .map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
-                .collect(Collectors.toSet());
+        COMMON_CONFIG = BUILDER.build();
     }
 }

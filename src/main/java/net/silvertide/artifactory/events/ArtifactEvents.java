@@ -1,11 +1,7 @@
 package net.silvertide.artifactory.events;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,8 +17,10 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.EffectUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
@@ -67,11 +65,8 @@ public class ArtifactEvents {
         Player player = event.getEntity();
         if(event.isCanceled()) return;
 
-        //TODO: mayNeed to sync a copy of the attunement data of the player to the client so it can check if the item
-        // is attuned to the player to have the player see what is really happening. Only sending messages from the
-        // server side seems to fix this though.
         ItemStack stack = event.getItemStack();
-        if(ArtifactUtil.isUseRestricted(player, stack)){
+        if(ArtifactUtil.isUseRestricted(player, stack)) {
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
             if(!player.level().isClientSide()) PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
@@ -111,18 +106,22 @@ public class ArtifactEvents {
 
         if (player instanceof ServerPlayer) {
             Inventory inv = player.getInventory();
+            List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
-            List<ItemStack> items = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
+            for (ItemStack armorStack : armorItems) {
+                if(armorStack.isEmpty() || ArtifactUtil.isItemAttunedToPlayer(player, armorStack)) continue;
 
-            for (ItemStack stack : items) {
-                if (!stack.isEmpty() && ArtifactUtil.isUseRestricted(player, stack)) {
-                    MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("minecraft:slowness"));
-                    if(effect != null){
-                        MobEffectInstance mobEffectInstance = new MobEffectInstance(effect, 15, 3, false, false);
-                        if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 10) {
-                            player.addEffect(mobEffectInstance);
-                        }
-                    }
+                if(ArtifactUtil.isAttunedToAnotherPlayer(player, armorStack)) {
+                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+                } else if (!ArtifactUtil.canUseWithoutAttunement(armorStack)) {
+                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
+                }
+            }
+
+            List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
+            for(ItemStack handStack : handItems) {
+                if(!handStack.isEmpty() && ArtifactUtil.isAttunedToAnotherPlayer(player, handStack)) {
+                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
                 }
             }
         }
@@ -133,10 +132,8 @@ public class ArtifactEvents {
         if(!entityJoinLevelEvent.getLevel().isClientSide() && entityJoinLevelEvent.getEntity() instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
             if(ArtifactUtil.isItemAttuned(stack)) {
-                Artifactory.LOGGER.info("Found attuned item to make invulnerable");
                 itemEntity.setUnlimitedLifetime();
                 if(StackNBTUtil.isInvulnerable(stack)) {
-                    Artifactory.LOGGER.info("Making invulnerable");
                     itemEntity.setInvulnerable(true);
                 }
             }

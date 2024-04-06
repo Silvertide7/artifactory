@@ -52,11 +52,12 @@ public final class ArtifactUtil {
             if (isAttunementAllowed(player, stack, attunementData)) {
                 setupStackToAttune(stack);
                 linkPlayerAndItem(player, stack);
-                //TODO: This is hardcoded to level 1 for now. Eventually this will need to be dynamic
                 updateItemWithAttunementModifications(stack, attunementData, 1);
             }
         });
     }
+
+//    public static void ascendItem(Player player, ItemStack stack){}
 
     private static void setupStackToAttune(ItemStack stack) {
         if (StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
@@ -105,11 +106,18 @@ public final class ArtifactUtil {
     public static boolean isUseRestricted(Player player, ItemStack stack) {
         return getAttunementData(stack).map(itemAttunementData -> {
             boolean isAttunedToPlayer = ArtifactUtil.arePlayerAndItemAttuned(player, stack);
-            boolean isItemAttuned = ArtifactUtil.isItemAttuned(stack);
-            boolean isItemAttunedToAnotherPlayer = isItemAttuned && !isAttunedToPlayer;
-            boolean isNotUseableAndNotAttunedToPlayer = !itemAttunementData.useWithoutAttunement() && !isAttunedToPlayer;
-            return isItemAttunedToAnotherPlayer || isNotUseableAndNotAttunedToPlayer;
+            return !itemAttunementData.useWithoutAttunement() && !isAttunedToPlayer;
         }).orElse(false);
+    }
+
+    public static boolean canUseWithoutAttunement(ItemStack stack) {
+        return getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false);
+    }
+
+    public static boolean isAttunedToAnotherPlayer(Player player, ItemStack stack) {
+        return getAttunementData(stack).map(itemAttunementData ->
+                ArtifactUtil.isItemAttuned(stack) && !ArtifactUtil.arePlayerAndItemAttuned(player, stack))
+                .orElse(false);
     }
 
     public static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
