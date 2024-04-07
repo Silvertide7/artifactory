@@ -52,6 +52,13 @@ public class StackNBTUtil {
         stack.setDamageValue(0);
         setBoolean(stack, "Unbreakable", true);
     }
+    public static void removeUnbreakable(ItemStack stack) {
+        CompoundTag stackNBT = stack.getOrCreateTag();
+        if(stackNBT.contains("Unbreakable")){
+            stack.getOrCreateTag().remove("Unbreakable");
+        }
+    }
+
 
     public static Optional<UUID> getItemAttunementUUID(ItemStack stack) {
         if(stackArtifactoryTagContainsTag(stack, ITEM_ATTUNEMENT_UUID_NBT_KEY)) {
@@ -139,6 +146,13 @@ public class StackNBTUtil {
 
     public static void removeArtifactoryTag(ItemStack stack) {
         if(artifactoryTagExists(stack)) stack.getOrCreateTag().remove(Artifactory.MOD_ID);
+    }
+
+    public static void removeTagFromArtifactoryTag(ItemStack stack, String tagKey ) {
+        CompoundTag artifactoryTag = getOrCreateArtifactoryCompoundTag(stack);
+        if(artifactoryTag.contains(tagKey)){
+            artifactoryTag.remove(tagKey);
+        }
     }
 
     public static boolean artifactoryTagExists(ItemStack stack) {

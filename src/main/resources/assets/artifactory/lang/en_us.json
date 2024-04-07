@@ -7,5 +7,7 @@
   "hovertext.artifactory.use_with_attunement": "Attune to use",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use",
-  "playermessage.artifactory.item_not_equippable": "Must attune to item to equip"
+  "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",
+
+  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots"
 }

@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public record ItemAttunementData(int attunementSlotsUsed, Map<String, AttunementLevel> attunements, boolean useWithoutAttunement, boolean replace) {

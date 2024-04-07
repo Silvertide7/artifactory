@@ -1,21 +1,18 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.modifications.AttunementModificationFactory;
+import net.silvertide.artifactory.modifications.AttunementModificationManager;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 import java.util.UUID;
 
 public final class ArtifactUtil {
@@ -84,7 +81,7 @@ public final class ArtifactUtil {
     }
 
     public static void applyAttunementModification(ItemStack stack, String modificationString) {
-        AttunementModificationFactory.createAttunementModification(modificationString).ifPresent(attunementModification -> {
+        AttunementModificationManager.createAttunementModification(modificationString).ifPresent(attunementModification -> {
             attunementModification.applyModification(stack);
         });
     }
@@ -161,6 +158,8 @@ public final class ArtifactUtil {
                 StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemUUID -> {
                     ArtifactorySavedData.get().removeAttunedItem(playerUUID, itemUUID);
                     StackNBTUtil.removeArtifactoryTag(stack);
+                    // TODO: Only do this if attuning the itme gave it unbreakable. Check itemAttunementData
+                    StackNBTUtil.removeUnbreakable(stack);
                 });
             });
         }

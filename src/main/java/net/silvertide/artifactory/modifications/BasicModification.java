@@ -19,8 +19,6 @@ public class BasicModification implements AttunementModification {
         }
     }
 
-
-
     private void applySoulbound(ItemStack stack) {
         StackNBTUtil.setSoulbound(stack);
     }
@@ -33,5 +31,9 @@ public class BasicModification implements AttunementModification {
         if(stack.isDamageableItem()){
             StackNBTUtil.setUnbreakable(stack);
         }
+    }
+
+    public static void removeUnbreakable(ItemStack stack) {
+
     }
 }
