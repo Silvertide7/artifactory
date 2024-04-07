@@ -1,10 +1,8 @@
 package net.silvertide.artifactory.events;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +18,6 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -98,7 +95,7 @@ public class ArtifactEvents {
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
 
 
-//            ArtifactUtil.removeAttunement(stack);
+            ArtifactUtil.removeAttunement(stack);
         }
     }
 

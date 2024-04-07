@@ -8,7 +8,6 @@ import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.modifications.AttunementModificationManager;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
 import java.util.Map;
@@ -81,7 +80,7 @@ public final class ArtifactUtil {
     }
 
     public static void applyAttunementModification(ItemStack stack, String modificationString) {
-        AttunementModificationManager.createAttunementModification(modificationString).ifPresent(attunementModification -> {
+        AttunementModificationUtil.createAttunementModification(modificationString).ifPresent(attunementModification -> {
             attunementModification.applyModification(stack);
         });
     }
@@ -153,15 +152,16 @@ public final class ArtifactUtil {
     }
 
     public static void removeAttunement(ItemStack stack) {
-        if(isItemAttuned(stack)) {
+        StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemUUID -> {
             StackNBTUtil.getAttunedToUUID(stack).ifPresent(playerUUID -> {
-                StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemUUID -> {
-                    ArtifactorySavedData.get().removeAttunedItem(playerUUID, itemUUID);
-                    StackNBTUtil.removeArtifactoryTag(stack);
-                    // TODO: Only do this if attuning the itme gave it unbreakable. Check itemAttunementData
+                ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
+                int levelAttunementAchieved = artifactorySavedData.getAttunedItem(playerUUID, itemUUID).map(AttunedItem::attunementLevel).orElse(0);
+                if (AttunementModificationUtil.hasModification(stack, levelAttunementAchieved, "unbreakable")) {
                     StackNBTUtil.removeUnbreakable(stack);
-                });
+                }
+                artifactorySavedData.removeAttunedItem(playerUUID, itemUUID);
             });
-        }
+        });
+        StackNBTUtil.removeArtifactoryTag(stack);
     }
 }

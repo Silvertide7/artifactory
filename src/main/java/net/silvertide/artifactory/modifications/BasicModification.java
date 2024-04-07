@@ -32,8 +32,4 @@ public class BasicModification implements AttunementModification {
             StackNBTUtil.setUnbreakable(stack);
         }
     }
-
-    public static void removeUnbreakable(ItemStack stack) {
-
-    }
 }
