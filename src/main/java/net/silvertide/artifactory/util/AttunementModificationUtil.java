@@ -16,7 +16,7 @@ public class AttunementModificationUtil {
     public static Optional<AttunementModification> createAttunementModification(String modificationFromAttunementData) {
         if(modificationFromAttunementData.indexOf('/') >= 0) {
             String modificationIdentifier = modificationFromAttunementData.split("/")[0];
-            if (modificationIdentifier.toUpperCase().equals(AttributeModification.ATTRIBUTE_MODIFICATION_TYPE)) {
+            if (modificationIdentifier.equalsIgnoreCase(AttributeModification.ATTRIBUTE_MODIFICATION_TYPE)) {
                 return AttributeModification.fromAttunementDataString(modificationFromAttunementData);
             }
         } else {

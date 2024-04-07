@@ -94,8 +94,7 @@ public class ArtifactEvents {
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
 
-
-            ArtifactUtil.removeAttunement(stack);
+//            ArtifactUtil.removeAttunement(stack);
         }
     }
 

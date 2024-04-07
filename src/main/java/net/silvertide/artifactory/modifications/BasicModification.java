@@ -32,4 +32,9 @@ public class BasicModification implements AttunementModification {
             StackNBTUtil.setUnbreakable(stack);
         }
     }
+
+    @Override
+    public String toString() {
+        return "BasicModification/" + modificationType.toString();
+    }
 }
