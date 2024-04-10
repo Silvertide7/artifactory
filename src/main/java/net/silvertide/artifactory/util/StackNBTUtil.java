@@ -15,6 +15,7 @@ public class StackNBTUtil {
     private static final String ATTUNED_TO_NAME_NBT_KEY = "attuned_to_name";
     private static final String MODIFICATION_SOULBOUND_NBT_KEY = "soulbound";
     private static final String MODIFICATION_INVULNERABLE_NBT_KEY = "invulnerable";
+    private static final String ATTRIBUTE_MODIFICATION_NBT_KEY = "attribute_modifications";
 
     // BASIC TAG FUNCTIONS
 
@@ -58,7 +59,6 @@ public class StackNBTUtil {
             stack.getOrCreateTag().remove("Unbreakable");
         }
     }
-
 
     public static Optional<UUID> getItemAttunementUUID(ItemStack stack) {
         if(stackArtifactoryTagContainsTag(stack, ITEM_ATTUNEMENT_UUID_NBT_KEY)) {
@@ -115,8 +115,21 @@ public class StackNBTUtil {
         artifactoryCT.putBoolean(tag, value);
     }
 
+    public static void addAttributeModificaftionCompoundTag(ItemStack stack, UUID attributeUUID, CompoundTag attributeModificationTag) {
+        CompoundTag attributeModificationsCompoundTag = getOrCreateAttributeModificationTag(stack);
+        attributeModificationsCompoundTag.put(attributeUUID.toString(), attributeModificationTag);
+    }
+
+    public static CompoundTag getOrCreateAttributeModificationTag(ItemStack stack) {
+        CompoundTag artifactoryTag = getOrCreateArtifactoryCompoundTag(stack);
+        if(!artifactoryTag.contains(ATTRIBUTE_MODIFICATION_NBT_KEY)) {
+            artifactoryTag.put(ATTRIBUTE_MODIFICATION_NBT_KEY, new CompoundTag());
+        }
+        return artifactoryTag.getCompound(ATTRIBUTE_MODIFICATION_NBT_KEY);
+    }
+
     // Artifactory UUID Methods
-    private static CompoundTag getOrCreateArtifactoryCompoundTag(ItemStack stack) {
+    public static CompoundTag getOrCreateArtifactoryCompoundTag(ItemStack stack) {
         if(stackContainsTag(stack, Artifactory.MOD_ID)) return stack.getOrCreateTag().getCompound(Artifactory.MOD_ID);
 
         CompoundTag artifactoryTag = new CompoundTag();
@@ -150,7 +163,7 @@ public class StackNBTUtil {
 
     public static void removeTagFromArtifactoryTag(ItemStack stack, String tagKey ) {
         CompoundTag artifactoryTag = getOrCreateArtifactoryCompoundTag(stack);
-        if(artifactoryTag.contains(tagKey)){
+        if (artifactoryTag.contains(tagKey)) {
             artifactoryTag.remove(tagKey);
         }
     }
@@ -164,4 +177,7 @@ public class StackNBTUtil {
         return !stack.isEmpty() && stack.hasTag() && stack.getOrCreateTag().contains(tag, Tag.TAG_COMPOUND);
     }
 
+    public static boolean containsAttributeModifications(ItemStack stack) {
+        return artifactoryTagExists(stack) && getOrCreateArtifactoryCompoundTag(stack).contains(ATTRIBUTE_MODIFICATION_NBT_KEY);
+    }
 }

@@ -2,42 +2,98 @@ package net.silvertide.artifactory.modifications;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.StackNBTUtil;
 
-import javax.swing.text.html.Option;
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
 public class AttributeModification implements AttunementModification {
     public static final String ATTRIBUTE_MODIFICATION_TYPE = "ATTRIBUTE";
-    private String attribute;
-    private int operation;
-    private double value;
-    private UUID attributeUUID;
+    public static final String ATTRIBUTE_UUID_KEY = "attribute_uuid";
+    public static final String ATTIBUTE_KEY = "attribute";
+    public static final String OPERATION_KEY = "operation";
+    public static final String VALUE_KEY = "value";
+    public static final String EQUIPMENT_SLOT_KEY = "equipment_slot";
 
-    private AttributeModification(String attribute, int operation, double value) {
+    private final String attribute;
+    private final int operation;
+    private final double value;
+    private final UUID attributeUUID;
+    private final String equipmentSlotName;
+
+    private AttributeModification(String attribute, int operation, double value, String equipmentSlotName, UUID attributeUUID) {
         this.attribute = attribute;
         this.operation = operation;
         this.value = value;
-        this.attributeUUID = UUID.randomUUID();
+        this.equipmentSlotName = equipmentSlotName;
+        this.attributeUUID = attributeUUID;
     }
-    public static Optional<AttunementModification> fromAttunementDataString(String attunementModificationDataString) {
-//        Item NBT: {AttributeModifiers:[{Amount:20.0d,AttributeName:"minecraft:generic.attack_damage",Name:"generic.attack_damage",Operation:0,Slot:"mainhand",UUID:[I;-192596,-61963,-161679,-10288428]}],Damage:0}
-//        "attribute/minecraft:generic.attack_damage/20.0/addition;"
-        String[] modification = attunementModificationDataString.split("/");
-        if(modification.length == 4) {
+
+    public String getName() {
+        return "Artifactory " + attribute;
+    }
+    public EquipmentSlot getEquipmentSlot() {
+        return EquipmentSlot.byName(equipmentSlotName);
+    }
+
+    @Nullable
+    public static AttributeModification fromAttunementDataString(String attributeModificationDataString) {
+        String[] modification = attributeModificationDataString.split("/");
+        if(modification.length == 5) {
             int operation = getOperationInteger(modification[2]);
             if(operation != -1) {
                 String attribute = modification[1];
                 double value = Double.parseDouble(modification[3]);
-                return Optional.of(new AttributeModification(attribute, operation, value));
+                String equipmentSlot = modification[4];
+
+                if(isValidEquipmentSlot(equipmentSlot)){
+                    return new AttributeModification(attribute, operation, value, equipmentSlot, UUID.randomUUID());
+                }
             }
         }
+        return null;
+    }
+
+    private static boolean isValidEquipmentSlot(String equipmentSlot) {
+        try {
+            EquipmentSlot.byName(equipmentSlot);
+        } catch(IllegalArgumentException e) {
+            Artifactory.LOGGER.warn(equipmentSlot + " is not a valid equipment slot. Use mainhand, offhand, head, chest, legs, or feet.");
+            return false;
+        }
+        return true;
+    }
+
+    public static Optional<AttributeModification> fromCompoundTag(CompoundTag attributeModificationCompoundTag) {
+        String attribute = attributeModificationCompoundTag.getString(ATTIBUTE_KEY);
+        if (!attribute.equals("")) {
+            int operation = attributeModificationCompoundTag.getInt(OPERATION_KEY);
+            double value = attributeModificationCompoundTag.getDouble(VALUE_KEY);
+            UUID attributeUUID = attributeModificationCompoundTag.getUUID(ATTRIBUTE_UUID_KEY);
+            String equipmentSlotName = attributeModificationCompoundTag.getString(EQUIPMENT_SLOT_KEY);
+            return Optional.of(new AttributeModification(attribute, operation, value, equipmentSlotName, attributeUUID));
+        }
         return Optional.empty();
+    }
+
+    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
+        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
+        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
+        if(attributeToModify != null) {
+            itemAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
+        }
+    }
+
+    private AttributeModifier buildAttributeModifier() {
+        return new AttributeModifier(attributeUUID, this.getName(), value, AttributeModifier.Operation.fromValue(operation));
     }
 
     private static int getOperationInteger(String operation) {
@@ -53,9 +109,18 @@ public class AttributeModification implements AttunementModification {
     public void applyModification(ItemStack stack) {
         Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(attribute));
         if(attributeToModify != null) {
-            // Store the information in the artifactory:modifications tag. attribute: {}
-            // generate a new UUID for the modifier to store with it
+            StackNBTUtil.addAttributeModificaftionCompoundTag(stack, attributeUUID, createAttributeModificationTag());
         }
+    }
+
+    private CompoundTag createAttributeModificationTag() {
+        CompoundTag modificationTag = new CompoundTag();
+        modificationTag.putUUID(ATTRIBUTE_UUID_KEY, attributeUUID);
+        modificationTag.putString(ATTIBUTE_KEY, attribute);
+        modificationTag.putInt(OPERATION_KEY, operation);
+        modificationTag.putDouble(VALUE_KEY, value);
+        modificationTag.putString(EQUIPMENT_SLOT_KEY, equipmentSlotName);
+        return modificationTag;
     }
 
     @Override
@@ -63,8 +128,4 @@ public class AttributeModification implements AttunementModification {
         return "AttributeModification/" + attribute + "/" + operation + "/" + value + "/" + attributeUUID;
     }
 
-    //    private CompoundTag getOrCreateAttributeModifiersTag(ItemStack stack) {
-//
-//
-//    }
 }

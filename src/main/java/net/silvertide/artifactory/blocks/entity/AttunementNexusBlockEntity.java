@@ -36,7 +36,7 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
 
     protected final ContainerData data;
     private int progress = 0;
-    private int maxProgress = 78;
+    private int maxProgress = 20;
     @Nullable
     private UUID playerToAttuneUUID;
 

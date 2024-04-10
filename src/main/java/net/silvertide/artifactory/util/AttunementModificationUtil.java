@@ -13,7 +13,7 @@ import java.util.Optional;
 public class AttunementModificationUtil {
     private AttunementModificationUtil() {}
 
-    public static Optional<AttunementModification> createAttunementModification(String modificationFromAttunementData) {
+    public static AttunementModification createAttunementModification(String modificationFromAttunementData) {
         if(modificationFromAttunementData.indexOf('/') >= 0) {
             String modificationIdentifier = modificationFromAttunementData.split("/")[0];
             if (modificationIdentifier.equalsIgnoreCase(AttributeModification.ATTRIBUTE_MODIFICATION_TYPE)) {
@@ -22,12 +22,12 @@ public class AttunementModificationUtil {
         } else {
             try {
                 BasicModificationType modification = BasicModificationType.valueOf(modificationFromAttunementData.toUpperCase());
-                return Optional.of(new BasicModification(modification));
+                return new BasicModification(modification);
             } catch (IllegalArgumentException e) {
                 Artifactory.LOGGER.error("Artifactory - Unknown attunement modification " + modificationFromAttunementData);
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     public static boolean hasModification(ItemStack stack, int attunementLevelAchieved, String modification) {

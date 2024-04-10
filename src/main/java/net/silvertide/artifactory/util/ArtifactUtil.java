@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
+import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
@@ -56,8 +57,6 @@ public final class ArtifactUtil {
         });
     }
 
-//    public static void ascendItem(Player player, ItemStack stack){}
-
     private static void setupStackToAttune(ItemStack stack) {
         if (StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
         StackNBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
@@ -80,9 +79,11 @@ public final class ArtifactUtil {
     }
 
     public static void applyAttunementModification(ItemStack stack, String modificationString) {
-        AttunementModificationUtil.createAttunementModification(modificationString).ifPresent(attunementModification -> {
+        // TODO: This is where it is breaking, it creates an attribute modification but returns a null attunement modification
+        AttunementModification attunementModification = AttunementModificationUtil.createAttunementModification(modificationString);
+        if (attunementModification != null) {
             attunementModification.applyModification(stack);
-        });
+        }
     }
 
     private static void addAttunementToPlayer(Player player, AttunedItem attunedItem) {

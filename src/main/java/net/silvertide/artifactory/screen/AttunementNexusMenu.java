@@ -44,8 +44,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
             Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 11) {
                 @Override
                 public boolean mayPlace(@NotNull ItemStack stack) {
-                    if(!ArtifactUtil.isAvailableToAttune(stack)) return false;
-                    return super.mayPlace(stack);
+                    return ArtifactUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(super.mayPlace(stack));
                 }
 
                 @Override

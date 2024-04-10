@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.events;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,6 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.EffectUtil;
@@ -94,7 +96,7 @@ public class ArtifactEvents {
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
 
-//            ArtifactUtil.removeAttunement(stack);
+            ArtifactUtil.removeAttunement(stack);
         }
     }
 
@@ -156,5 +158,16 @@ public class ArtifactEvents {
     @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers
+        ItemStack stack = attributeModifierEvent.getItemStack();
+        if (ArtifactUtil.isAttuneableItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
+            for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
+                AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
+                    if(attributeModification.getEquipmentSlot() == attributeModifierEvent.getSlotType()){
+                        attributeModification.addAttributeModifier(attributeModifierEvent);
+                    }
+                });
+            }
+        }
     }
 }
