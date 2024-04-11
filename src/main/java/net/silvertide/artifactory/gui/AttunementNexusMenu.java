@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.screen;
+package net.silvertide.artifactory.gui;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -24,12 +24,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     private final ContainerData data;
 
     public AttunementNexusMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(1));
     }
 
     public AttunementNexusMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData containerData) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
-        checkContainerSize(inv, 2);
+        checkContainerSize(inv, 1);
         this.blockEntity = (AttunementNexusBlockEntity) blockEntity;
         this.player = inv.player;
         level = inv.player.level();
@@ -38,10 +38,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-
-
         this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
-            Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 11) {
+            Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 23) {
                 @Override
                 public boolean mayPlace(@NotNull ItemStack stack) {
                     return ArtifactUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(super.mayPlace(stack));
@@ -59,38 +57,10 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                 }
             };
             this.addSlot(customInputSlot);
-
-            Slot customOutputSlot = new SlotItemHandler(iItemHandler, 1, 80, 59) {
-                @Override
-                public boolean mayPlace(@NotNull ItemStack stack) {
-                    return false;
-                }
-            };
-            this.addSlot(customOutputSlot);
         });
 
         addDataSlots(data);
-//        addItemAddedListener(inv.player);
     }
-
-//    private void addItemAddedListener(Player player) {
-//        ContainerListener slotListener = new ContainerListener() {
-//            @Override
-//            public void slotChanged(AbstractContainerMenu pContainerToSend, int pDataSlotIndex, ItemStack pStack) {
-//                if(pDataSlotIndex == 36 && ArtifactUtil.isAttuneable(pContainerToSend.slots.get(36).getItem())) {
-//                    Artifactory.LOGGER.info("Added player uuid to block entity");
-//                    blockEntity.setPlayerToAttuneToUUID(player);
-//                }
-//            }
-//
-//            @Override
-//            public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {
-//
-//            }
-//        };
-//
-//        this.addSlotListener(slotListener);
-//    }
 
     public boolean isCrafting() {
         return data.get(0) > 0;
@@ -122,7 +92,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 2;  // must be the number of slots you have!
+    private static final int TE_INVENTORY_SLOT_COUNT = 1;  // must be the number of slots you have!
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
         Slot sourceSlot = slots.get(pIndex);
@@ -163,12 +133,6 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
     @Override
     public void slotsChanged(Container pContainer) {
-        Artifactory.LOGGER.info("container changed:" + pContainer);
-        Artifactory.LOGGER.info("Slots changed brah");
-//        if(pDataSlotIndex == 36 && ArtifactUtil.isAttuneable(pContainerToSend.slots.get(36).getItem())) {
-//            Artifactory.LOGGER.info("Added player uuid to block entity");
-//            blockEntity.setPlayerToAttuneToUUID(player);
-//        }
         super.slotsChanged(pContainer);
     }
 

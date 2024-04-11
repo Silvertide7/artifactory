@@ -21,7 +21,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.silvertide.artifactory.registry.BlockEntityRegistry;
-import net.silvertide.artifactory.screen.AttunementNexusMenu;
+import net.silvertide.artifactory.gui.AttunementNexusMenu;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,6 @@ import java.util.UUID;
 public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvider {
     private final ItemStackHandler itemHandler = new ItemStackHandler(2);
     private static final int INPUT_SLOT = 0;
-    private static final int OUTPUT_SLOT = 1;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     protected final ContainerData data;
@@ -132,27 +131,18 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     }
 
     private boolean canAttune() {
-        if(!inputSlotEmpty() && ArtifactUtil.isAvailableToAttune(getStackInSlot(INPUT_SLOT))) {
-            return outputSlotEmpty();
-        }
-        return false;
+        return !inputSlotEmpty() && ArtifactUtil.isAvailableToAttune(getStackInSlot(INPUT_SLOT));
     }
 
     private boolean inputSlotEmpty() {
         return getStackInSlot(INPUT_SLOT).isEmpty();
     }
 
-    private boolean outputSlotEmpty() {
-        return getStackInSlot(OUTPUT_SLOT).isEmpty();
-    }
 
     private void attuneItem(Player player) {
-        ItemStack inputStack = this.itemHandler.extractItem(INPUT_SLOT, 1, false);
-
+        ItemStack inputStack = this.itemHandler.getStackInSlot(INPUT_SLOT);
         ArtifactUtil.attuneItem(player, inputStack);
-
         clearPlayerToAttuneToUUID();
-        this.itemHandler.setStackInSlot(OUTPUT_SLOT, inputStack);
     }
 
     private void resetProgress() {

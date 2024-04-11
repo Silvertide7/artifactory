@@ -100,14 +100,6 @@ public class ArtifactEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
-        ItemStack stack = itemExpireEvent.getEntity().getItem();
-        if(!stack.isEmpty() && ArtifactUtil.isItemAttuned(stack)) {
-            ArtifactUtil.removeAttunement(stack);
-        }
-    }
-
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
     // was adapted from Project MMO
     //https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
@@ -154,6 +146,13 @@ public class ArtifactEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
+        ItemStack stack = itemExpireEvent.getEntity().getItem();
+        if(!stack.isEmpty() && ArtifactUtil.isItemAttuned(stack)) {
+            ArtifactUtil.removeAttunement(stack);
+        }
+    }
 
     @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {

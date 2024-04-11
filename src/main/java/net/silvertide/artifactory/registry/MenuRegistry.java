@@ -9,7 +9,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.screen.AttunementNexusMenu;
+import net.silvertide.artifactory.gui.AttunementNexusMenu;
 
 public class MenuRegistry {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Artifactory.MOD_ID);

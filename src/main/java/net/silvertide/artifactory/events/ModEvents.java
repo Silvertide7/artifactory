@@ -7,7 +7,7 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.PacketHandler;
 
 @Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModEventHandler {
+public class ModEvents {
     @SubscribeEvent
     public static void commonSetupEvent(FMLCommonSetupEvent commonSetupEvent) {
         commonSetupEvent.enqueueWork(PacketHandler::register);

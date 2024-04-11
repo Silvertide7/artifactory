@@ -17,17 +17,13 @@ import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.client.events.ClientEvents;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
-import net.silvertide.artifactory.screen.AttunementNexusScreen;
+import net.silvertide.artifactory.gui.AttunementNexusScreen;
 import org.slf4j.Logger;
 
-// TODO: Remove unbreakable when breaking attunement
 // TODO: Need to find a good place to trigger removing item nbt if no longer attuned
-// TODO: Add attribute modifications
-// TODO: Add enchantment modifications
-// TODO: Add effect modifications??
 // TODO: Create GUI's and textures
 // TODO: Create menu / screen for player management of attuned items
-// TODO: Curios slots?
+// TODO: Curios slots? At least test them
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
