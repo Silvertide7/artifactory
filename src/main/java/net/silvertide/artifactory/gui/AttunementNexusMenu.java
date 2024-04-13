@@ -29,10 +29,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     public AttunementNexusMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData containerData) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
         checkContainerSize(inv, 1);
+
         this.blockEntity = (AttunementNexusBlockEntity) blockEntity;
         this.player = inv.player;
         level = inv.player.level();
         this.data = containerData;
+
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
@@ -57,6 +59,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                     super.setChanged();
                 }
             };
+
             this.addSlot(customInputSlot);
         });
 

@@ -10,9 +10,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
 
 public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
-    private static final int ATTUNE_BUTTON_X = 66;
+    private static final int ATTUNE_BUTTON_X = 65;
     private static final int ATTUNE_BUTTON_Y = 55;
-    private static final int ATTUNE_BUTTON_WIDTH = 45;
+    private static final int ATTUNE_BUTTON_WIDTH = 46;
     private static final int ATTUNE_BUTTON_HEIGHT = 11;
     private boolean buttonDown = false;
 
@@ -44,6 +44,7 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     }
 
 
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if(clickedOnButton(mouseX, mouseY)){
             buttonDown = true;
@@ -83,18 +84,22 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         int buttonX = leftPos + ATTUNE_BUTTON_X;
         int buttonY = topPos + ATTUNE_BUTTON_Y;
 
-//TODO: Figure out disable
-        if(!this.menu.attunementCanBegin()) {
-            guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, 39, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+        int buttonOffset = getButtonOffsetToRender(mouseX, mouseY);
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+    }
+
+    private int getButtonOffsetToRender(int mouseX, int mouseY) {
+        /*if(!this.menu.attunementCanBegin()) {
+            return 39;
         }
-        else if(buttonDown) {
-            guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, 26, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+        else */if(buttonDown) {
+            return 26;
         }
         else if (isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY)) {
-            guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, 13, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+            return 13;
         }
         else {
-            guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, 0, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+            return 0;
         }
     }
 
