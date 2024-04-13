@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 // TODO: Create GUI's and textures
 // TODO: Create menu / screen for player management of attuned items
 // TODO: Curios slots? At least test them
+// TODO: Update hovertext to 2 lines - Attuneable (#) / Use Restricted or nothing
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

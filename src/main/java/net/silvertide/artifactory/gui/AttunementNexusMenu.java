@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
-import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
@@ -50,8 +49,11 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                     // TODO: Make sure the player itemUUID reference is cleared when the item is removed.
                     if(this.hasItem()){
                         ((AttunementNexusBlockEntity) blockEntity).setPlayerToAttuneUUID(player);
+                        ((AttunementNexusBlockEntity) blockEntity).checkIfAttuneable();
+
                     } else {
                         ((AttunementNexusBlockEntity) blockEntity).clearPlayerToAttuneToUUID();
+                        ((AttunementNexusBlockEntity) blockEntity).setCanAttune(false);
                     }
                     super.setChanged();
                 }
@@ -74,7 +76,21 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
 
+    @Override
+    public boolean clickMenuButton(Player player, int pId) {
+        if(pId == 1) {
+            if (data.get(2) == 1) {
+                data.set(2, 0);
+            } else {
+                data.set(2, 1);
+            }
+        }
+        return super.clickMenuButton(player, pId);
+    }
 
+    public boolean attunementCanBegin() {
+        return data.get(3) == 1;
+    }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     // must assign a slot number to each of the slots used by the GUI.

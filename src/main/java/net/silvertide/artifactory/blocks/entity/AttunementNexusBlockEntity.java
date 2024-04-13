@@ -36,6 +36,9 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 20;
+    private int attuneActive = 0;
+    private int canAttune = 0;
+
     @Nullable
     private UUID playerToAttuneUUID;
 
@@ -47,6 +50,8 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
                 return switch(index) {
                     case 0 -> AttunementNexusBlockEntity.this.progress;
                     case 1 -> AttunementNexusBlockEntity.this.maxProgress;
+                    case 2 -> AttunementNexusBlockEntity.this.attuneActive;
+                    case 3 -> AttunementNexusBlockEntity.this.canAttune;
                     default -> 0;
                 };
             }
@@ -56,12 +61,14 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
                 switch(index) {
                     case 0 -> AttunementNexusBlockEntity.this.progress = value;
                     case 1 -> AttunementNexusBlockEntity.this.maxProgress = value;
+                    case 2 -> AttunementNexusBlockEntity.this.attuneActive = value;
+                    case 3 -> AttunementNexusBlockEntity.this.canAttune = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 4;
             }
         };
     }
@@ -116,7 +123,7 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     }
 
     public void tick(Level level, BlockPos pos, BlockState state) {
-        if(canAttune() && this.playerToAttuneUUID != null) {
+        if(attuneActive == 1 && this.playerToAttuneUUID != null && canAttune == 1) {
             increaseAttunementProgress();
             setChanged(level, pos, state);
 
@@ -124,14 +131,17 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
                 Player playerToAttune = level.getPlayerByUUID(this.playerToAttuneUUID);
                 attuneItem(playerToAttune);
                 resetProgress();
+                checkIfAttuneable();
+                attuneActive = 0;
             }
         } else {
             resetProgress();
         }
     }
 
-    private boolean canAttune() {
-        return !inputSlotEmpty() && ArtifactUtil.isAvailableToAttune(getStackInSlot(INPUT_SLOT));
+    public void checkIfAttuneable() {
+        //TODO: Check if able to ascend in ascension update
+        setCanAttune(!inputSlotEmpty() && ArtifactUtil.isAvailableToAttune(getStackInSlot(INPUT_SLOT)));
     }
 
     private boolean inputSlotEmpty() {
@@ -178,5 +188,13 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
 
     public void clearPlayerToAttuneToUUID() {
         this.playerToAttuneUUID = null;
+    }
+
+    public void setCanAttune(boolean canAttune) {
+        if(!canAttune){
+            this.canAttune = 0;
+        } else {
+            this.canAttune = 1;
+        }
     }
 }
