@@ -21,6 +21,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     private final Level level;
     private final Player player;
     private final ContainerData data;
+    private int canAttune = 0;
+
 
     public AttunementNexusMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(1));
@@ -33,7 +35,6 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         this.player = inv.player;
         level = inv.player.level();
         this.data = containerData;
-
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 

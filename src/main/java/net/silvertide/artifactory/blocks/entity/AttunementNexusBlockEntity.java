@@ -191,10 +191,6 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     }
 
     public void setCanAttune(boolean canAttune) {
-        if(!canAttune){
-            this.canAttune = 0;
-        } else {
-            this.canAttune = 1;
-        }
+        this.canAttune = canAttune ? 1 : 0;
     }
 }
