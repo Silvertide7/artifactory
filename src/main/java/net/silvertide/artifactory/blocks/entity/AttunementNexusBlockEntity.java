@@ -93,7 +93,7 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new AttunementNexusMenu(pContainerId, pPlayerInventory, this, this.data);
+        return new AttunementNexusMenu(pContainerId, pPlayerInventory, this);
     }
 
     public void setPlayerToAttuneUUID(Player player) {
@@ -148,6 +148,9 @@ public class AttunementNexusBlockEntity extends BlockEntity implements MenuProvi
         return getStackInSlot(INPUT_SLOT).isEmpty();
     }
 
+    public ContainerData getData() {
+        return data;
+    }
 
     private void attuneItem(Player player) {
         ItemStack inputStack = this.itemHandler.getStackInSlot(INPUT_SLOT);

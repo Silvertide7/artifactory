@@ -20,20 +20,18 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     public final AttunementNexusBlockEntity blockEntity;
     private final Level level;
     private final Player player;
-    private final ContainerData data;
 
     public AttunementNexusMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(1));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public AttunementNexusMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData containerData) {
+    public AttunementNexusMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
         checkContainerSize(inv, 1);
 
         this.blockEntity = (AttunementNexusBlockEntity) blockEntity;
         this.player = inv.player;
         level = inv.player.level();
-        this.data = containerData;
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
@@ -62,17 +60,16 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
             this.addSlot(customInputSlot);
         });
-
-        addDataSlots(data);
     }
 
     public boolean isCrafting() {
-        return data.get(0) > 0;
+
+        return this.blockEntity.getData().get(0) > 0;
     }
 
     public int getScaledProgress() {
-        int progress = data.get(0);
-        int maxProgress = data.get(1);
+        int progress = this.blockEntity.getData().get(0);
+        int maxProgress = this.blockEntity.getData().get(1);
         int progressArrowSize = 26;
 
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
@@ -81,17 +78,17 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int pId) {
         if(pId == 1) {
-            if (data.get(2) == 1) {
-                data.set(2, 0);
+            if (this.blockEntity.getData().get(2) == 1) {
+                this.blockEntity.getData().set(2, 0);
             } else {
-                data.set(2, 1);
+                this.blockEntity.getData().set(2, 1);
             }
         }
         return super.clickMenuButton(player, pId);
     }
 
     public boolean attunementCanBegin() {
-        return data.get(3) == 1;
+        return this.blockEntity.getData().get(3) == 1;
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

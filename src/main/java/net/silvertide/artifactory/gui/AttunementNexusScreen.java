@@ -10,10 +10,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
 
 public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
-    private static final int ATTUNE_BUTTON_X = 65;
+    private static final int ATTUNE_BUTTON_X = 61;
     private static final int ATTUNE_BUTTON_Y = 55;
-    private static final int ATTUNE_BUTTON_WIDTH = 46;
-    private static final int ATTUNE_BUTTON_HEIGHT = 11;
+    private static final int ATTUNE_BUTTON_WIDTH = 54;
+    private static final int ATTUNE_BUTTON_HEIGHT = 12;
     private boolean buttonDown = false;
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/attunement_nexus.png");
@@ -33,8 +33,7 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         buttonDown = false;
-
-        if(clickedOnButton(mouseX, mouseY)){
+        if(clickedOnButton(mouseX, mouseY) && this.menu.attunementCanBegin()){
             if(this.minecraft != null && this.minecraft.gameMode != null) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
@@ -43,10 +42,9 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(clickedOnButton(mouseX, mouseY)){
+        if(clickedOnButton(mouseX, mouseY)) {
             buttonDown = true;
             return true;
         }
@@ -54,8 +52,14 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     }
 
     private boolean clickedOnButton(double mouseX, double mouseY) {
-        boolean inButtonX = mouseX >= ATTUNE_BUTTON_X && mouseX <= ATTUNE_BUTTON_X + ATTUNE_BUTTON_WIDTH;
-        boolean inButtonY = mouseY >= ATTUNE_BUTTON_Y && mouseY <= ATTUNE_BUTTON_Y + ATTUNE_BUTTON_HEIGHT;
+        int startX = leftPos + ATTUNE_BUTTON_X;
+        int finishX = startX + ATTUNE_BUTTON_WIDTH;
+
+        int startY = topPos + ATTUNE_BUTTON_Y;
+        int finishY = startY + ATTUNE_BUTTON_HEIGHT;
+
+        boolean inButtonX = mouseX >= startX && mouseX <= finishX;
+        boolean inButtonY = mouseY >= startY && mouseY <= finishY;
         return inButtonY && inButtonX;
     }
 
@@ -89,10 +93,10 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     }
 
     private int getButtonOffsetToRender(int mouseX, int mouseY) {
-        /*if(!this.menu.attunementCanBegin()) {
+        if(!this.menu.attunementCanBegin()) {
             return 39;
         }
-        else */if(buttonDown) {
+        else if(buttonDown) {
             return 26;
         }
         else if (isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY)) {
