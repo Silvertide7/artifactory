@@ -7,6 +7,8 @@
     "2": {
       "modifications": ["soulbound"],
       "requirements": {
+        "xpLevelsConsumed": 1,
+        "xpLevelsThreshold": 20,
         "kills": 100,
         "feats": ["easy"]
       }

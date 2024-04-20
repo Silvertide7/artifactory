@@ -6,9 +6,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AttunementRequirements(int xpLevels, int kills, List<String> feats) {
+public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold, int kills, List<String> feats) {
     public static final Codec<AttunementRequirements> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.INT.optionalFieldOf("xpLevels", 0).forGetter(AttunementRequirements::xpLevels),
+                    Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::xpLevelsConsumed),
+                    Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::xpLevelThreshold),
                     Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::kills),
                     Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::feats))
             .apply(instance, AttunementRequirements::new)
@@ -16,7 +17,8 @@ public record AttunementRequirements(int xpLevels, int kills, List<String> feats
 
     public String toString() {
         StringBuilder result = new StringBuilder("AttunementRequirements: \n" +
-                "\txpLevels : " + xpLevels() + "\n" +
+                "\txpLevelsThreshold : " + xpLevelThreshold() + "\n" +
+                "\txpLevelsConsumed : " + xpLevelsConsumed() + "\n" +
                 "\tkills: " + kills() + "\n" +
                 "\tfeats: {\n");
 
@@ -27,6 +29,6 @@ public record AttunementRequirements(int xpLevels, int kills, List<String> feats
     }
 
     public static AttunementRequirements getDefault() {
-        return new AttunementRequirements(0, 0, new ArrayList<>());
+        return new AttunementRequirements(-1, -1, 0, new ArrayList<>());
     }
 }

@@ -9,5 +9,12 @@
   "playermessage.artifactory.item_not_usable": "Must attune to item to use",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",
 
+  "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
+  "screen.tooltip.artifactory.xp_levels_consumed": "This process costs %1$s levels.",
+  "screen.tooltip.artifactory.attuned_to_other_player": "This is attuned to another player. Cannot attune.",
+  "screen.tooltip.artifactory.able_to_attune": "Attune this item.",
+  "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",
+  "screen.tooltip.artifactory.max_attunement_reached": "You have reached the maximum attunement level with this item.",
+
   "attribute.artifactory.max_attunement_slots": "Max Attunement Slots"
 }

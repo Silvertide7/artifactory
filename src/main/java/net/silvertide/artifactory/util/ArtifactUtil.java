@@ -11,6 +11,7 @@ import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -99,6 +100,21 @@ public final class ArtifactUtil {
         return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
+    public static Optional<Integer> getAttunementLevel(Player player, ItemStack stack) {
+        if(!isItemAttuned(stack)) return Optional.of(0);
+
+        Map<UUID, AttunedItem> playersAttunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
+        Optional<UUID> stackAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
+
+        if(stackAttunementUUID.isPresent()){
+            AttunedItem attunedItem = playersAttunedItems.get(stackAttunementUUID.get());
+            if(attunedItem != null) {
+                return Optional.of(attunedItem.attunementLevel());
+            }
+        }
+        return Optional.empty();
+    }
+
     public static boolean isItemAttuned(ItemStack stack) {
         return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
     }
@@ -127,7 +143,16 @@ public final class ArtifactUtil {
     }
 
     public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
-        return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
+        if (isItemAttunedToPlayer(player, stack)) {
+            if(isPlayerAttunedToItem(player, stack)) {
+                return true;
+            }
+
+            // If the item is attuned to the player but the player is no longer attuned to the item we will remove the
+            // items attunement data to update it
+            ArtifactUtil.removeAttunement(stack);
+        }
+        return false;
     }
 
     public static boolean isAvailableToAttune(ItemStack stack) {
