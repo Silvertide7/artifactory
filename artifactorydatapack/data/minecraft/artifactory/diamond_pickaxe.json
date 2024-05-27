@@ -2,13 +2,15 @@
   "slots_used": 6,
   "attunements": {
     "1": {
-      "modifications": ["unbreakable", "invulnerable"]
+      "modifications": ["unbreakable", "invulnerable"],
+      "xpLevelsConsumed": 5,
+      "xpLevelThreshold": 40
     },
     "2": {
       "modifications": ["soulbound"],
       "requirements": {
         "xpLevelsConsumed": 1,
-        "xpLevelsThreshold": 20,
+        "xpLevelThreshold": 20,
         "kills": 100,
         "feats": ["easy"]
       }

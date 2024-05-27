@@ -8,8 +8,6 @@ import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.BasicModification;
 import net.silvertide.artifactory.modifications.BasicModificationType;
 
-import java.util.Optional;
-
 public class AttunementModificationUtil {
     private AttunementModificationUtil() {}
 
@@ -31,7 +29,7 @@ public class AttunementModificationUtil {
     }
 
     public static boolean hasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
-        return ArtifactUtil.getAttunementData(stack).map(itemAttunementData -> {
+        return AttunementDataUtil.getAttunementData(stack).map(itemAttunementData -> {
             for(int i = 1; i <= attunementLevelAchieved; i++) {
                 AttunementLevel attunementLevel = itemAttunementData.attunements().get(String.valueOf(i));
                 if(attunementLevel != null) {

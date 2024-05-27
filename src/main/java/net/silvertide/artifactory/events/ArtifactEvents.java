@@ -23,10 +23,7 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.util.ArtifactUtil;
-import net.silvertide.artifactory.util.EffectUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.*;
 
 import java.util.List;
 
@@ -91,7 +88,7 @@ public class ArtifactEvents {
                 }
             });
 
-            ArtifactUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
+            AttunementDataUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
             Artifactory.LOGGER.info("Item thrown attuned to player: " + ArtifactUtil.arePlayerAndItemAttuned(player, stack));
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());

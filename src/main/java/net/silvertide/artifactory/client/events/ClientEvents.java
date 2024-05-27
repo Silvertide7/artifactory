@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.AttunementDataUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 public class ClientEvents {
@@ -15,7 +16,7 @@ public class ClientEvents {
     public void onTooltip(ItemTooltipEvent evt) {
         ItemStack stack = evt.getItemStack();
         if(!stack.isEmpty()) {
-            ArtifactUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
+            AttunementDataUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
                 evt.getToolTip().add(1, createAttunementHoverComponent(itemAttunementData, stack));
             });
         }

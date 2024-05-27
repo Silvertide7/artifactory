@@ -1,7 +1,9 @@
 package net.silvertide.artifactory.gui;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -10,86 +12,204 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
-import net.silvertide.artifactory.blocks.entity.AttunementNexusBlockEntity;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.AttunementDataUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class AttunementNexusMenu extends AbstractContainerMenu {
-    public final AttunementNexusBlockEntity blockEntity;
-    private final Level level;
+    private final ContainerLevelAccess access;
     private final Player player;
-
-    public AttunementNexusMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
+    private final Slot attunementSlot;
+    private final DataSlot cost = DataSlot.standalone();
+    private final DataSlot threshold = DataSlot.standalone();
+    protected final Container inputSlots = new SimpleContainer(1) {
+        /**
+         * For block entities, ensures the chunk containing the block entity is saved to disk later - the game won't think
+         * it hasn't changed and skip it.
+         */
+        public void setChanged() {
+            super.setChanged();
+            AttunementNexusMenu.this.slotsChanged(this);
+        }
+    };
+    public AttunementNexusMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
+        this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public AttunementNexusMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+    public AttunementNexusMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
-        checkContainerSize(inv, 1);
+        this.access = access;
+        this.player = playerInventory.player;
 
-        this.blockEntity = (AttunementNexusBlockEntity) blockEntity;
-        this.player = inv.player;
-        level = inv.player.level();
+        checkContainerSize(playerInventory, 1);
 
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
+        addPlayerInventory(playerInventory);
+        addPlayerHotbar(playerInventory);
 
-        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
-            Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 23) {
-                @Override
-                public boolean mayPlace(@NotNull ItemStack stack) {
-                    return ArtifactUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(super.mayPlace(stack));
-                }
+        this.addDataSlot(this.cost);
+        this.addDataSlot(this.threshold);
+        attunementSlot = new Slot(inputSlots, 0, 80, 23) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return AttunementDataUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(false);
+            }
+        };
 
-                @Override
-                public void setChanged() {
-                    // TODO: Make sure the player itemUUID reference is cleared when the item is removed.
-                    if(this.hasItem()){
-                        ((AttunementNexusBlockEntity) blockEntity).setPlayerToAttuneUUID(player);
-                        ((AttunementNexusBlockEntity) blockEntity).checkIfAttuneable();
+        this.addSlot(attunementSlot);
 
-                    } else {
-                        ((AttunementNexusBlockEntity) blockEntity).clearPlayerToAttuneToUUID();
-                        ((AttunementNexusBlockEntity) blockEntity).setCanAttune(false);
-                    }
-                    super.setChanged();
-                }
-            };
-
-            this.addSlot(customInputSlot);
-        });
+//        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(iItemHandler -> {
+//            Slot customInputSlot = new SlotItemHandler(iItemHandler, 0, 80, 23) {
+//                @Override
+//                public boolean mayPlace(@NotNull ItemStack stack) {
+//                    return AttunementDataUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(super.mayPlace(stack));
+//                }
+//
+//                @Override
+//                public void setChanged() {
+//                    Artifactory.LOGGER.info("Side: " + (player.level().isClientSide() ? "Client" : "Server"));
+//                    if(this.hasItem()) {
+//                        handleItemPlaced(this.getItem(), player);
+//                    } else {
+//                        handleItemRemoved();
+//                    }
+//                    super.setChanged();
+//                }
+//            };
+//
+//            this.addSlot(customInputSlot);
+//        });
     }
 
-    public boolean isCrafting() {
 
-        return this.blockEntity.getData().get(0) > 0;
-    }
+//    public void handleItemPlaced(ItemStack stack, Player player) {
+//        int levelToAttuneTo = ArtifactUtil.getLevelOfAttunementAchieved(stack) + 1;
+//
+//        if(ArtifactUtil.isAvailableToAttune(stack)) {
+//            Optional<AttunementRequirements> attunementRequirements = AttunementDataUtil.getAttunementRequirements(stack, levelToAttuneTo);
+//            if(attunementRequirements.isPresent()) {
+//
+//                if(attunementRequirements.get().xpLevelThreshold() >= 0) {
+//                    setXPThreshold(attunementRequirements.get().xpLevelThreshold());
+//                } else {
+//                    setXPThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
+//                }
+//
+//                if(attunementRequirements.get().xpLevelsConsumed() >= 0) {
+//                    setXPConsumed(attunementRequirements.get().xpLevelsConsumed());
+//                } else {
+//                    setXPConsumed(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
+//                }
+//            } else {
+//                setXPThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
+//                setXPThreshold(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
+//            }
+//
+//            setCanAttune(true);
+//        }
+//    }
 
-    public int getScaledProgress() {
-        int progress = this.blockEntity.getData().get(0);
-        int maxProgress = this.blockEntity.getData().get(1);
-        int progressArrowSize = 26;
+//    public void handleItemRemoved() {
+//        this.blockEntity.clearPlayerToAttuneToUUID();
+//        setCanAttune(false);
+//    }
+    
+//    @Override
+//    public boolean clickMenuButton(@NotNull Player player, int pId) {
+//        if(pId == 1) {
+//            if (this.blockEntity.getData().get(2) == 1) {
+//                this.blockEntity.getData().set(2, 0);
+//            } else {
+//                this.blockEntity.getData().set(2, 1);
+//            }
+//        }
+//        return super.clickMenuButton(player, pId);
+//    }
 
-        return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
+//    @Override
+//    public boolean stillValid(Player player) {
+//        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get());
+//    }
+
+    @Override
+    public void slotsChanged(Container pContainer) {
+        super.slotsChanged(pContainer);
     }
 
     @Override
-    public boolean clickMenuButton(Player player, int pId) {
-        if(pId == 1) {
-            if (this.blockEntity.getData().get(2) == 1) {
-                this.blockEntity.getData().set(2, 0);
-            } else {
-                this.blockEntity.getData().set(2, 1);
-            }
-        }
-        return super.clickMenuButton(player, pId);
+    public boolean stillValid(Player player) {
+        return this.access.evaluate((level, blockPos) -> {
+            return !level.getBlockState(blockPos).is(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get()) ? false : player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D;
+        }, true);
     }
 
-    public boolean attunementCanBegin() {
-        return this.blockEntity.getData().get(3) == 1;
+    private void addPlayerInventory(Inventory playerInventory) {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 9; ++j) {
+                int slot = j + i * 9 + 9;
+                int x = 8 + j * 18;
+                int y = 84 + i * 18;
+                this.addSlot(new Slot(playerInventory, slot, x, y));
+            }
+        }
     }
+
+    private void addPlayerHotbar(Inventory playerInventory) {
+        for(int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+        }
+    }
+//
+//    // Block Entity Data Methods
+//    public int getScaledProgress() {
+//        int progress = this.blockEntity.getData().get(0);
+//        int maxProgress = this.blockEntity.getData().get(1);
+//        int progressArrowSize = 26;
+//
+//        return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
+//    }
+//
+//    public boolean itemCanStartAttuning() {
+//        return this.blockEntity.getData().get(3) == 1;
+//    }
+//
+//    public boolean isCrafting() {
+//        return this.blockEntity.getData().get(0) > 0;
+//    }
+//
+//    public void setCanAttune(boolean canAttune) {
+//        if(canAttune) {
+//            this.blockEntity.getData().set(3, 1);
+//        } else {
+//            this.blockEntity.getData().set(3, 0);
+//        }
+//    }
+//
+//    public int getXPConsumed() {
+//        return this.blockEntity.getData().get(4);
+//    }
+//
+//    public void setXPConsumed(int xpConsumed) {
+//        this.blockEntity.getData().set(4, xpConsumed);
+//    }
+//
+//    public int getXPThreshold() {
+//        return this.blockEntity.getData().get(5);
+//    }
+//
+//    public void setXPThreshold(int xpThreshold) {
+//        this.blockEntity.getData().set(5, xpThreshold);
+//    }
+
+
+    public int getCost() { return this.cost.get(); }
+    public int getThreshold() { return this.threshold.get(); }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     // must assign a slot number to each of the slots used by the GUI.
@@ -139,33 +259,5 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         }
         sourceSlot.onTake(playerIn, sourceStack);
         return copyOfSourceStack;
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get());
-    }
-
-    @Override
-    public void slotsChanged(Container pContainer) {
-        super.slotsChanged(pContainer);
-    }
-
-
-    private void addPlayerInventory(Inventory playerInventory) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < 9; ++j) {
-                int slot = j + i * 9 + 9;
-                int x = 8 + j * 18;
-                int y = 84 + i * 18;
-                this.addSlot(new Slot(playerInventory, slot, x, y));
-            }
-        }
-    }
-
-    private void addPlayerHotbar(Inventory playerInventory) {
-        for(int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
-        }
     }
 }

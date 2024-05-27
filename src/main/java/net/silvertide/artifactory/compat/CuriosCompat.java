@@ -6,6 +6,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.AttunementDataUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.StackNBTUtil;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -23,7 +24,7 @@ public class CuriosCompat {
         if(!event.isCanceled() && slotContext.entity() instanceof Player) {
             if(slotContext.entity() instanceof Player player && !player.level().isClientSide()){
                 ItemStack stack = event.getStack();
-                if(ArtifactUtil.isAttuneableItem(stack) && !ArtifactUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
+                if(ArtifactUtil.isAttuneableItem(stack) && !AttunementDataUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
                     PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
                     event.setResult(Event.Result.DENY);
                 }

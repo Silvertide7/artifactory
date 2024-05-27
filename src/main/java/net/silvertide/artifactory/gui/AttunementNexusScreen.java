@@ -8,10 +8,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
+import org.apache.commons.compress.utils.Lists;
+
+import java.util.List;
 
 public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
     private static final int ATTUNE_BUTTON_X = 61;
-    private static final int ATTUNE_BUTTON_Y = 55;
+    private static final int ATTUNE_BUTTON_Y = 65;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
     private boolean buttonDown = false;
@@ -31,9 +34,87 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     }
 
     @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(guiGraphics);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, TEXTURE);
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+
+        renderButtons(guiGraphics, mouseX, mouseY);
+
+        if(isHoveringButton(mouseX,mouseY)) renderCostTooltip(guiGraphics, mouseX, mouseY);
+//        renderProgressArrow(guiGraphics, x, y);
+    }
+
+//    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
+//        if(menu.isCrafting()) {
+//            guiGraphics.blit(TEXTURE, x + 85, y + 30, 176, 0, 8, menu.getScaledProgress());
+//        }
+//    }
+
+    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int buttonX = leftPos + ATTUNE_BUTTON_X;
+        int buttonY = topPos + ATTUNE_BUTTON_Y;
+
+        int buttonOffset = getButtonOffsetToRender(mouseX, mouseY);
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+    }
+
+    private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        List<Component> list = Lists.newArrayList();
+//        TODO Update this
+        list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", 23));
+        list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", 23));
+
+//        int currentAttunementLevel = attunementRenderContext.getAttunementLevel();
+//        if(currentAttunementLevel < 0) {
+//            list.add(Component.translatable("screen.tooltip.artifactory.attuned_to_other_player"));
+//        } else if (currentAttunementLevel == 0) {
+//            list.add(Component.translatable("screen.tooltip.artifactory.able_to_attune"));
+//        } else {
+//            //TODO: Check if ascension is allowed for rendering here.
+//            list.add(Component.translatable("screen.tooltip.artifactory.ascend", currentAttunementLevel + 1));
+//            list.add(Component.translatable("screen.tooltip.artifactory.max_attunement_reached"));
+//        }
+
+        guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
+    }
+
+    private int getButtonOffsetToRender(int mouseX, int mouseY) {
+        //TODO Update this
+        if(false) {
+            return 39;
+        }
+        else if(buttonDown) {
+            return 26;
+        }
+        else if (isHoveringButton(mouseX, mouseY)) {
+            return 13;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    private boolean isHoveringButton(int mouseX, int mouseY) {
+        return isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY);
+    }
+
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         buttonDown = false;
-        if(clickedOnButton(mouseX, mouseY) && this.menu.attunementCanBegin()){
+        if(clickedOnButton(mouseX, mouseY)){
             if(this.minecraft != null && this.minecraft.gameMode != null) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
@@ -63,54 +144,4 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         return inButtonY && inButtonX;
     }
 
-    @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-
-
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
-
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
-        renderButtons(guiGraphics, mouseX, mouseY);
-//        renderProgressArrow(guiGraphics, x, y);
-    }
-
-//    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
-//        if(menu.isCrafting()) {
-//            guiGraphics.blit(TEXTURE, x + 85, y + 30, 176, 0, 8, menu.getScaledProgress());
-//        }
-//    }
-
-    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int buttonX = leftPos + ATTUNE_BUTTON_X;
-        int buttonY = topPos + ATTUNE_BUTTON_Y;
-
-        int buttonOffset = getButtonOffsetToRender(mouseX, mouseY);
-        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
-    }
-
-    private int getButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!this.menu.attunementCanBegin()) {
-            return 39;
-        }
-        else if(buttonDown) {
-            return 26;
-        }
-        else if (isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY)) {
-            return 13;
-        }
-        else {
-            return 0;
-        }
-    }
-
-    @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-    }
 }

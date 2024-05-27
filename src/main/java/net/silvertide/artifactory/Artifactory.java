@@ -43,7 +43,6 @@ public class Artifactory
         ItemRegistry.register(modEventBus);
 
         BlockRegistry.register(modEventBus);
-        BlockEntityRegistry.register(modEventBus);
 
         MenuRegistry.register(modEventBus);
 
