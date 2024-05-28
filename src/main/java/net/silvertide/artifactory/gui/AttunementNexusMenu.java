@@ -1,35 +1,37 @@
 package net.silvertide.artifactory.gui;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.SlotItemHandler;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.config.Config;
-import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.AttunementDataUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public class AttunementNexusMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final Player player;
     private final Slot attunementSlot;
-    private final DataSlot cost = DataSlot.standalone();
-    private final DataSlot threshold = DataSlot.standalone();
-    protected final Container inputSlots = new SimpleContainer(1) {
+
+    protected final ContainerData data;
+    private int progress = 0;
+    private int maxProgress = 20;
+    private int canItemAscend = 0;
+    private int cost = 0;
+    private int threshold = 0;
+    private final int PROGRESS_INDEX = 0;
+    private final int MAX_PROGRESS_INDEX = 1;
+    private final int CAN_ITEM_ASCEND_INDEX = 2;
+    private final int COST_INDEX = 3;
+    private final int THRESHOLD_INDEX = 4;
+
+    protected final Container inputSlot = new SimpleContainer(1) {
         /**
          * For block entities, ensures the chunk containing the block entity is saved to disk later - the game won't think
          * it hasn't changed and skip it.
@@ -53,9 +55,37 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
 
-        this.addDataSlot(this.cost);
-        this.addDataSlot(this.threshold);
-        attunementSlot = new Slot(inputSlots, 0, 80, 23) {
+        this.data = new ContainerData() {
+            @Override
+            public int get(int index) {
+                return switch(index) {
+                    case 0 -> AttunementNexusMenu.this.progress;
+                    case 1 -> AttunementNexusMenu.this.maxProgress;
+                    case 2 -> AttunementNexusMenu.this.canItemAscend;
+                    case 3 -> AttunementNexusMenu.this.cost;
+                    case 4 -> AttunementNexusMenu.this.threshold;
+                    default -> 0;
+                };
+            }
+
+            @Override
+            public void set(int index, int value) {
+                switch(index) {
+                    case 0 -> AttunementNexusMenu.this.progress = value;
+                    case 1 -> AttunementNexusMenu.this.maxProgress = value;
+                    case 2 -> AttunementNexusMenu.this.canItemAscend = value;
+                    case 3 -> AttunementNexusMenu.this.cost = value;
+                    case 4 -> AttunementNexusMenu.this.threshold = value;
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return 5;
+            }
+        };
+
+        attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return AttunementDataUtil.getAttunementData(stack).map(attunementData -> ArtifactUtil.isAttunementAllowed(player, stack, attunementData)).orElse(false);
@@ -120,33 +150,23 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 //        setCanAttune(false);
 //    }
     
-//    @Override
-//    public boolean clickMenuButton(@NotNull Player player, int pId) {
-//        if(pId == 1) {
-//            if (this.blockEntity.getData().get(2) == 1) {
-//                this.blockEntity.getData().set(2, 0);
-//            } else {
-//                this.blockEntity.getData().set(2, 1);
-//            }
-//        }
-//        return super.clickMenuButton(player, pId);
-//    }
-
-//    @Override
-//    public boolean stillValid(Player player) {
-//        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get());
-//    }
+    @Override
+    public boolean clickMenuButton(@NotNull Player player, int pId) {
+        if(pId == 1) {
+            Artifactory.LOGGER.info("Hey pId 1 clicked");
+        }
+        return super.clickMenuButton(player, pId);
+    }
 
     @Override
     public void slotsChanged(Container pContainer) {
         super.slotsChanged(pContainer);
+        Artifactory.LOGGER.info("Slots changed");
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return this.access.evaluate((level, blockPos) -> {
-            return !level.getBlockState(blockPos).is(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get()) ? false : player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D;
-        }, true);
+        return this.access.evaluate((level, blockPos) -> level.getBlockState(blockPos).is(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get()) && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D, true);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -165,51 +185,28 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
     }
-//
-//    // Block Entity Data Methods
-//    public int getScaledProgress() {
-//        int progress = this.blockEntity.getData().get(0);
-//        int maxProgress = this.blockEntity.getData().get(1);
-//        int progressArrowSize = 26;
-//
-//        return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
-//    }
-//
-//    public boolean itemCanStartAttuning() {
-//        return this.blockEntity.getData().get(3) == 1;
-//    }
-//
-//    public boolean isCrafting() {
-//        return this.blockEntity.getData().get(0) > 0;
-//    }
-//
-//    public void setCanAttune(boolean canAttune) {
-//        if(canAttune) {
-//            this.blockEntity.getData().set(3, 1);
-//        } else {
-//            this.blockEntity.getData().set(3, 0);
-//        }
-//    }
-//
-//    public int getXPConsumed() {
-//        return this.blockEntity.getData().get(4);
-//    }
-//
-//    public void setXPConsumed(int xpConsumed) {
-//        this.blockEntity.getData().set(4, xpConsumed);
-//    }
-//
-//    public int getXPThreshold() {
-//        return this.blockEntity.getData().get(5);
-//    }
-//
-//    public void setXPThreshold(int xpThreshold) {
-//        this.blockEntity.getData().set(5, xpThreshold);
-//    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.access.execute((p_39796_, p_39797_) -> {
+            this.clearContainer(player, this.inputSlot);
+        });
+    }
+
+    // Block Data Methods
+    public int getProgress() { return this.data.get(PROGRESS_INDEX); }
+    public void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
+    public int getMaxProgress() { return this.data.get(MAX_PROGRESS_INDEX); }
+    public void setMaxProgress(int value) { this.data.set(MAX_PROGRESS_INDEX, value); }
+    public boolean canItemAscend() { return this.data.get(CAN_ITEM_ASCEND_INDEX) > 0; }
+    public void setCanItemAscend(int value) { this.data.set(CAN_ITEM_ASCEND_INDEX, value); }
+    public int getCost() { return this.data.get(COST_INDEX); }
+    public void setCost(int value) { this.data.set(COST_INDEX, value); }
+    public int getThreshold() { return this.data.get(THRESHOLD_INDEX); }
+    public void setThreshold(int value) { this.data.set(THRESHOLD_INDEX, value); }
 
 
-    public int getCost() { return this.cost.get(); }
-    public int getThreshold() { return this.threshold.get(); }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     // must assign a slot number to each of the slots used by the GUI.

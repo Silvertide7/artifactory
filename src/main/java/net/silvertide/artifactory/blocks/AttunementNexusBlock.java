@@ -27,7 +27,7 @@ public class AttunementNexusBlock extends Block {
     public static final VoxelShape SHAPE = Block.box(0,0,0,16,12,16);
 
     public AttunementNexusBlock(Properties properties) {
-        super(BlockBehaviour.Properties.of().strength(2.5F).sound(SoundType.AMETHYST).noOcclusion());
+        super(BlockBehaviour.Properties.of().strength(5.0F).sound(SoundType.AMETHYST).noOcclusion());
     }
 
     @Nullable
