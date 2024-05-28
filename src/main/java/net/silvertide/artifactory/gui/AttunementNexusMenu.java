@@ -8,11 +8,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.codecs.AttunementRequirements;
+import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.util.ArtifactUtil;
 import net.silvertide.artifactory.util.AttunementDataUtil;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 public class AttunementNexusMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
@@ -23,8 +29,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     private int progress = 0;
     private int maxProgress = 20;
     private int canItemAscend = 0;
-    private int cost = 0;
-    private int threshold = 0;
+    private int cost = -1;
+    private int threshold = -1;
     private final int PROGRESS_INDEX = 0;
     private final int MAX_PROGRESS_INDEX = 1;
     private final int CAN_ITEM_ASCEND_INDEX = 2;
@@ -84,6 +90,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                 return 5;
             }
         };
+
+        this.addDataSlots(this.data);
 
         attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
@@ -161,7 +169,62 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     @Override
     public void slotsChanged(Container pContainer) {
         super.slotsChanged(pContainer);
-        Artifactory.LOGGER.info("Slots changed");
+        updateAttunementState();
+    }
+
+    private void updateAttunementState() {
+        if(this.player.level().isClientSide()) return;
+
+        if(!inputSlot.isEmpty()) {
+            ItemStack attuneableItemStack = inputSlot.getItem(0);
+            int nextLevelOfAttunement = ArtifactUtil.getLevelOfAttunementAchieved(attuneableItemStack) + 1;
+
+            // Check if this is the first attunement, if not then make sure ascension exists
+            if(nextLevelOfAttunement == 1 || AttunementDataUtil.getAttunementLevel(attuneableItemStack, nextLevelOfAttunement).isPresent()) {
+                updateAttunementRequirements(attuneableItemStack, nextLevelOfAttunement);
+                setCanItemAscend(1);
+            } else {
+                if(this.canItemAscend != 0) setCanItemAscend(0);
+            }
+        } else {
+            if(this.canItemAscend != 0) setCanItemAscend(0);
+        }
+    }
+
+
+    private void updateAttunementRequirements(ItemStack attuneableItemStack, int nextLevelOfAttunement) {
+        AttunementDataUtil.getAttunementRequirements(attuneableItemStack, nextLevelOfAttunement).ifPresentOrElse(
+            attunementRequirements -> {
+                if(attunementRequirements.xpLevelsConsumed() >= 0) {
+                    setCost(attunementRequirements.xpLevelsConsumed());
+                } else {
+                    setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
+                }
+
+                if(attunementRequirements.xpLevelThreshold() >= 0) {
+                    setThreshold(attunementRequirements.xpLevelThreshold());
+                } else {
+                    setThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
+                }
+            },
+            () -> {
+                setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
+                setThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
+            }
+        );
+    }
+
+    private void updateCost(Optional<AttunementRequirements> requirements) {
+        requirements.ifPresentOrElse(
+            attunementRequirements -> {
+                if(attunementRequirements.xpLevelsConsumed() >= 0) {
+                    setCost(attunementRequirements.xpLevelsConsumed());
+                } else {
+                    setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
+                }
+            },
+            () -> setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get())
+        );
     }
 
     @Override

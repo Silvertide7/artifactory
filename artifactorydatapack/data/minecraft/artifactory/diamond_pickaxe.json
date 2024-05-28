@@ -3,16 +3,16 @@
   "attunements": {
     "1": {
       "modifications": ["unbreakable", "invulnerable"],
-      "xpLevelsConsumed": 5,
-      "xpLevelThreshold": 40
+      "requirements": {
+        "xpLevelsConsumed": 24,
+        "xpLevelThreshold": 75
+      }
     },
     "2": {
       "modifications": ["soulbound"],
       "requirements": {
-        "xpLevelsConsumed": 1,
-        "xpLevelThreshold": 20,
-        "kills": 100,
-        "feats": ["easy"]
+        "xpLevelsConsumed": 4,
+        "xpLevelThreshold": 20
       }
     }
   },

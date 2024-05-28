@@ -73,9 +73,12 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         List<Component> list = Lists.newArrayList();
-//        TODO Update this
-        list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", 23));
-        list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", 23));
+        if(menu.canItemAscend()) {
+            list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", menu.getThreshold()));
+            list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", menu.getCost()));
+        } else {
+            list.add(Component.literal("Place an item to be attuned or ascended."));
+        }
 
 //        int currentAttunementLevel = attunementRenderContext.getAttunementLevel();
 //        if(currentAttunementLevel < 0) {
@@ -93,7 +96,7 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
     private int getButtonOffsetToRender(int mouseX, int mouseY) {
         //TODO Update this
-        if(false) {
+        if(!menu.canItemAscend()) {
             return 39;
         }
         else if(buttonDown) {
