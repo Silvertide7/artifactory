@@ -7,8 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.util.ArtifactUtil;
-import net.silvertide.artifactory.util.AttunementDataUtil;
+import net.silvertide.artifactory.util.AttunementUtil;
+import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 public class ClientEvents {
@@ -16,7 +16,7 @@ public class ClientEvents {
     public void onTooltip(ItemTooltipEvent evt) {
         ItemStack stack = evt.getItemStack();
         if(!stack.isEmpty()) {
-            AttunementDataUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
+            DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
                 evt.getToolTip().add(1, createAttunementHoverComponent(itemAttunementData, stack));
             });
         }
@@ -26,7 +26,7 @@ public class ClientEvents {
         MutableComponent hoverText;
         ChatFormatting chatFormatting;
 
-        if (ArtifactUtil.isItemAttuned(stack)) {
+        if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             chatFormatting = ChatFormatting.LIGHT_PURPLE;
             hoverText = createAttunedHoverText(stack, chatFormatting);
         } else {

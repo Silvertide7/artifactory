@@ -22,7 +22,7 @@
 //import net.minecraftforge.items.ItemStackHandler;
 //import net.silvertide.artifactory.registry.BlockEntityRegistry;
 //import net.silvertide.artifactory.gui.AttunementNexusMenu;
-//import net.silvertide.artifactory.util.ArtifactUtil;
+//import net.silvertide.artifactory.util.AttunementUtil;
 //import org.jetbrains.annotations.NotNull;
 //import org.jetbrains.annotations.Nullable;
 //
@@ -187,7 +187,7 @@
 //
 //    private void attuneItem(Player player) {
 //        ItemStack inputStack = this.itemHandler.getStackInSlot(INPUT_SLOT);
-//        ArtifactUtil.attuneItem(player, inputStack);
+//        AttunementUtil.attuneItem(player, inputStack);
 //        clearPlayerToAttuneToUUID();
 //    }
 //

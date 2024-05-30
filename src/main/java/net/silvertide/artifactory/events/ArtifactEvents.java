@@ -40,7 +40,7 @@ public class ArtifactEvents {
             if (target == null) return;
 
             ItemStack stackInHand = player.getMainHandItem();
-            if(ArtifactUtil.isUseRestricted(player, stackInHand)) {
+            if(AttunementUtil.isUseRestricted(player, stackInHand)) {
                 event.setCanceled(true);
                 PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
             }
@@ -53,7 +53,7 @@ public class ArtifactEvents {
         if(event.isCanceled()) return;
 
         ItemStack stack = event.getItemStack();
-        if(ArtifactUtil.isUseRestricted(player, stack)){
+        if(AttunementUtil.isUseRestricted(player, stack)){
             event.setUseItem(Event.Result.DENY);
             event.setUseBlock(Event.Result.DENY);
             event.setCanceled(true);
@@ -67,7 +67,7 @@ public class ArtifactEvents {
         if(event.isCanceled()) return;
 
         ItemStack stack = event.getItemStack();
-        if(ArtifactUtil.isUseRestricted(player, stack)) {
+        if(AttunementUtil.isUseRestricted(player, stack)) {
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
             if(!player.level().isClientSide()) PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
@@ -88,12 +88,12 @@ public class ArtifactEvents {
                 }
             });
 
-            AttunementDataUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
-            Artifactory.LOGGER.info("Item thrown attuned to player: " + ArtifactUtil.arePlayerAndItemAttuned(player, stack));
+            DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
+            Artifactory.LOGGER.info("Item thrown attuned to player: " + AttunementUtil.arePlayerAndItemAttuned(player, stack));
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
 
-            ArtifactUtil.removeAttunement(stack);
+            AttunementUtil.removeAttunementFromPlayerAndItem(stack);
         }
     }
 
@@ -112,18 +112,18 @@ public class ArtifactEvents {
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
             for (ItemStack armorStack : armorItems) {
-                if(armorStack.isEmpty() || ArtifactUtil.isItemAttunedToPlayer(player, armorStack)) continue;
+                if(armorStack.isEmpty() || AttunementUtil.isItemAttunedToPlayer(player, armorStack)) continue;
 
-                if(ArtifactUtil.isAttunedToAnotherPlayer(player, armorStack)) {
+                if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
                     EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-                } else if (!ArtifactUtil.canUseWithoutAttunement(armorStack)) {
+                } else if (!AttunementUtil.canUseWithoutAttunement(armorStack)) {
                     EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
                 }
             }
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack handStack : handItems) {
-                if(!handStack.isEmpty() && ArtifactUtil.isAttunedToAnotherPlayer(player, handStack)) {
+                if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
                     EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
                 }
             }
@@ -134,7 +134,7 @@ public class ArtifactEvents {
     public static void onEntityJoinLevel(EntityJoinLevelEvent entityJoinLevelEvent) {
         if(!entityJoinLevelEvent.getLevel().isClientSide() && entityJoinLevelEvent.getEntity() instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
-            if(ArtifactUtil.isItemAttuned(stack)) {
+            if(AttunementUtil.isItemAttunedToAPlayer(stack)) {
                 itemEntity.setUnlimitedLifetime();
                 if(StackNBTUtil.isInvulnerable(stack)) {
                     itemEntity.setInvulnerable(true);
@@ -146,8 +146,8 @@ public class ArtifactEvents {
     @SubscribeEvent
     public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
         ItemStack stack = itemExpireEvent.getEntity().getItem();
-        if(!stack.isEmpty() && ArtifactUtil.isItemAttuned(stack)) {
-            ArtifactUtil.removeAttunement(stack);
+        if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
+            AttunementUtil.removeAttunementFromPlayerAndItem(stack);
         }
     }
 
@@ -155,7 +155,7 @@ public class ArtifactEvents {
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
-        if (ArtifactUtil.isAttuneableItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+        if (AttunementUtil.isItemAttuneable(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
             CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {

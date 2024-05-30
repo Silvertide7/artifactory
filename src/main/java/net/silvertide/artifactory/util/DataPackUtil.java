@@ -7,11 +7,10 @@ import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-public final class AttunementDataUtil {
-    private AttunementDataUtil() {}
+public final class DataPackUtil {
+    private DataPackUtil() {}
 
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
@@ -28,6 +27,25 @@ public final class AttunementDataUtil {
 
     public static Optional<AttunementLevel> getAttunementLevel(ItemStack stack, int level) {
         return getAttunementData(stack).flatMap(attunementData -> Optional.ofNullable(attunementData.attunements().get(String.valueOf(level))));
+    }
+
+    public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
+        return getAttunementData(stack).map(attunementData -> {
+            List<Integer> keysAsIntegers = new ArrayList<>();
+            for (String key : attunementData.attunements().keySet()) {
+                keysAsIntegers.add(Integer.parseInt(key));
+            }
+
+            Collections.sort(keysAsIntegers);
+
+            for (int i = 1; i < keysAsIntegers.size(); i++) {
+                if (keysAsIntegers.get(i) != i) {
+                    return i - 1;
+                }
+            }
+
+            return keysAsIntegers.size();
+        }).orElse(0);
     }
 
     public static Optional<AttunementRequirements> getAttunementRequirements(ItemStack stack, int level) {

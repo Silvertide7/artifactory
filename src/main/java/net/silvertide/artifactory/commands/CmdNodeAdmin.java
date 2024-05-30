@@ -10,7 +10,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.util.ArtifactUtil;
 
 public class CmdNodeAdmin {
     private static final String TARGET_ARG = "Target";

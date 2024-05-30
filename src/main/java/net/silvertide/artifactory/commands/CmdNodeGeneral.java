@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
-import net.silvertide.artifactory.util.ArtifactUtil;
+import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 
 public class CmdNodeGeneral {
@@ -20,7 +20,7 @@ public class CmdNodeGeneral {
         ServerPlayer player = ctx.getSource().getPlayer();
         if(player == null) return 0;
 
-        String slotsUsedText = ArtifactUtil.getAttunementSlotsUsed(player) + " of " + ArtifactUtil.getMaxAttunementSlots(player) + " attunement slots used.";
+        String slotsUsedText = AttunementUtil.getAttunementSlotsUsed(player) + " of " + AttunementUtil.getMaxAttunementSlots(player) + " attunement slots used.";
 
         PlayerMessenger.sendSystemMessage(player, "§3" + slotsUsedText + "§r");
         return 0;

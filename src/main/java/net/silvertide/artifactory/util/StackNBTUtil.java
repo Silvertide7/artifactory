@@ -17,6 +17,11 @@ public class StackNBTUtil {
     private static final String MODIFICATION_INVULNERABLE_NBT_KEY = "invulnerable";
     private static final String ATTRIBUTE_MODIFICATION_NBT_KEY = "attribute_modifications";
 
+    public static void setupStackToAttune(ItemStack stack) {
+        if (StackNBTUtil.artifactoryTagExists(stack)) StackNBTUtil.removeArtifactoryTag(stack);
+        StackNBTUtil.setItemAttunementUUID(stack, UUID.randomUUID());
+    }
+
     // BASIC TAG FUNCTIONS
 
     public static void setBoolean(ItemStack stack, String key, boolean value) {

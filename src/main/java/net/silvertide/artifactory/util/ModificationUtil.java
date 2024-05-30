@@ -3,14 +3,30 @@ package net.silvertide.artifactory.util;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
+import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.BasicModification;
 import net.silvertide.artifactory.modifications.BasicModificationType;
 
-public class AttunementModificationUtil {
-    private AttunementModificationUtil() {}
+public class ModificationUtil {
+    private ModificationUtil() {}
 
+    public static void updateItemWithAttunementModifications(ItemStack stack, ItemAttunementData attunementData, int level) {
+        if (attunementData.attunements().containsKey(String.valueOf(level))) {
+            AttunementLevel attunementLevel = attunementData.attunements().get(String.valueOf(level));
+            for (String modification : attunementLevel.modifications()) {
+                applyAttunementModification(stack, modification);
+            }
+        }
+    }
+
+    public static void applyAttunementModification(ItemStack stack, String modificationString) {
+        AttunementModification attunementModification = ModificationUtil.createAttunementModification(modificationString);
+        if (attunementModification != null) {
+            attunementModification.applyModification(stack);
+        }
+    }
     public static AttunementModification createAttunementModification(String modificationFromAttunementData) {
         if(modificationFromAttunementData.indexOf('/') >= 0) {
             String modificationIdentifier = modificationFromAttunementData.split("/")[0];
@@ -29,7 +45,7 @@ public class AttunementModificationUtil {
     }
 
     public static boolean hasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
-        return AttunementDataUtil.getAttunementData(stack).map(itemAttunementData -> {
+        return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
             for(int i = 1; i <= attunementLevelAchieved; i++) {
                 AttunementLevel attunementLevel = itemAttunementData.attunements().get(String.valueOf(i));
                 if(attunementLevel != null) {
