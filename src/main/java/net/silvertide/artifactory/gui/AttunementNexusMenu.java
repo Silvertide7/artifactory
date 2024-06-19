@@ -138,7 +138,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     
     @Override
     public boolean clickMenuButton(@NotNull Player player, int pId) {
-        if(pId == 1) {
+        if(pId == 1 && attunementSlot.hasItem()) {
             if(progress > 0) {
                 setProgress(0);
                 setIsActive(0);
@@ -162,9 +162,11 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                 Artifactory.LOGGER.info("progress: " + getProgress());
                 setProgress(getProgress() + 1);
             } else {
-                Artifactory.LOGGER.info("CREATING ATTUNEMENT");
-                setProgress(0);
+                if(this.attunementSlot.hasItem()) {
+                    AttunementUtil.attuneItemAndPlayer(this.player, this.attunementSlot.getItem());
+                }
                 setIsActive(0);
+                setProgress(0);
             }
         }
         super.broadcastChanges();

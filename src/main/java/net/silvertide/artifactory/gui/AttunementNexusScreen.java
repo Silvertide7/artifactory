@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
 import org.apache.commons.compress.utils.Lists;
 
+import java.awt.*;
 import java.util.List;
 
 public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
@@ -31,6 +32,7 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         // Move the label to get rid of it
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
+
     }
 
     @Override
@@ -69,6 +71,12 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
         int buttonOffset = getButtonOffsetToRender(mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
+
+        int buttonTextX = buttonX + ATTUNE_BUTTON_WIDTH / 2;
+        int buttonTextY = buttonY + ATTUNE_BUTTON_HEIGHT / 2;
+        Component buttonText = Component.literal("Attune");
+
+        guiGraphics.drawWordWrap(this.font, buttonText, buttonTextX - this.font.width(buttonText)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 512);
     }
 
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
