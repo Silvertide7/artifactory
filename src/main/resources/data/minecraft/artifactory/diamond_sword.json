@@ -1,0 +1,16 @@
+{
+  "slots_used": 1,
+  "attunements": {
+    "1": {
+      "modifications": ["unbreakable", "invulnerable", "attribute/minecraft:generic.attack_damage/addition/20.0/mainhand"]
+    },
+    "2": {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "kills": 100,
+        "feats": ["easy"]
+      }
+    }
+  },
+  "use_without_attunement": false
+}
