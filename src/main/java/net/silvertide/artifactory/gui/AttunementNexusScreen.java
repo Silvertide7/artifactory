@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
 import org.apache.commons.compress.utils.Lists;
 
-import java.awt.*;
 import java.util.List;
 
 public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
@@ -19,7 +18,6 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
     private boolean buttonDown = false;
-
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/attunement_nexus.png");
 
     public AttunementNexusScreen(AttunementNexusMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
@@ -32,7 +30,6 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         // Move the label to get rid of it
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
-
     }
 
     @Override
@@ -55,7 +52,7 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
         renderButtons(guiGraphics, mouseX, mouseY);
 
-        if(isHoveringButton(mouseX,mouseY)) renderCostTooltip(guiGraphics, mouseX, mouseY);
+        renderCostTooltip(guiGraphics, mouseX, mouseY);
 //        renderProgressArrow(guiGraphics, x, y);
     }
 
@@ -74,19 +71,40 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
         int buttonTextX = buttonX + ATTUNE_BUTTON_WIDTH / 2;
         int buttonTextY = buttonY + ATTUNE_BUTTON_HEIGHT / 2;
-        Component buttonText = Component.literal("Attune");
+        Component buttonTextComp = Component.literal(getButtonText());
 
-        guiGraphics.drawWordWrap(this.font, buttonText, buttonTextX - this.font.width(buttonText)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 512);
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 0xFFFFFF);
+    }
+
+    private String getButtonText() {
+        if(menu.getProgress() > 0) {
+            return "Cancel";
+        } else if (menu.canItemAscend()) {
+            return "Attune";
+        } else {
+            return "";
+        }
+    }
+
+    private String getButtonTextColor() {
+        if(menu.getProgress() > 0) {
+            return "Cancel";
+        } else if (menu.canItemAscend()) {
+            return "Attune";
+        } else {
+            return "";
+        }
     }
 
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        List<Component> list = Lists.newArrayList();
-        if(menu.canItemAscend()) {
-            list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", menu.getThreshold()));
-            list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", menu.getCost()));
-        } else {
-            list.add(Component.literal("Place an item to be attuned or ascended."));
-        }
+        if(isHoveringAttuneButton(mouseX, mouseY)) {
+            List<Component> list = Lists.newArrayList();
+            if(menu.canItemAscend()) {
+                list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", menu.getThreshold()));
+                list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", menu.getCost()));
+            } else {
+                list.add(Component.literal("Place an item to be attuned or ascended."));
+            }
 
 //        int currentAttunementLevel = attunementRenderContext.getAttunementLevel();
 //        if(currentAttunementLevel < 0) {
@@ -99,18 +117,18 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 //            list.add(Component.translatable("screen.tooltip.artifactory.max_attunement_reached"));
 //        }
 
-        guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
+            guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
+        }
     }
 
     private int getButtonOffsetToRender(int mouseX, int mouseY) {
-        //TODO Update this
         if(!menu.canItemAscend()) {
             return 39;
         }
         else if(buttonDown) {
             return 26;
         }
-        else if (isHoveringButton(mouseX, mouseY)) {
+        else if (isHoveringAttuneButton(mouseX, mouseY)) {
             return 13;
         }
         else {
@@ -118,15 +136,15 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         }
     }
 
-    private boolean isHoveringButton(int mouseX, int mouseY) {
+    private boolean isHoveringAttuneButton(double mouseX, double mouseY) {
         return isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         buttonDown = false;
-        if(clickedOnButton(mouseX, mouseY)){
-            if(this.minecraft != null && this.minecraft.gameMode != null) {
+        if(isHoveringAttuneButton(mouseX, mouseY)) {
+            if(this.minecraft != null && this.minecraft.gameMode != null && menu.canItemAscend()) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
             return true;
@@ -136,23 +154,10 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(clickedOnButton(mouseX, mouseY)) {
+        if(isHoveringAttuneButton(mouseX, mouseY)) {
             buttonDown = true;
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
-
-    private boolean clickedOnButton(double mouseX, double mouseY) {
-        int startX = leftPos + ATTUNE_BUTTON_X;
-        int finishX = startX + ATTUNE_BUTTON_WIDTH;
-
-        int startY = topPos + ATTUNE_BUTTON_Y;
-        int finishY = startY + ATTUNE_BUTTON_HEIGHT;
-
-        boolean inButtonX = mouseX >= startX && mouseX <= finishX;
-        boolean inButtonY = mouseY >= startY && mouseY <= finishY;
-        return inButtonY && inButtonX;
-    }
-
 }

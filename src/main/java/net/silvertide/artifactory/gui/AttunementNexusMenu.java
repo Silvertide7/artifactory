@@ -159,7 +159,6 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     public void broadcastChanges() {
         if(getIsActive()) {
             if(getProgress() < MAX_PROGRESS) {
-                Artifactory.LOGGER.info("progress: " + getProgress());
                 setProgress(getProgress() + 1);
             } else {
                 if(this.attunementSlot.hasItem()) {
