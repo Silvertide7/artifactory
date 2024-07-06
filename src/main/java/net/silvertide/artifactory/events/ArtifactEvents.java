@@ -21,6 +21,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.events.custom.PostAttuneEvent;
+import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.*;
@@ -31,7 +33,17 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ArtifactEvents {
 
-    @SubscribeEvent(priority= EventPriority.LOWEST)
+    @SubscribeEvent()
+    public static void onAttuneEvent(PreAttuneEvent attuneEvent) {
+        Artifactory.LOGGER.info("Artifact pre attunement");
+    }
+
+    @SubscribeEvent()
+    public static void onAttuneEvent(PostAttuneEvent attuneEvent) {
+        Artifactory.LOGGER.info("Artifact post attunement");
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttack(LivingAttackEvent event) {
         if (event.isCanceled() || event.getSource().getEntity() == null) return;
 
@@ -93,18 +105,20 @@ public class ArtifactEvents {
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
 
-            AttunementUtil.removeAttunementFromPlayerAndItem(stack);
+            AttunementService.removeAttunementFromPlayerAndItem(stack);
         }
     }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
     // was adapted from Project MMO
-    //https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
+    // https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
     private static short ticksIgnoredSinceLastProcess = 0;
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent playerTickEvent) {
         ticksIgnoredSinceLastProcess++;
         if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 10) return;
+        ticksIgnoredSinceLastProcess = 0;
+
         Player player = playerTickEvent.player;
 
         if (player instanceof ServerPlayer) {
@@ -147,7 +161,7 @@ public class ArtifactEvents {
     public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
         ItemStack stack = itemExpireEvent.getEntity().getItem();
         if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
-            AttunementUtil.removeAttunementFromPlayerAndItem(stack);
+            AttunementService.removeAttunementFromPlayerAndItem(stack);
         }
     }
 
@@ -155,7 +169,7 @@ public class ArtifactEvents {
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
-        if (AttunementUtil.isItemAttuneable(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+        if (AttunementUtil.isAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
             CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {

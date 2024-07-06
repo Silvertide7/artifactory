@@ -31,20 +31,13 @@ public final class DataPackUtil {
 
     public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
         return getAttunementData(stack).map(attunementData -> {
-            List<Integer> keysAsIntegers = new ArrayList<>();
+            int maxLevel = 0;
             for (String key : attunementData.attunements().keySet()) {
-                keysAsIntegers.add(Integer.parseInt(key));
+                int currentLevel = Integer.parseInt(key);
+                if(currentLevel > maxLevel) maxLevel = currentLevel;
             }
 
-            Collections.sort(keysAsIntegers);
-
-            for (int i = 1; i < keysAsIntegers.size(); i++) {
-                if (keysAsIntegers.get(i) != i) {
-                    return i - 1;
-                }
-            }
-
-            return keysAsIntegers.size();
+            return maxLevel;
         }).orElse(0);
     }
 

@@ -7,22 +7,26 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.Artifactory;
+import net.minecraftforge.common.MinecraftForge;
 import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.events.custom.PostAttuneEvent;
+import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
+import net.silvertide.artifactory.util.AttunementService;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
+import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public class AttunementNexusMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 40;
+
     private final ContainerLevelAccess access;
     private final Player player;
     private final Slot attunementSlot;
 
+    // Data Fields
     protected final ContainerData data;
     private int progress = 0;
     private int isActive = 0;
@@ -98,22 +102,27 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return DataPackUtil.getAttunementData(stack).map(attunementData -> AttunementUtil.isAttunementAllowed(player, stack, attunementData)).orElse(false);
+                return DataPackUtil.getAttunementData(stack).map(attunementData -> AttunementUtil.canIncreaseAttunementLevel(player, stack, attunementData)).orElse(false);
             }
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                setCost(-1);
-                setThreshold(-1);
-                setLevelAttunementAchieved(0);
-                setCanItemAscend(0);
-                if(getIsActive()) setIsActive(0);
-                if(getProgress() > 0) setProgress(0);
+                initializeDataSlots();
+
                 super.onTake(player, stack);
             }
         };
 
         this.addSlot(attunementSlot);
+    }
+
+    public void initializeDataSlots() {
+        setIsActive(0);
+        setProgress(0);
+        setCost(-1);
+        setThreshold(-1);
+        setLevelAttunementAchieved(0);
+        setCanItemAscend(0);
     }
 
     // Block Data Methods
@@ -129,12 +138,6 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
     public void setCost(int value) { this.data.set(COST_INDEX, value); }
     public int getThreshold() { return this.data.get(THRESHOLD_INDEX); }
     public void setThreshold(int value) { this.data.set(THRESHOLD_INDEX, value); }
-
-
-//    public void handleItemRemoved() {
-//        this.blockEntity.clearPlayerToAttuneToUUID();
-//        setCanAttune(false);
-//    }
     
     @Override
     public boolean clickMenuButton(@NotNull Player player, int pId) {
@@ -157,12 +160,17 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        if(getIsActive()) {
+        if(!player.level().isClientSide() && getIsActive()) {
             if(getProgress() < MAX_PROGRESS) {
                 setProgress(getProgress() + 1);
             } else {
-                if(this.attunementSlot.hasItem()) {
-                    AttunementUtil.attuneItemAndPlayer(this.player, this.attunementSlot.getItem());
+                if(this.attunementSlot.hasItem() &&
+                        (player.getAbilities().instabuild || this.meetsRequirementsToAttune()) ) {
+                    ItemStack stack = this.attunementSlot.getItem();
+                    if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
+                        if(!player.getAbilities().instabuild) this.payCostForAttunement();
+                        handleAttunement(stack);
+                    }
                 }
                 setIsActive(0);
                 setProgress(0);
@@ -171,12 +179,46 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         super.broadcastChanges();
     }
 
+    private boolean meetsRequirementsToAttune() {
+        int cost = getCost();
+        int threshold = getThreshold();
+
+        if(cost <= 0 && threshold <= 0) return true;
+
+        int playerLevel = player.experienceLevel;
+        if(threshold > 0 && playerLevel < threshold){
+            PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.failed_level_threshold", String.valueOf(threshold));
+            return false;
+        }
+        if(cost > 0 && playerLevel < cost){
+            PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.failed_level_cost", String.valueOf(cost));
+            return false;
+        }
+
+        return true;
+    }
+
+    private void payCostForAttunement() {
+        int cost = getCost();
+        if(cost > 0) player.giveExperienceLevels(-cost);
+    }
+
+    private void handleAttunement(ItemStack stackToAttune) {
+        AttunementService.increaseLevelOfAttunement(player, stackToAttune);
+        MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stackToAttune));
+        updateAttunementState();
+    }
+
     private void updateAttunementState() {
         if(this.player.level().isClientSide()) return;
 
         if(!inputSlot.isEmpty()) {
             ItemStack attuneableItemStack = inputSlot.getItem(0);
-            int nextLevelOfAttunement = AttunementUtil.getLevelOfAttunementAchieved(attuneableItemStack) + 1;
+            int levelAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(attuneableItemStack);
+
+            setLevelAttunementAchieved(levelAttunementAchieved);
+
+            int nextLevelOfAttunement = levelAttunementAchieved + 1;
 
             // Check if this is the first attunement, if not then make sure ascension exists
             if(nextLevelOfAttunement == 1 || DataPackUtil.getAttunementLevel(attuneableItemStack, nextLevelOfAttunement).isPresent()) {
@@ -185,6 +227,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
             } else {
                 if(this.canItemAscend != 0) setCanItemAscend(0);
             }
+
         } else {
             if(this.canItemAscend != 0) setCanItemAscend(0);
         }
@@ -236,6 +279,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
     @Override
     public void removed(Player player) {
+        initializeDataSlots();
         super.removed(player);
         this.access.execute((p_39796_, p_39797_) -> {
             this.clearContainer(player, this.inputSlot);

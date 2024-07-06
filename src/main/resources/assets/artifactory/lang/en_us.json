@@ -8,6 +8,8 @@
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",
+  "playermessage.artifactory.failed_level_cost": "You need %1$s levels to attune",
+  "playermessage.artifactory.failed_level_threshold": "You must have more than %1$s levels to start attunement",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "This process costs %1$s levels.",

@@ -44,13 +44,23 @@ public class ModificationUtil {
         return null;
     }
 
-    public static boolean hasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
+    public static boolean hasModification(ItemStack stack, String modification) {
+        int currentAttunementLevel = AttunementUtil.getLevelOfAttunementAchieved(stack);
+        for(int i = 1; i <= currentAttunementLevel; i++){
+            if (ModificationUtil.attunementLevelHasModification(stack, i, modification)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean attunementLevelHasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
         return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
             for(int i = 1; i <= attunementLevelAchieved; i++) {
                 AttunementLevel attunementLevel = itemAttunementData.attunements().get(String.valueOf(i));
                 if(attunementLevel != null) {
                     for(String modificationString : attunementLevel.modifications()) {
-                        if (modificationString.equals(modification)) return true;
+                        if (modification.equals(modificationString)) return true;
                     }
                 }
             }

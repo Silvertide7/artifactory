@@ -34,6 +34,17 @@ public class ArtifactorySavedData extends SavedData {
         return Optional.ofNullable(playerAttunedItems.get(attunedItemId));
     }
 
+    public int increaseLevelOfAttunedItem(UUID playerUUID, UUID attunedItemId) {
+        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
+        AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
+        if(attunedItem != null) {
+            playerAttunedItems.put(attunedItemId, attunedItem.getOneLevelHigherCopy());
+            this.setDirty();
+            return attunedItem.attunementLevel() + 1;
+        }
+        return 0;
+    }
+
     public Optional<List<AttunedItem>> getAttunedItemsAsList(UUID playerUUID) {
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         if(!playerAttunedItems.isEmpty()) {

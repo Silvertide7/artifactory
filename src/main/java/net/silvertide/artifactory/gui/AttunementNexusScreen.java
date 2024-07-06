@@ -53,11 +53,11 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         renderButtons(guiGraphics, mouseX, mouseY);
 
         renderCostTooltip(guiGraphics, mouseX, mouseY);
-//        renderProgressArrow(guiGraphics, x, y);
+//        renderProgressGraphic(guiGraphics, x, y);
     }
 
-//    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
-//        if(menu.isCrafting()) {
+//    private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
+//        if(menu.getProgress() > 0) {
 //            guiGraphics.blit(TEXTURE, x + 85, y + 30, 176, 0, 8, menu.getScaledProgress());
 //        }
 //    }

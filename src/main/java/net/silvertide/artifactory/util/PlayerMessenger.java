@@ -12,6 +12,10 @@ public final class PlayerMessenger {
     public static void displayTranslatabelClientMessage(Player player, String translationKey) {
         player.displayClientMessage(Component.translatable(translationKey), true);
     }
+
+    public static void displayTranslatabelClientMessage(Player player, String translationKey, String extraValue) {
+        player.displayClientMessage(Component.translatable(translationKey, extraValue), true);
+    }
     public static void sendSystemMessage(Player player, String message) {
         player.sendSystemMessage(Component.literal(message));
     }

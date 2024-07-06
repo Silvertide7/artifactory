@@ -21,6 +21,11 @@ public record AttunedItem(UUID itemUUID, String resourceLocation, int attunement
             Codec.INT.fieldOf("order").forGetter(AttunedItem::attunementLevel)
     ).apply(instance, AttunedItem::new));
 
+
+    public AttunedItem getOneLevelHigherCopy() {
+        return new AttunedItem(itemUUID(), resourceLocation(), attunementLevel() + 1, order());
+    }
+
     public static Optional<AttunedItem> buildAttunedItem(Player player, ItemStack stack) {
         return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);

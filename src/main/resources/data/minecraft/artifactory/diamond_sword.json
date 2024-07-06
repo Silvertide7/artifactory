@@ -5,7 +5,7 @@
       "modifications": ["unbreakable", "invulnerable", "attribute/minecraft:generic.attack_damage/addition/20.0/mainhand"]
     },
     "2": {
-      "modifications": ["soulbound"],
+      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/10.0/mainhand"],
       "requirements": {
         "kills": 100,
         "feats": ["easy"]

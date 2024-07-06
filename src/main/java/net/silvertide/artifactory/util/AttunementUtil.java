@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+/*
+ * This class is used to get information about an attuned item or a player
+ */
 public final class AttunementUtil {
     private AttunementUtil() {}
 
@@ -32,14 +35,14 @@ public final class AttunementUtil {
         return getMaxAttunementSlots(player) - getAttunementSlotsUsed(player);
     }
 
-    public static void attuneItemAndPlayer(Player player, ItemStack stack) {
-        DataPackUtil.getAttunementData(stack).ifPresent(attunementData -> {
-            if (isAttunementAllowed(player, stack, attunementData)) {
-                StackNBTUtil.setupStackToAttune(stack);
-                linkPlayerAndItem(player, stack);
-                ModificationUtil.updateItemWithAttunementModifications(stack, attunementData, 1);
-            }
-        });
+    public static int getLevelOfAttunementAchieved(ItemStack stack) {
+        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
+        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
+
+        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
+            return ArtifactorySavedData.get().getAttunedItem(attunedToUUID.get(), itemAttunementUUID.get()).map(AttunedItem::attunementLevel).orElse(0);
+        }
+        return 0;
     }
 
     public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {
@@ -48,28 +51,14 @@ public final class AttunementUtil {
         return openSlots >= attunementSlotsRequired;
     }
 
-    public static boolean isAttunementAllowed(Player player, ItemStack stack, ItemAttunementData attunementData) {
+    public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack, ItemAttunementData attunementData) {
+//        if(isItemAttunedToAPlayer())
+            //TODO
         return !stack.isEmpty() && isAvailableToAttune(stack) && canPlayerAttuneItem(player, attunementData);
-    }
-
-    public static void linkPlayerAndItem(Player player, ItemStack stack) {
-        AttunedItem.buildAttunedItem(player, stack).ifPresent(attunedItem -> {
-            addAttunementToPlayer(player, attunedItem);
-            addAttunementToStack(player, stack);
-        });
-    }
-
-
-    private static void addAttunementToPlayer(Player player, AttunedItem attunedItem) {
-        ArtifactorySavedData.get().setAttunedItem(player.getUUID(), attunedItem);
     }
 
     public static boolean isItemAttunedToAPlayer(ItemStack stack) {
         return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
-    }
-
-    private static void addAttunementToStack(Player player, ItemStack stack) {
-        StackNBTUtil.putPlayerDataInArtifactoryTag(player, stack);
     }
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
@@ -97,7 +86,7 @@ public final class AttunementUtil {
 
             // If the item is attuned to the player but the player is no longer attuned to the item remove the
             // items attunement data to sync it.
-            removeAttunementFromPlayerAndItem(stack);
+            AttunementService.removeAttunementFromPlayerAndItem(stack);
         }
         return false;
     }
@@ -115,37 +104,10 @@ public final class AttunementUtil {
 
     public static boolean isAvailableToAttune(ItemStack stack) {
         // TODO: Might want to check if the player still has the item attuned here and break the connection if not.
-        return isItemAttuneable(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
+        return isAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
     }
 
-    public static boolean isItemAttuneable(ItemStack stack) {
+    public static boolean isAttunementItem(ItemStack stack) {
         return !stack.isEmpty() && DataPackUtil.hasAttunementData(stack);
-    }
-
-    public static int getLevelOfAttunementAchieved(ItemStack stack) {
-        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
-        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
-
-        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            return ArtifactorySavedData.get().getAttunedItem(attunedToUUID.get(), itemAttunementUUID.get()).map(AttunedItem::attunementLevel).orElse(0);
-        }
-
-        return 0;
-    }
-
-    public static void removeAttunementFromPlayerAndItem(ItemStack stack) {
-        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
-        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
-
-        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
-            int currentAttunementLevel = artifactorySavedData.getAttunedItem(attunedToUUID.get(), itemAttunementUUID.get()).map(AttunedItem::attunementLevel).orElse(0);
-            if (ModificationUtil.hasModification(stack, currentAttunementLevel, "unbreakable")) {
-                StackNBTUtil.removeUnbreakable(stack);
-            }
-            artifactorySavedData.removeAttunedItem(attunedToUUID.get(), itemAttunementUUID.get());
-        }
-
-        StackNBTUtil.removeArtifactoryTag(stack);
     }
 }
