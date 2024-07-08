@@ -34,15 +34,16 @@ public class ArtifactorySavedData extends SavedData {
         return Optional.ofNullable(playerAttunedItems.get(attunedItemId));
     }
 
-    public int increaseLevelOfAttunedItem(UUID playerUUID, UUID attunedItemId) {
+    // Returns true if the items level was increased successfully, and false if not.
+    public boolean increaseLevelOfAttunedItem(UUID playerUUID, UUID attunedItemId) {
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
             playerAttunedItems.put(attunedItemId, attunedItem.getOneLevelHigherCopy());
             this.setDirty();
-            return attunedItem.attunementLevel() + 1;
+            return true;
         }
-        return 0;
+        return false;
     }
 
     public Optional<List<AttunedItem>> getAttunedItemsAsList(UUID playerUUID) {

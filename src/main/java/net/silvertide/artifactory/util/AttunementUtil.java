@@ -51,10 +51,17 @@ public final class AttunementUtil {
         return openSlots >= attunementSlotsRequired;
     }
 
-    public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack, ItemAttunementData attunementData) {
-//        if(isItemAttunedToAPlayer())
-            //TODO
-        return !stack.isEmpty() && isAvailableToAttune(stack) && canPlayerAttuneItem(player, attunementData);
+    public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
+        if(stack.isEmpty()) return false;
+        return DataPackUtil.getAttunementData(stack).map(attunementData -> {
+            if(isItemAttunedToPlayer(player, stack)) {
+                int levelAchieved = getLevelOfAttunementAchieved(stack);
+                int maxLevel = DataPackUtil.getMaxLevelOfAttunementPossible(stack);
+                return levelAchieved < maxLevel;
+            } else {
+                return isAvailableToAttune(stack) && canPlayerAttuneItem(player, attunementData);
+            }
+        }).orElse(false);
     }
 
     public static boolean isItemAttunedToAPlayer(ItemStack stack) {

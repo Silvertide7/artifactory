@@ -2,7 +2,6 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 
@@ -13,28 +12,28 @@ public final class AttunementService {
     private AttunementService() {}
 
     // Atunement Actions
-
     public static void increaseLevelOfAttunement(Player player, ItemStack stack) {
-        DataPackUtil.getAttunementData(stack).ifPresent(attunementData -> {
-            int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
-            if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
-                attuneItemAndPlayer(player, stack, attunementData);
-            } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
-                StackNBTUtil.getItemAttunementUUID(stack).ifPresent(attunedToUUID -> {
-                    int newLevel = ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunedToUUID);
-                    if(newLevel > 1) {
-                        ModificationUtil.updateItemWithAttunementModifications(stack, attunementData, newLevel);
-                    }
-                });
-            }
-        });
+        int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
+        boolean successfulAttunementIncrease = false;
+
+        if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
+            successfulAttunementIncrease = attuneItemAndPlayer(player, stack);
+        } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
+            successfulAttunementIncrease = StackNBTUtil.getItemAttunementUUID(stack).map(attunedToUUID -> ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunedToUUID)).orElse(false);
+        }
+        if (successfulAttunementIncrease) {
+            ModificationUtil.updateItemWithAttunementModifications(stack, levelOfAttunementAchieved + 1);
+        }
     }
-    private static void attuneItemAndPlayer(Player player, ItemStack stack, ItemAttunementData attunementData) {
-        if (AttunementUtil.canIncreaseAttunementLevel(player, stack, attunementData)) {
+
+    // Returns true if the item was successfully attuned, and false if not.
+    private static boolean attuneItemAndPlayer(Player player, ItemStack stack) {
+        if (AttunementUtil.canIncreaseAttunementLevel(player, stack)) {
             StackNBTUtil.setupStackToAttune(stack);
             linkPlayerAndItem(player, stack);
-            ModificationUtil.updateItemWithAttunementModifications(stack, attunementData, 1);
+            return true;
         }
+        return false;
     }
 
     private static void linkPlayerAndItem(Player player, ItemStack stack) {

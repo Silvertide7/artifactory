@@ -32,9 +32,13 @@ public final class DataPackUtil {
     public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
         return getAttunementData(stack).map(attunementData -> {
             int maxLevel = 0;
-            for (String key : attunementData.attunements().keySet()) {
-                int currentLevel = Integer.parseInt(key);
-                if(currentLevel > maxLevel) maxLevel = currentLevel;
+            Set<String> attunementLevels = attunementData.attunements().keySet();
+            for(int i = 1; i <= attunementLevels.size(); i++) {
+                if(attunementLevels.contains(String.valueOf(i))){
+                    maxLevel = i;
+                } else {
+                    return maxLevel;
+                }
             }
 
             return maxLevel;

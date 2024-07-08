@@ -102,7 +102,7 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
         attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return DataPackUtil.getAttunementData(stack).map(attunementData -> AttunementUtil.canIncreaseAttunementLevel(player, stack, attunementData)).orElse(false);
+                return AttunementUtil.canIncreaseAttunementLevel(player, stack);
             }
 
             @Override
@@ -214,14 +214,14 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
         if(!inputSlot.isEmpty()) {
             ItemStack attuneableItemStack = inputSlot.getItem(0);
-            int levelAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(attuneableItemStack);
 
+            int levelAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(attuneableItemStack);
             setLevelAttunementAchieved(levelAttunementAchieved);
 
             int nextLevelOfAttunement = levelAttunementAchieved + 1;
 
             // Check if this is the first attunement, if not then make sure ascension exists
-            if(nextLevelOfAttunement == 1 || DataPackUtil.getAttunementLevel(attuneableItemStack, nextLevelOfAttunement).isPresent()) {
+            if(AttunementUtil.canIncreaseAttunementLevel(player, attuneableItemStack)) {
                 updateAttunementRequirements(attuneableItemStack, nextLevelOfAttunement);
                 setCanItemAscend(1);
             } else {

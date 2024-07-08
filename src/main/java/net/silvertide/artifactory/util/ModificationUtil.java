@@ -12,13 +12,15 @@ import net.silvertide.artifactory.modifications.BasicModificationType;
 public class ModificationUtil {
     private ModificationUtil() {}
 
-    public static void updateItemWithAttunementModifications(ItemStack stack, ItemAttunementData attunementData, int level) {
-        if (attunementData.attunements().containsKey(String.valueOf(level))) {
-            AttunementLevel attunementLevel = attunementData.attunements().get(String.valueOf(level));
-            for (String modification : attunementLevel.modifications()) {
-                applyAttunementModification(stack, modification);
+    public static void updateItemWithAttunementModifications(ItemStack stack, int level) {
+        DataPackUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            if (attunementData.attunements().containsKey(String.valueOf(level))) {
+                AttunementLevel attunementLevel = attunementData.attunements().get(String.valueOf(level));
+                for (String modification : attunementLevel.modifications()) {
+                    applyAttunementModification(stack, modification);
+                }
             }
-        }
+        });
     }
 
     public static void applyAttunementModification(ItemStack stack, String modificationString) {
