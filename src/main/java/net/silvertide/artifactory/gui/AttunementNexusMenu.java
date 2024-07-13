@@ -168,7 +168,6 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
                         (player.getAbilities().instabuild || this.meetsRequirementsToAttune()) ) {
                     ItemStack stack = this.attunementSlot.getItem();
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
-                        if(!player.getAbilities().instabuild) this.payCostForAttunement();
                         handleAttunement(stack);
                     }
                 }
@@ -205,6 +204,8 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
     private void handleAttunement(ItemStack stackToAttune) {
         AttunementService.increaseLevelOfAttunement(player, stackToAttune);
+        if(!player.getAbilities().instabuild) this.payCostForAttunement();
+
         MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stackToAttune));
         updateAttunementState();
     }
@@ -220,14 +221,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
 
             int nextLevelOfAttunement = levelAttunementAchieved + 1;
 
-            // Check if this is the first attunement, if not then make sure ascension exists
-            if(AttunementUtil.canIncreaseAttunementLevel(player, attuneableItemStack)) {
+            if(AttunementUtil.canIncreaseAttunementLevel(player, attuneableItemStack) && (player.getAbilities().instabuild || meetsRequirementsToAttune())) {
                 updateAttunementRequirements(attuneableItemStack, nextLevelOfAttunement);
                 setCanItemAscend(1);
             } else {
                 if(this.canItemAscend != 0) setCanItemAscend(0);
             }
-
         } else {
             if(this.canItemAscend != 0) setCanItemAscend(0);
         }
