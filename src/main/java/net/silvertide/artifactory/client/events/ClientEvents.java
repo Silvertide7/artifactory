@@ -11,36 +11,34 @@ import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
+import java.util.List;
+
 public class ClientEvents {
     @SubscribeEvent
-    public void onTooltip(ItemTooltipEvent evt) {
-        ItemStack stack = evt.getItemStack();
+    public void onTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
         if(!stack.isEmpty()) {
             DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
-                evt.getToolTip().add(1, createAttunementHoverComponent(itemAttunementData, stack));
+                event.getToolTip().add(createAttunementHoverComponent(itemAttunementData, stack));
+                if(AttunementUtil.isAvailableToAttune(stack)){
+                    addSlotTooltip(event.getToolTip(), itemAttunementData);
+                }
             });
         }
     }
 
     private MutableComponent createAttunementHoverComponent(ItemAttunementData itemAttunementData, ItemStack stack) {
-        MutableComponent hoverText;
-        ChatFormatting chatFormatting;
-
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
-            chatFormatting = ChatFormatting.LIGHT_PURPLE;
-            hoverText = createAttunedHoverText(stack, chatFormatting);
+            return createAttunedHoverText(stack);
         } else {
-            chatFormatting = ChatFormatting.DARK_PURPLE;
-            hoverText = createUnattunedHoverText(itemAttunementData.useWithoutAttunement(), chatFormatting);
+            return createUnattunedHoverText(itemAttunementData.useWithoutAttunement(), ChatFormatting.DARK_PURPLE);
         }
-        hoverText.append(Component.literal(" (" + itemAttunementData.getAttunementSlotsUsed() + ")").withStyle(chatFormatting));
-        return hoverText;
     }
 
-    private MutableComponent createAttunedHoverText(ItemStack stack, ChatFormatting chatFormatting){
-        MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(chatFormatting);
+    private MutableComponent createAttunedHoverText(ItemStack stack) {
+        MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(ChatFormatting.DARK_PURPLE);
         StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
-            hoverText.append(Component.literal(" (" + name + ")").withStyle(chatFormatting));
+            hoverText.append(Component.literal(" (" + name + ")").withStyle(ChatFormatting.DARK_PURPLE));
         });
         return hoverText;
     }
@@ -50,6 +48,14 @@ public class ClientEvents {
             return Component.translatable("hovertext.artifactory.use_without_attunement").withStyle(chatFormatting);
         } else {
             return Component.translatable("hovertext.artifactory.use_with_attunement").withStyle(chatFormatting);
+        }
+    }
+
+    private void addSlotTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
+        if(itemAttunementData.getAttunementSlotsUsed() > 0) {
+            String tooltipText = itemAttunementData.getAttunementSlotsUsed() + " slot";
+            if(itemAttunementData.getAttunementSlotsUsed() > 1) tooltipText += "s";
+            toolTips.add(Component.literal(tooltipText).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
     }
 }
