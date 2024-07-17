@@ -28,7 +28,7 @@ public class ClientEvents {
     }
 
     private void createAttunementHoverComponent(List<Component> toolTips, ItemAttunementData itemAttunementData, ItemStack stack) {
-        MutableComponent toolTip = null;
+        MutableComponent toolTip;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             toolTip = createAttunedHoverText(stack);
         } else {
