@@ -14,49 +14,67 @@ import net.silvertide.artifactory.util.StackNBTUtil;
 import java.util.List;
 
 public class ClientEvents {
+    private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
+    private final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
         if(!stack.isEmpty()) {
             DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
-                event.getToolTip().add(createAttunementHoverComponent(itemAttunementData, stack));
-                if(AttunementUtil.isAvailableToAttune(stack)){
-                    addSlotTooltip(event.getToolTip(), itemAttunementData);
-                }
+                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
+                addTraitTooltips(event.getToolTip(), stack);
             });
         }
     }
 
-    private MutableComponent createAttunementHoverComponent(ItemAttunementData itemAttunementData, ItemStack stack) {
+    private void createAttunementHoverComponent(List<Component> toolTips, ItemAttunementData itemAttunementData, ItemStack stack) {
+        MutableComponent toolTip = null;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
-            return createAttunedHoverText(stack);
+            toolTip = createAttunedHoverText(stack);
         } else {
-            return createUnattunedHoverText(itemAttunementData.useWithoutAttunement(), ChatFormatting.DARK_PURPLE);
+            toolTip = createUnattunedHoverText(itemAttunementData.useWithoutAttunement());
+            if(itemAttunementData.getAttunementSlotsUsed() > 0) {
+                String tooltipText = " - " + itemAttunementData.getAttunementSlotsUsed() + " slot";
+                if(itemAttunementData.getAttunementSlotsUsed() > 1) tooltipText += "s";
+                toolTip.append(Component.literal(tooltipText).withStyle(unAttunedFormatting));
+            }
         }
+        toolTips.add(toolTip);
     }
 
     private MutableComponent createAttunedHoverText(ItemStack stack) {
-        MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(ChatFormatting.DARK_PURPLE);
+        MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(attunedFormatting);
         StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
-            hoverText.append(Component.literal(" (" + name + ")").withStyle(ChatFormatting.DARK_PURPLE));
+            hoverText.append(Component.literal(" <" + name + ">").withStyle(attunedFormatting));
         });
         return hoverText;
     }
 
-    private MutableComponent createUnattunedHoverText(boolean useWithoutAttunement, ChatFormatting chatFormatting) {
+    private MutableComponent createUnattunedHoverText(boolean useWithoutAttunement) {
         if(useWithoutAttunement){
-            return Component.translatable("hovertext.artifactory.use_without_attunement").withStyle(chatFormatting);
+            return Component.translatable("hovertext.artifactory.use_without_attunement").withStyle(unAttunedFormatting);
         } else {
-            return Component.translatable("hovertext.artifactory.use_with_attunement").withStyle(chatFormatting);
+            return Component.translatable("hovertext.artifactory.use_with_attunement").withStyle(unAttunedFormatting);
         }
     }
 
-    private void addSlotTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
-        if(itemAttunementData.getAttunementSlotsUsed() > 0) {
-            String tooltipText = itemAttunementData.getAttunementSlotsUsed() + " slot";
-            if(itemAttunementData.getAttunementSlotsUsed() > 1) tooltipText += "s";
-            toolTips.add(Component.literal(tooltipText).withStyle(ChatFormatting.LIGHT_PURPLE));
+    private void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
+        String traitText = null;
+        if(StackNBTUtil.isSoulbound(stack)) {
+            traitText = "Soulbound";
+        }
+
+        if(StackNBTUtil.isInvulnerable(stack)) {
+            if(traitText != null){
+                traitText += " | Invulnerable";
+            } else {
+                traitText = "Invulnerable";
+            }
+        }
+        if(traitText != null) {
+            toolTips.add(Component.literal(traitText).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
     }
+
 }
 
