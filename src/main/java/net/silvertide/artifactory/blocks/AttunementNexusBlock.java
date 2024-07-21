@@ -18,13 +18,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.silvertide.artifactory.gui.AttunementNexusMenu;
+import net.silvertide.artifactory.gui.AttunementNexusAttuneMenu;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
 public class AttunementNexusBlock extends Block {
-    public static final VoxelShape SHAPE = Block.box(0,0,0,16,12,16);
+    public static final VoxelShape SHAPE = Block.box(0,0,0,16,14,16);
 
     public AttunementNexusBlock(Properties properties) {
         super(BlockBehaviour.Properties.of().strength(5.0F).sound(SoundType.AMETHYST).noOcclusion());
@@ -34,7 +34,7 @@ public class AttunementNexusBlock extends Block {
     @SuppressWarnings("deprecation")
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider((i, inventory, player) ->
-                new AttunementNexusMenu(i, inventory, ContainerLevelAccess.create(level, pos)), Component.translatable("block.artifactory.attunement_nexus"));
+                new AttunementNexusAttuneMenu(i, inventory, ContainerLevelAccess.create(level, pos)), Component.translatable("block.artifactory.attunement_nexus"));
     }
 
     @SuppressWarnings("deprecation")

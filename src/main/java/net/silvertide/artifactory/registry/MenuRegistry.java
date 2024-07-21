@@ -9,12 +9,12 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.gui.AttunementNexusMenu;
+import net.silvertide.artifactory.gui.AttunementNexusAttuneMenu;
 
 public class MenuRegistry {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Artifactory.MOD_ID);
 
-    public static final RegistryObject<MenuType<AttunementNexusMenu>> ATTUNEMENT_NEXUS_MENU = registerMenuType("attunement_nexus_menu", AttunementNexusMenu::new);
+    public static final RegistryObject<MenuType<AttunementNexusAttuneMenu>> ATTUNEMENT_NEXUS_MENU = registerMenuType("attunement_nexus_menu", AttunementNexusAttuneMenu::new);
 
     public static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));

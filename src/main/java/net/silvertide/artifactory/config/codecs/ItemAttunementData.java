@@ -8,9 +8,9 @@ import java.util.Map;
 
 public record ItemAttunementData(int attunementSlotsUsed, Map<String, AttunementLevel> attunements, boolean useWithoutAttunement, boolean replace) {
     public static final Codec<ItemAttunementData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("slots_used").forGetter(ItemAttunementData::attunementSlotsUsed),
+            Codec.INT.optionalFieldOf("slots_used", 1).forGetter(ItemAttunementData::attunementSlotsUsed),
             Codec.unboundedMap(Codec.STRING, AttunementLevel.CODEC).optionalFieldOf("attunements", createDefaultAttunementsMap()).forGetter(ItemAttunementData::attunements),
-            Codec.BOOL.optionalFieldOf("use_without_attunement", false).forGetter(ItemAttunementData::useWithoutAttunement),
+            Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(ItemAttunementData::useWithoutAttunement),
             Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace))
             .apply(instance, ItemAttunementData::new)
     );

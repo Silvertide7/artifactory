@@ -21,8 +21,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
-import net.silvertide.artifactory.events.custom.PostAttuneEvent;
-import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.*;
@@ -32,16 +30,6 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ArtifactEvents {
-
-    @SubscribeEvent()
-    public static void onAttuneEvent(PreAttuneEvent attuneEvent) {
-        Artifactory.LOGGER.info("Artifact pre attunement");
-    }
-
-    @SubscribeEvent()
-    public static void onAttuneEvent(PostAttuneEvent attuneEvent) {
-        Artifactory.LOGGER.info("Artifact post attunement");
-    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttack(LivingAttackEvent event) {
@@ -86,6 +74,7 @@ public class ArtifactEvents {
         }
     }
 
+    //TODO Remove this for release
     @SubscribeEvent
     public static void onItemToss(ItemTossEvent tossEvent) {
         Player player = tossEvent.getPlayer();
@@ -104,8 +93,6 @@ public class ArtifactEvents {
             Artifactory.LOGGER.info("Item thrown attuned to player: " + AttunementUtil.arePlayerAndItemAttuned(player, stack));
 
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
-
-            AttunementService.removeAttunementFromPlayerAndItem(stack);
         }
     }
 

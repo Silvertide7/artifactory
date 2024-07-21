@@ -2,13 +2,17 @@
   "slots_used": 1,
   "attunements": {
     "1": {
-      "modifications": ["unbreakable", "invulnerable", "attribute/minecraft:generic.attack_damage/addition/20.0/mainhand"]
+      "modifications": ["unbreakable", "invulnerable", "attribute/minecraft:generic.attack_damage/addition/1.0/mainhand"],
+      "requirements": {
+        "xpLevelsConsumed": 30,
+        "xpLevelThreshold": 35
+      }
     },
     "2": {
-      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/10.0/mainhand"],
+      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/2.0/mainhand"],
       "requirements": {
-        "kills": 100,
-        "feats": ["easy"]
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 40
       }
     }
   },

@@ -12,15 +12,20 @@ import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
 
-public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNexusMenu> {
+public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> {
     private static final int ATTUNE_BUTTON_X = 61;
     private static final int ATTUNE_BUTTON_Y = 65;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
-    private boolean buttonDown = false;
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/attunement_nexus.png");
+    private static final int MANAGE_BUTTON_X = 130;
+    private static final int MANAGE_BUTTON_Y = 65;
+    private static final int MANAGE_BUTTON_WIDTH = 18;
+    private static final int MANAGE_BUTTON_HEIGHT = 12;
+    private boolean attuneButtonDown = false;
+    private boolean manageButtonDown = false;
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
 
-    public AttunementNexusScreen(AttunementNexusMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
     }
 
@@ -63,30 +68,33 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
 //    }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        renderAttuneButton(guiGraphics, mouseX, mouseY);
+        renderManageButton(guiGraphics, mouseX, mouseY);
+    }
+
+    private void renderAttuneButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int buttonX = leftPos + ATTUNE_BUTTON_X;
         int buttonY = topPos + ATTUNE_BUTTON_Y;
 
-        int buttonOffset = getButtonOffsetToRender(mouseX, mouseY);
+        int buttonOffset = getAttuneButtonOffsetToRender(mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
 
         int buttonTextX = buttonX + ATTUNE_BUTTON_WIDTH / 2;
         int buttonTextY = buttonY + ATTUNE_BUTTON_HEIGHT / 2;
-        Component buttonTextComp = Component.literal(getButtonText());
+        Component buttonTextComp = Component.literal(getAttuneButtonText());
 
         guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 0xFFFFFF);
     }
 
-    private String getButtonText() {
-        if(menu.getProgress() > 0) {
-            return "Cancel";
-        } else if (menu.canItemAscend()) {
-            return "Attune";
-        } else {
-            return "";
-        }
+    private void renderManageButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int buttonX = leftPos + MANAGE_BUTTON_X;
+        int buttonY = topPos + MANAGE_BUTTON_Y;
+
+        int buttonOffset = getManageButtonOffsetToRender(mouseX, mouseY);
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, MANAGE_BUTTON_WIDTH, MANAGE_BUTTON_HEIGHT);
     }
 
-    private String getButtonTextColor() {
+    private String getAttuneButtonText() {
         if(menu.getProgress() > 0) {
             return "Cancel";
         } else if (menu.canItemAscend()) {
@@ -105,27 +113,15 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
             } else {
                 list.add(Component.literal("Place an item to be attuned or ascended."));
             }
-
-//        int currentAttunementLevel = attunementRenderContext.getAttunementLevel();
-//        if(currentAttunementLevel < 0) {
-//            list.add(Component.translatable("screen.tooltip.artifactory.attuned_to_other_player"));
-//        } else if (currentAttunementLevel == 0) {
-//            list.add(Component.translatable("screen.tooltip.artifactory.able_to_attune"));
-//        } else {
-//            //TODO: Check if ascension is allowed for rendering here.
-//            list.add(Component.translatable("screen.tooltip.artifactory.ascend", currentAttunementLevel + 1));
-//            list.add(Component.translatable("screen.tooltip.artifactory.max_attunement_reached"));
-//        }
-
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }
     }
 
-    private int getButtonOffsetToRender(int mouseX, int mouseY) {
+    private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
         if(!menu.canItemAscend()) {
             return 39;
         }
-        else if(buttonDown) {
+        else if(attuneButtonDown) {
             return 26;
         }
         else if (isHoveringAttuneButton(mouseX, mouseY)) {
@@ -136,26 +132,53 @@ public class AttunementNexusScreen extends AbstractContainerScreen<AttunementNex
         }
     }
 
+    private int getManageButtonOffsetToRender(int mouseX, int mouseY) {
+        if(manageButtonDown) {
+            return 78;
+        }
+        else if (isHoveringManageButton(mouseX, mouseY)) {
+            return 65;
+        }
+        else {
+            return 52;
+        }
+    }
+
     private boolean isHoveringAttuneButton(double mouseX, double mouseY) {
         return isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY);
     }
 
+    private boolean isHoveringManageButton(double mouseX, double mouseY) {
+        return isHovering(MANAGE_BUTTON_X, MANAGE_BUTTON_Y, MANAGE_BUTTON_WIDTH, MANAGE_BUTTON_HEIGHT, mouseX, mouseY);
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        buttonDown = false;
-        if(isHoveringAttuneButton(mouseX, mouseY)) {
+        if(isHoveringAttuneButton(mouseX, mouseY) && attuneButtonDown) {
             if(this.minecraft != null && this.minecraft.gameMode != null && menu.canItemAscend()) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
+            attuneButtonDown = false;
+            manageButtonDown = false;
+            return true;
+        } else if(isHoveringManageButton(mouseX, mouseY) && manageButtonDown) {
+            Artifactory.LOGGER.info("Pressed manage.");
+            manageButtonDown = false;
+            attuneButtonDown = false;
             return true;
         }
+        manageButtonDown = false;
+        attuneButtonDown = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
-            buttonDown = true;
+            attuneButtonDown = true;
+            return true;
+        } else if (isHoveringManageButton(mouseX, mouseY)){
+            manageButtonDown = true;
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);

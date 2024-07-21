@@ -19,7 +19,7 @@ import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.NotNull;
 
-public class AttunementNexusMenu extends AbstractContainerMenu {
+public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 40;
 
     private final ContainerLevelAccess access;
@@ -48,14 +48,14 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
          */
         public void setChanged() {
             super.setChanged();
-            AttunementNexusMenu.this.slotsChanged(this);
+            AttunementNexusAttuneMenu.this.slotsChanged(this);
         }
     };
-    public AttunementNexusMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
+    public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public AttunementNexusMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+    public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
         this.access = access;
         this.player = playerInventory.player;
@@ -69,12 +69,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
             @Override
             public int get(int index) {
                 return switch(index) {
-                    case 0 -> AttunementNexusMenu.this.progress;
-                    case 1 -> AttunementNexusMenu.this.isActive;
-                    case 2 -> AttunementNexusMenu.this.canItemAscend;
-                    case 3 -> AttunementNexusMenu.this.levelAttunementAchieved;
-                    case 4 -> AttunementNexusMenu.this.cost;
-                    case 5 -> AttunementNexusMenu.this.threshold;
+                    case 0 -> AttunementNexusAttuneMenu.this.progress;
+                    case 1 -> AttunementNexusAttuneMenu.this.isActive;
+                    case 2 -> AttunementNexusAttuneMenu.this.canItemAscend;
+                    case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved;
+                    case 4 -> AttunementNexusAttuneMenu.this.cost;
+                    case 5 -> AttunementNexusAttuneMenu.this.threshold;
                     default -> 0;
                 };
             }
@@ -82,12 +82,12 @@ public class AttunementNexusMenu extends AbstractContainerMenu {
             @Override
             public void set(int index, int value) {
                 switch(index) {
-                    case 0 -> AttunementNexusMenu.this.progress = value;
-                    case 1 -> AttunementNexusMenu.this.isActive = value;
-                    case 2 -> AttunementNexusMenu.this.canItemAscend = value;
-                    case 3 -> AttunementNexusMenu.this.levelAttunementAchieved = value;
-                    case 4 -> AttunementNexusMenu.this.cost = value;
-                    case 5 -> AttunementNexusMenu.this.threshold = value;
+                    case 0 -> AttunementNexusAttuneMenu.this.progress = value;
+                    case 1 -> AttunementNexusAttuneMenu.this.isActive = value;
+                    case 2 -> AttunementNexusAttuneMenu.this.canItemAscend = value;
+                    case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved = value;
+                    case 4 -> AttunementNexusAttuneMenu.this.cost = value;
+                    case 5 -> AttunementNexusAttuneMenu.this.threshold = value;
                 }
             }
 

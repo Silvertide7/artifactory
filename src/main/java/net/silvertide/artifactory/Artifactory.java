@@ -17,7 +17,7 @@ import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.client.events.ClientEvents;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
-import net.silvertide.artifactory.gui.AttunementNexusScreen;
+import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // TODO: Need to find a good place to trigger removing item nbt if no longer attuned
@@ -61,7 +61,7 @@ public class Artifactory
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), AttunementNexusScreen::new);
+            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), AttunementNexusAttuneScreen::new);
             MinecraftForge.EVENT_BUS.register(new ClientEvents());
         }
     }
