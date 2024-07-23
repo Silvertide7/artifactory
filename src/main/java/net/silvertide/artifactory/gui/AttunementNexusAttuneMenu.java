@@ -56,7 +56,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
+        super(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), containerId);
         this.access = access;
         this.player = playerInventory.player;
 

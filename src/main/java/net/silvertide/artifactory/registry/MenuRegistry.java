@@ -14,7 +14,7 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneMenu;
 public class MenuRegistry {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Artifactory.MOD_ID);
 
-    public static final RegistryObject<MenuType<AttunementNexusAttuneMenu>> ATTUNEMENT_NEXUS_MENU = registerMenuType("attunement_nexus_menu", AttunementNexusAttuneMenu::new);
+    public static final RegistryObject<MenuType<AttunementNexusAttuneMenu>> ATTUNEMENT_NEXUS_ATTUNE_MENU = registerMenuType("attunement_nexus_attune_menu", AttunementNexusAttuneMenu::new);
 
     public static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));

@@ -61,7 +61,7 @@ public class Artifactory
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), AttunementNexusAttuneScreen::new);
+            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), AttunementNexusAttuneScreen::new);
             MinecraftForge.EVENT_BUS.register(new ClientEvents());
         }
     }

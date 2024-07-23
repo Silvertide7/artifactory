@@ -17,12 +17,16 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private static final int ATTUNE_BUTTON_Y = 65;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
-    private static final int MANAGE_BUTTON_X = 130;
-    private static final int MANAGE_BUTTON_Y = 65;
+    private static final int MANAGE_BUTTON_X = 147;
+    private static final int MANAGE_BUTTON_Y = 19;
     private static final int MANAGE_BUTTON_WIDTH = 18;
     private static final int MANAGE_BUTTON_HEIGHT = 12;
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
+    public int screenWidth;
+    public int screenHeight;
+    public int screenLeftPos;
+    public int screenTopPos;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
 
     public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
@@ -35,6 +39,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         // Move the label to get rid of it
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
+        this.screenWidth = imageWidth;
+        this.screenHeight = imageHeight;
+        this.screenLeftPos = leftPos;
+        this.screenTopPos = topPos;
     }
 
     @Override
@@ -162,7 +170,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             manageButtonDown = false;
             return true;
         } else if(isHoveringManageButton(mouseX, mouseY) && manageButtonDown) {
-            Artifactory.LOGGER.info("Pressed manage.");
+            if(this.minecraft != null && this.minecraft.gameMode != null) {
+                this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
+            }
             manageButtonDown = false;
             attuneButtonDown = false;
             return true;

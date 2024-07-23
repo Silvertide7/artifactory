@@ -43,6 +43,12 @@ public class PacketHandler {
                 .consumerMainThread(CB_RemoveAttunedItem::handle)
                 .add();
 
+        net.messageBuilder(SB_RemoveAttunedItem.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SB_RemoveAttunedItem::new)
+                .encoder(SB_RemoveAttunedItem::encode)
+                .consumerMainThread(SB_RemoveAttunedItem::handle)
+                .add();
+
     }
 
     public static <MSG> void sendToServer(MSG message) {

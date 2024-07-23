@@ -41,8 +41,8 @@ public class ClientAttunedItems {
 //    public static Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {
 //        return myAttunedItems;
 //    }
-//
-//    public static List<AttunedItem> getAttunedItemsAsList(UUID playerUUID) {
-//        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
-//    }
+
+    public static List<AttunedItem> getAttunedItemsAsList(UUID playerUUID) {
+        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
+    }
 }
