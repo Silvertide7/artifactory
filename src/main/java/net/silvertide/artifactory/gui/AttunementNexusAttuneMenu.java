@@ -20,7 +20,7 @@ import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.NotNull;
 
 public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
-    public final int MAX_PROGRESS = 40;
+    public final int MAX_PROGRESS = 100;
 
     private final ContainerLevelAccess access;
     private final Player player;
@@ -176,6 +176,15 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             }
         }
         super.broadcastChanges();
+    }
+
+    // Block Entity Data Methods
+    public int getScaledProgress() {
+        int progress = getProgress();
+        int maxProgress = MAX_PROGRESS;
+        int progressArrowSize = 18;
+
+        return MAX_PROGRESS != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
 
     private boolean meetsRequirementsToAttune() {

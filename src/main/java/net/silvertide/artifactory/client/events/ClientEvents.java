@@ -34,7 +34,7 @@ public class ClientEvents {
         } else {
             toolTip = createUnattunedHoverText(itemAttunementData.useWithoutAttunement());
             if(itemAttunementData.getAttunementSlotsUsed() > 0) {
-                String tooltipText = " - " + itemAttunementData.getAttunementSlotsUsed() + " slot";
+                String tooltipText = " | " + itemAttunementData.getAttunementSlotsUsed() + " slot";
                 if(itemAttunementData.getAttunementSlotsUsed() > 1) tooltipText += "s";
                 toolTip.append(Component.literal(tooltipText).withStyle(unAttunedFormatting));
             }

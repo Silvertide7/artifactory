@@ -66,14 +66,15 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         renderButtons(guiGraphics, mouseX, mouseY);
 
         renderCostTooltip(guiGraphics, mouseX, mouseY);
-//        renderProgressGraphic(guiGraphics, x, y);
+        renderProgressGraphic(guiGraphics, x, y);
     }
 
-//    private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
-//        if(menu.getProgress() > 0) {
-//            guiGraphics.blit(TEXTURE, x + 85, y + 30, 176, 0, 8, menu.getScaledProgress());
-//        }
-//    }
+    private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
+        if(menu.getProgress() > 0) {
+            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, menu.getScaledProgress() / 2);
+            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * menu.getScaledProgress() / 2);
+        }
+    }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderAttuneButton(guiGraphics, mouseX, mouseY);
