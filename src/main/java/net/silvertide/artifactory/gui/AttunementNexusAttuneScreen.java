@@ -37,8 +37,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     protected void init() {
         super.init();
         // Move the label to get rid of it
+        this.titleLabelX = 10000;
+        this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
+
         this.screenWidth = imageWidth;
         this.screenHeight = imageHeight;
         this.screenLeftPos = leftPos;
@@ -61,19 +64,19 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
+
         guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
+        renderTitle(guiGraphics, x, y);
         renderButtons(guiGraphics, mouseX, mouseY);
-
-        renderCostTooltip(guiGraphics, mouseX, mouseY);
+        renderTooltips(guiGraphics, mouseX, mouseY);
+        renderAttunementInformation(guiGraphics, x, y);
         renderProgressGraphic(guiGraphics, x, y);
     }
 
-    private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
-        if(menu.getProgress() > 0) {
-            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, menu.getScaledProgress() / 2);
-            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * menu.getScaledProgress() / 2);
-        }
+    private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
+        Component buttonTextComp = Component.literal("Attune Gear");
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, 0xFFFFFF);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -113,6 +116,19 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
     }
 
+    private void renderTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        renderCostTooltip(guiGraphics, mouseX, mouseY);
+        renderManageTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    private void renderManageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if(isHoveringManageButton(mouseX, mouseY)) {
+            List<Component> list = Lists.newArrayList();
+            list.add(Component.literal("Manage Attunements"));
+            guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
+        }
+    }
+
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
@@ -126,6 +142,19 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
     }
 
+    private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
+        Component buttonTextComp = Component.literal("AttunementLevel");
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, 0xFFFFFF);
+    }
+
+    private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
+        if(menu.getProgress() > 0) {
+            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, menu.getScaledProgress() / 2);
+            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * menu.getScaledProgress() / 2);
+        }
+    }
+
+    // HELPERS
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
         if(!menu.canItemAscend()) {
             return 39;
