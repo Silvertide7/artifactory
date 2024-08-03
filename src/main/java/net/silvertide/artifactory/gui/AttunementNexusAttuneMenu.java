@@ -102,7 +102,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return AttunementUtil.canIncreaseAttunementLevel(player, stack);
+                return AttunementUtil.isAttunementItem(stack);
             }
 
             @Override
@@ -138,7 +138,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setCost(int value) { this.data.set(COST_INDEX, value); }
     public int getThreshold() { return this.data.get(THRESHOLD_INDEX); }
     public void setThreshold(int value) { this.data.set(THRESHOLD_INDEX, value); }
-    
     @Override
     public boolean clickMenuButton(@NotNull Player player, int pId) {
         if(pId == 1 && attunementSlot.hasItem()) {
@@ -261,6 +260,10 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 setThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
             }
         );
+    }
+
+    public boolean hasAttuneableItemInSlot() {
+        return !this.inputSlot.isEmpty();
     }
 
     @Override

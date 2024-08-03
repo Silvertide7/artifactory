@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import org.apache.commons.compress.utils.Lists;
 
@@ -70,8 +71,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         renderTitle(guiGraphics, x, y);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderTooltips(guiGraphics, mouseX, mouseY);
-        renderAttunementInformation(guiGraphics, x, y);
         renderProgressGraphic(guiGraphics, x, y);
+
+        if(this.menu.hasAttuneableItemInSlot()) {
+            renderAttunementInformation(guiGraphics, x, y);
+        }
     }
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
@@ -93,7 +97,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
         int buttonTextX = buttonX + ATTUNE_BUTTON_WIDTH / 2;
         int buttonTextY = buttonY + ATTUNE_BUTTON_HEIGHT / 2;
-        Component buttonTextComp = Component.literal(getAttuneButtonText());
+        Component buttonTextComp = getAttuneButtonText();
 
         guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 0xFFFFFF);
     }
@@ -106,13 +110,15 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, MANAGE_BUTTON_WIDTH, MANAGE_BUTTON_HEIGHT);
     }
 
-    private String getAttuneButtonText() {
+    private Component getAttuneButtonText() {
         if(menu.getProgress() > 0) {
-            return "Cancel";
+            return Component.translatable("screen.button.artifactory.attune_in_progress");
         } else if (menu.canItemAscend()) {
-            return "Attune";
+            return Component.translatable("screen.button.artifactory.attune_not_in_progress");
+        } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
+            return Component.translatable("screen.button.artifactory.max_attunement_reached");
         } else {
-            return "";
+            return Component.literal("");
         }
     }
 
@@ -143,8 +149,20 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
-        Component buttonTextComp = Component.literal("AttunementLevel");
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, 0xFFFFFF);
+        Component attunementLevelComponent = Component.literal(String.valueOf(menu.getLevelAttunementAchieved()));
+        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, 0xFFFFFF);
+
+        if(menu.canItemAscend()){
+            if (menu.getCost() > 0) {
+                Component levelCostComponent = Component.literal(String.valueOf(menu.getCost()));
+                guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, 0xFFFFFF);
+            }
+
+            if (menu.getThreshold() > 0) {
+                Component levelThresholdComponent = Component.literal(String.valueOf(menu.getThreshold()));
+                guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, 0xFFFFFF);
+            }
+        }
     }
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
@@ -190,22 +208,24 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         return isHovering(MANAGE_BUTTON_X, MANAGE_BUTTON_Y, MANAGE_BUTTON_WIDTH, MANAGE_BUTTON_HEIGHT, mouseX, mouseY);
     }
 
+    private void handleAttuneButtonPress() {
+        if(this.minecraft != null && this.minecraft.gameMode != null && menu.canItemAscend()) {
+            this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
+        }
+    }
+
+    private void handleManageButtonPress() {
+        if(this.minecraft != null && this.minecraft.gameMode != null) {
+            this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
+        }
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if(isHoveringAttuneButton(mouseX, mouseY) && attuneButtonDown) {
-            if(this.minecraft != null && this.minecraft.gameMode != null && menu.canItemAscend()) {
-                this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
-            }
-            attuneButtonDown = false;
-            manageButtonDown = false;
-            return true;
+            handleAttuneButtonPress();
         } else if(isHoveringManageButton(mouseX, mouseY) && manageButtonDown) {
-            if(this.minecraft != null && this.minecraft.gameMode != null) {
-                this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
-            }
-            manageButtonDown = false;
-            attuneButtonDown = false;
-            return true;
+            handleManageButtonPress();
         }
         manageButtonDown = false;
         attuneButtonDown = false;
