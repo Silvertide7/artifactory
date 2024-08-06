@@ -138,11 +138,13 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(menu.canItemAscend()) {
+            if(menu.hasAttuneableItemInSlot() && menu.canItemAscend()) {
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", menu.getThreshold()));
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", menu.getCost()));
+            } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
+                list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
             } else {
-                list.add(Component.literal("Place an item to be attuned or ascended."));
+                list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
             }
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }

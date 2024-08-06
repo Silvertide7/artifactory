@@ -22,5 +22,8 @@
   "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",
   "screen.tooltip.artifactory.max_attunement_reached": "You have reached the maximum attunement level with this item.",
 
+  "screen.tooltip.artifactory.no_item_in_slot": "Place an item to be attuned or ascended.",
+  "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
+
   "attribute.artifactory.max_attunement_slots": "Max Attunement Slots"
 }
