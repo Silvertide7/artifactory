@@ -29,8 +29,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     public int screenTopPos;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
 
-    public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle);
+    public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
+        super(pMenu, playerInventory, pTitle);
     }
 
     @Override
@@ -190,7 +190,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private int getManageButtonOffsetToRender(int mouseX, int mouseY) {
-        if(manageButtonDown) {
+        if(!menu.playerHasAttunedItem()) {
+            return 91;
+        }
+        else if(manageButtonDown) {
             return 78;
         }
         else if (isHoveringManageButton(mouseX, mouseY)) {
@@ -238,7 +241,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             attuneButtonDown = true;
             return true;
-        } else if (isHoveringManageButton(mouseX, mouseY)){
+        } else if (isHoveringManageButton(mouseX, mouseY) && menu.playerHasAttunedItem()) {
             manageButtonDown = true;
             return true;
         }

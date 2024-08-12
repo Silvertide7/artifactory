@@ -13,6 +13,7 @@ import net.silvertide.artifactory.events.custom.PostAttuneEvent;
 import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
+import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.AttunementService;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
@@ -34,12 +35,16 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private int levelAttunementAchieved = 0;
     private int cost = -1;
     private int threshold = -1;
+    private int playerHasAttunedItem = 0;
+
+    // Data Accessor Indices
     private final int PROGRESS_INDEX = 0;
     private final int IS_ACTIVE_INDEX = 1;
     private final int CAN_ITEM_ASCEND_INDEX = 2;
     private final int LEVEL_ATTUNEMENT_ACHIEVED_INDEX = 3;
     private final int COST_INDEX = 4;
     private final int THRESHOLD_INDEX = 5;
+    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 6;
 
     protected final Container inputSlot = new SimpleContainer(1) {
         /**
@@ -75,6 +80,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved;
                     case 4 -> AttunementNexusAttuneMenu.this.cost;
                     case 5 -> AttunementNexusAttuneMenu.this.threshold;
+                    case 6 -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
                     default -> 0;
                 };
             }
@@ -88,12 +94,13 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved = value;
                     case 4 -> AttunementNexusAttuneMenu.this.cost = value;
                     case 5 -> AttunementNexusAttuneMenu.this.threshold = value;
+                    case 6 -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 6;
+                return 7;
             }
         };
 
@@ -114,6 +121,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         };
 
         this.addSlot(attunementSlot);
+
+        setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty());
     }
 
     public void initializeDataSlots() {
@@ -138,6 +147,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setCost(int value) { this.data.set(COST_INDEX, value); }
     public int getThreshold() { return this.data.get(THRESHOLD_INDEX); }
     public void setThreshold(int value) { this.data.set(THRESHOLD_INDEX, value); }
+    public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
+    public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
     @Override
     public boolean clickMenuButton(@NotNull Player player, int pId) {
         if(pId == 1 && attunementSlot.hasItem()) {
@@ -168,6 +179,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     ItemStack stack = this.attunementSlot.getItem();
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
                         handleAttunement(stack);
+                        MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
                     }
                 }
                 setIsActive(0);
@@ -213,13 +225,12 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private void handleAttunement(ItemStack stackToAttune) {
         AttunementService.increaseLevelOfAttunement(player, stackToAttune);
         if(!player.getAbilities().instabuild) this.payCostForAttunement();
-
-        MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stackToAttune));
         updateAttunementState();
     }
 
     private void updateAttunementState() {
         if(this.player.level().isClientSide()) return;
+        setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(this.player.getUUID()).isEmpty());
 
         if(!inputSlot.isEmpty()) {
             ItemStack attuneableItemStack = inputSlot.getItem(0);
@@ -291,6 +302,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         initializeDataSlots();
+        setPlayerHasAttunedItem(false);
         super.removed(player);
         this.access.execute((p_39796_, p_39797_) -> {
             this.clearContainer(player, this.inputSlot);
