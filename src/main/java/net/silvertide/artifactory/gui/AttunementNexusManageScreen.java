@@ -9,6 +9,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.storage.AttunedItem;
+
+import java.util.List;
 
 public class AttunementNexusManageScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
@@ -20,6 +23,8 @@ public class AttunementNexusManageScreen extends Screen {
     private static final int CLOSE_BUTTON_HEIGHT = 12;
 
     // ATTUNEMENT CARRD CONSTANTS
+    private static final int ATTUNEMENT_CARD_X = 23;
+    private static final int ATTUNEMENT_CARD_Y = 20;
     private static final int ATTUNEMENT_CARD_WIDTH = 104;
     private static final int ATTUNEMENT_CARD_HEIGHT = 22;
 
@@ -63,6 +68,7 @@ public class AttunementNexusManageScreen extends Screen {
 
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics);
+        renderAttunementCards(guiGraphics);
 //        renderCostTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -86,11 +92,20 @@ public class AttunementNexusManageScreen extends Screen {
 
     }
 
-    private void renderAttunementCard(GuiGraphics guiGraphics, int cardIndex) {
-        int buttonX = parent.screenLeftPos;
-        int buttonY = parent.screenTopPos;
 
-        guiGraphics.blit(TEXTURE, buttonX, buttonY, 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
+    private void renderAttunementCards(GuiGraphics guiGraphics) {
+        List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID());
+        for(int i = 0; i < attunedItems.size(); i++) {
+            AttunedItem attunedItem = attunedItems.get(i);
+            renderAttunementCard(guiGraphics, attunedItem, i);
+        }
+    }
+
+    private void renderAttunementCard(GuiGraphics guiGraphics, AttunedItem attunedItem, int cardIndex) {
+        int attunementCardX = parent.screenLeftPos + ATTUNEMENT_CARD_X;
+        int attunementCardY = parent.screenTopPos + ATTUNEMENT_CARD_Y + cardIndex * ATTUNEMENT_CARD_HEIGHT;
+
+        guiGraphics.blit(TEXTURE, attunementCardX, attunementCardY, 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
     }
 
     private int getCloseButtonOffsetToRender(int mouseX, int mouseY) {
