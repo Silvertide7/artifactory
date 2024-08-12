@@ -3,30 +3,51 @@ package net.silvertide.artifactory.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.utils.ClientAttunedItems;
 
 public class AttunementNexusManageScreen extends Screen {
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
+
+    //CLOSE BUTTON CONSTANTS
     private static final int CLOSE_BUTTON_X = 147;
     private static final int CLOSE_BUTTON_Y = 19;
     private static final int CLOSE_BUTTON_WIDTH = 18;
     private static final int CLOSE_BUTTON_HEIGHT = 12;
+
+    // ATTUNEMENT CARRD CONSTANTS
+    private static final int ATTUNEMENT_CARD_WIDTH = 104;
+    private static final int ATTUNEMENT_CARD_HEIGHT = 22;
+
+    // SLIDER CONSTANTS
+    private static final int SLIDER_BASE_X = 130;
+    private static final int SLIDER_BASE_Y = 20;
+    private static final int SLIDER_MAX_DISTANCE_Y = 111;
+    private static final int SLIDER_WIDTH = 12;
+    private static final int SLIDER_HEIGHT = 15;
+
+
+    // Instance Variables
     private AttunementNexusAttuneScreen parent;
+    private LocalPlayer player;
     private boolean closeButtonDown = false;
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
+    private float sliderProgress = 0.0F;
 
     protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
         super(Component.literal(""));
         this.parent = parent;
+        this.player = parent.getMinecraft().player;
     }
 
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
-//        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
 //        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -41,7 +62,7 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.blit(TEXTURE, x, y, 0, 0, this.parent.screenWidth, this.parent.screenHeight);
 
         renderButtons(guiGraphics, mouseX, mouseY);
-
+        renderSlider(guiGraphics);
 //        renderCostTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -57,6 +78,21 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
     }
 
+    private void renderSlider(GuiGraphics guiGraphics) {
+        int sliderX = parent.screenLeftPos + SLIDER_BASE_X;
+        int sliderY = parent.screenTopPos + SLIDER_BASE_Y;
+
+        guiGraphics.blit(TEXTURE, sliderX, sliderY, 177, 0, SLIDER_WIDTH, SLIDER_HEIGHT);
+
+    }
+
+    private void renderAttunementCard(GuiGraphics guiGraphics, int cardIndex) {
+        int buttonX = parent.screenLeftPos;
+        int buttonY = parent.screenTopPos;
+
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
+    }
+
     private int getCloseButtonOffsetToRender(int mouseX, int mouseY) {
         if(closeButtonDown) {
             return 58;
@@ -68,6 +104,11 @@ public class AttunementNexusManageScreen extends Screen {
             return 32;
         }
     }
+    private boolean canScroll()
+    {
+        return !ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID()).isEmpty();
+    }
+
 
     private boolean isHoveringCloseButton(double mouseX, double mouseY) {
         return isHovering(CLOSE_BUTTON_X, CLOSE_BUTTON_Y, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT, mouseX, mouseY);
