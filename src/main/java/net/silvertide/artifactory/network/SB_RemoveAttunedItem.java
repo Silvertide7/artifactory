@@ -32,6 +32,8 @@ public class SB_RemoveAttunedItem {
     }
 
     private static void handleMessage(@Nullable ServerPlayer player, SB_RemoveAttunedItem msg) {
-        ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), msg.itemUUIDToRemove);
+        if(player != null) {
+            ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), msg.itemUUIDToRemove);
+        }
     }
 }

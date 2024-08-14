@@ -9,7 +9,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.network.PacketHandler;
+import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -154,6 +157,10 @@ public class AttunementNexusManageScreen extends Screen {
         if(isHoveringCloseButton(mouseX, mouseY)) {
             this.onClose();
             return true;
+        }  else {
+            for(AttunementCard attunementCard : attunementCards) {
+                attunementCard.mouseReleased(mouseX, mouseY);
+            }
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -163,6 +170,10 @@ public class AttunementNexusManageScreen extends Screen {
         if(isHoveringCloseButton(mouseX, mouseY)) {
             closeButtonDown = true;
             return true;
+        } else {
+            for(AttunementCard attunementCard : attunementCards) {
+                attunementCard.mouseClicked(mouseX, mouseY);
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -180,6 +191,9 @@ public class AttunementNexusManageScreen extends Screen {
         private int index;
         private AttunedItem attunedItem;
         private int deltaY;
+        private boolean isDeleteButtonDown = false;
+        private boolean isDeleteButtonDisabled = false;
+        private boolean stagedToDelete = false;
 
         public AttunementCard(int index, AttunedItem attunedItem) {
             this.index = index;
@@ -201,7 +215,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private int getDeleteButtonOffsetToRender(double mouseX, double mouseY) {
-            if(isHoveringDeleteButton(mouseX, mouseY)){
+            if(isDeleteButtonDisabled){
+                return 101;
+            } else if(isDeleteButtonDown) {
+                return 91;
+            } else if(isHoveringDeleteButton(mouseX, mouseY)){
                 return 81;
             } else {
                 return 71;
@@ -228,5 +246,23 @@ public class AttunementNexusManageScreen extends Screen {
             return parent.screenTopPos + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT + deltaY;
         }
 
+        public void mouseReleased(double mouseX, double mouseY) {
+            this.isDeleteButtonDown = false;
+            if(isHoveringDeleteButton(mouseX, mouseY)) {
+                if(stagedToDelete) {
+                    PacketHandler.sendToServer(new SB_RemoveAttunedItem(this.attunedItem.itemUUID()));
+                    stagedToDelete = false;
+                } else {
+                    stagedToDelete = true;
+                }
+            }
+
+        }
+
+        public void mouseClicked(double mouseX, double mouseY) {
+            if(isHoveringDeleteButton(mouseX, mouseY)) {
+                this.isDeleteButtonDown = true;
+            }
+        }
     }
 }
