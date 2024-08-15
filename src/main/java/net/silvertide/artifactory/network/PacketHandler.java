@@ -48,7 +48,6 @@ public class PacketHandler {
                 .encoder(SB_RemoveAttunedItem::encode)
                 .consumerMainThread(SB_RemoveAttunedItem::handle)
                 .add();
-
     }
 
     public static <MSG> void sendToServer(MSG message) {

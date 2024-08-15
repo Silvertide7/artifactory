@@ -1,9 +1,14 @@
 package net.silvertide.artifactory.network;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
+import net.silvertide.artifactory.gui.AttunementNexusManageScreen;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -24,6 +29,12 @@ public class CB_RemoveAttunedItem {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             ClientAttunedItems.removeAttunedItem(msg.itemUUIDToRemove);
+
+            // Update screen of minecraft player if open
+            Minecraft minecraft = Minecraft.getInstance();
+            if(minecraft.screen instanceof AttunementNexusManageScreen attunementNexusManageScreen) {
+                attunementNexusManageScreen.createAttunementCards();
+            }
         });
         context.setPacketHandled(true);
     }

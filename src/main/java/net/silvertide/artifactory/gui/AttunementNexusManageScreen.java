@@ -12,7 +12,6 @@ import net.silvertide.artifactory.client.utils.ClientAttunedItems;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,10 +45,10 @@ public class AttunementNexusManageScreen extends Screen {
         super(Component.literal(""));
         this.parent = parent;
         this.player = parent.getMinecraft().player;
-        buildAttunementCards();
+        createAttunementCards();
     }
 
-    private void buildAttunementCards() {
+    public void createAttunementCards() {
         attunementCards.clear();
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID());
         attunedItems.sort(Comparator.comparingInt(AttunedItem::order));
@@ -153,8 +152,7 @@ public class AttunementNexusManageScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        closeButtonDown = false;
-        if(isHoveringCloseButton(mouseX, mouseY)) {
+        if(closeButtonDown && isHoveringCloseButton(mouseX, mouseY)) {
             this.onClose();
             return true;
         }  else {
@@ -162,6 +160,7 @@ public class AttunementNexusManageScreen extends Screen {
                 attunementCard.mouseReleased(mouseX, mouseY);
             }
         }
+        closeButtonDown = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
@@ -189,7 +188,7 @@ public class AttunementNexusManageScreen extends Screen {
         private final int DELETE_BUTTON_HEIGHT = 9;
 
         private int index;
-        private AttunedItem attunedItem;
+        private final AttunedItem attunedItem;
         private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
@@ -206,8 +205,8 @@ public class AttunementNexusManageScreen extends Screen {
             renderDeleteButton(guiGraphics, mouseX, mouseY);
         }
 
-        private void renderBackground(GuiGraphics guiGraphics){
-            guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
+        private void renderBackground(GuiGraphics guiGraphics) {
+            guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, stagedToDelete ? 190 : 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -215,11 +214,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private int getDeleteButtonOffsetToRender(double mouseX, double mouseY) {
-            if(isDeleteButtonDisabled){
+            if(isDeleteButtonDisabled) {
                 return 101;
             } else if(isDeleteButtonDown) {
                 return 91;
-            } else if(isHoveringDeleteButton(mouseX, mouseY)){
+            } else if(isHoveringDeleteButton(mouseX, mouseY)) {
                 return 81;
             } else {
                 return 71;
@@ -247,22 +246,24 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         public void mouseReleased(double mouseX, double mouseY) {
-            this.isDeleteButtonDown = false;
-            if(isHoveringDeleteButton(mouseX, mouseY)) {
-                if(stagedToDelete) {
-                    PacketHandler.sendToServer(new SB_RemoveAttunedItem(this.attunedItem.itemUUID()));
-                    stagedToDelete = false;
-                } else {
-                    stagedToDelete = true;
-                }
+            if(isDeleteButtonDown && isHoveringDeleteButton(mouseX, mouseY)) {
+                stagedToDelete = !stagedToDelete;
             }
-
+            this.isDeleteButtonDown = false;
         }
 
         public void mouseClicked(double mouseX, double mouseY) {
             if(isHoveringDeleteButton(mouseX, mouseY)) {
                 this.isDeleteButtonDown = true;
             }
+        }
+
+        public boolean isStagedToDelete() {
+            return stagedToDelete;
+        }
+
+        public void deleteAttunedItem() {
+            PacketHandler.sendToServer(new SB_RemoveAttunedItem(this.attunedItem.itemUUID()));
         }
     }
 }

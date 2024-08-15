@@ -21,8 +21,7 @@ import net.silvertide.artifactory.util.PlayerMessenger;
 import org.jetbrains.annotations.NotNull;
 
 public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
-    public final int MAX_PROGRESS = 100;
-
+    public final int MAX_PROGRESS = 20;
     private final ContainerLevelAccess access;
     private final Player player;
     private final Slot attunementSlot;
@@ -228,7 +227,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         updateAttunementState();
     }
 
-    private void updateAttunementState() {
+    public void updateAttunementState() {
         if(this.player.level().isClientSide()) return;
         setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(this.player.getUUID()).isEmpty());
 

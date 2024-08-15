@@ -226,9 +226,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if(isHoveringAttuneButton(mouseX, mouseY) && attuneButtonDown) {
+        if(attuneButtonDown && isHoveringAttuneButton(mouseX, mouseY)) {
             handleAttuneButtonPress();
-        } else if(isHoveringManageButton(mouseX, mouseY) && manageButtonDown) {
+        } else if(manageButtonDown && isHoveringManageButton(mouseX, mouseY)) {
             handleManageButtonPress();
         }
         manageButtonDown = false;
