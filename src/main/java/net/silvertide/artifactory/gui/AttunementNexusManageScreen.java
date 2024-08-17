@@ -192,7 +192,6 @@ public class AttunementNexusManageScreen extends Screen {
         private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
-        private boolean stagedToDelete = false;
 
         public AttunementCard(int index, AttunedItem attunedItem) {
             this.index = index;
@@ -206,15 +205,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderBackground(GuiGraphics guiGraphics) {
-            guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, stagedToDelete ? 190 : 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
+            guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
-            if(stagedToDelete) {
-                guiGraphics.blit(TEXTURE, this.getAttunementCardX() + DELETE_BUTTON_X, this.getAttunementCardY() + DELETE_BUTTON_Y, 190, getDeleteButtonOffsetToRender(mouseX, mouseY), DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT);
-            } else {
-                guiGraphics.blit(TEXTURE, this.getAttunementCardX() + DELETE_BUTTON_X, this.getAttunementCardY() + DELETE_BUTTON_Y, 177, getDeleteButtonOffsetToRender(mouseX, mouseY), DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT);
-            }
+            guiGraphics.blit(TEXTURE, this.getAttunementCardX() + DELETE_BUTTON_X, this.getAttunementCardY() + DELETE_BUTTON_Y, 177, getDeleteButtonOffsetToRender(mouseX, mouseY), DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT);
         }
 
         private int getDeleteButtonOffsetToRender(double mouseX, double mouseY) {
@@ -251,7 +246,7 @@ public class AttunementNexusManageScreen extends Screen {
 
         public void mouseReleased(double mouseX, double mouseY) {
             if(isDeleteButtonDown && isHoveringDeleteButton(mouseX, mouseY)) {
-                stagedToDelete = !stagedToDelete;
+
             }
             this.isDeleteButtonDown = false;
         }
@@ -260,10 +255,6 @@ public class AttunementNexusManageScreen extends Screen {
             if(isHoveringDeleteButton(mouseX, mouseY)) {
                 this.isDeleteButtonDown = true;
             }
-        }
-
-        public boolean isStagedToDelete() {
-            return stagedToDelete;
         }
 
         public void deleteAttunedItem() {
