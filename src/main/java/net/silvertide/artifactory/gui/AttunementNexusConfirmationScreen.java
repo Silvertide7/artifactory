@@ -9,38 +9,35 @@ import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
+import net.silvertide.artifactory.storage.AttunedItem;
 
 import java.util.UUID;
 
 public class AttunementNexusConfirmationScreen extends Screen {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
+    private static final int SCREEN_WIDTH = 146;
+    private static final int SCREEN_HEIGHT = 81;
     //BUTTON CONSTANTS
-    private static final int CANCEL_BUTTON_X = 147;
-    private static final int CANCEL_BUTTON_Y = 19;
-    private static final int CONFIRM_BUTTON_X = 147;
-    private static final int CONFIRM_BUTTON_Y = 19;
-    private static final int BUTTON_WIDTH = 18;
+    private static final int BUTTON_Y = 58;
+    private static final int BUTTON_WIDTH = 50;
     private static final int BUTTON_HEIGHT = 12;
 
-
     // Instance Variables
-    private AttunementNexusAttuneScreen parent;
-    private UUID itemToDeleteUUID;
+    private final AttunementNexusManageScreen manageScreen;
+    private final AttunedItem itemToDelete;
     private boolean cancelButtonDown = false;
     private boolean confirmButtonDown = false;
 
-    protected AttunementNexusConfirmationScreen(AttunementNexusAttuneScreen parent, UUID itemToDeleteUUID) {
+    protected AttunementNexusConfirmationScreen(AttunementNexusManageScreen manageScreen, AttunedItem itemToDelete) {
         super(Component.literal(""));
-        this.parent = parent;
-        this.itemToDeleteUUID = itemToDeleteUUID;
+        this.manageScreen = manageScreen;
+        this.itemToDelete = itemToDelete;
     }
-
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
-//        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -48,73 +45,114 @@ public class AttunementNexusConfirmationScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        int x = (this.parent.width - this.parent.screenWidth) / 2;
-        int y = (this.parent.height - this.parent.screenHeight) / 2;
+        int x = getScreenStartX();
+        int y = getScreenStartY();
 
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, this.parent.screenWidth, this.parent.screenHeight);
+        guiGraphics.blit(TEXTURE, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+        renderDeleteText(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
     }
 
-    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        renderCancelButton(guiGraphics, mouseX, mouseY);
-        renderConfirmButton(guiGraphics, mouseX, mouseY);
+    private int getScreenStartX() {
+        AttunementNexusAttuneScreen attuneScreen = manageScreen.getAttuneScreen();
+        return attuneScreen.getScreenLeftPos() + (attuneScreen.getImageWidth() - SCREEN_WIDTH) / 2;
     }
 
-    private void renderCancelButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int buttonX = parent.screenLeftPos + CANCEL_BUTTON_X;
-        int buttonY = parent.screenTopPos + CANCEL_BUTTON_Y;
+    private int getScreenStartY() {
+        AttunementNexusAttuneScreen attuneScreen = manageScreen.getAttuneScreen();
+        return attuneScreen.getScreenTopPos() + (attuneScreen.getImageHeight() - SCREEN_HEIGHT) / 2;
+    }
 
-        boolean isHovering = isHoveringCancelButton(mouseX, mouseY);
-        int buttonOffset = getButtonOffsetToRender(cancelButtonDown, isHovering, mouseX, mouseY);
-        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
+    private void renderDeleteText(GuiGraphics guiGraphics) {
+        Component deleteText = Component.translatable("screen.text.artifactory.confirmation.delete_text", itemToDelete.displayName());
+        guiGraphics.drawWordWrap(this.font, deleteText, getScreenStartX() + SCREEN_WIDTH / 10, getScreenStartY() + 8, SCREEN_WIDTH * 8 / 10, 0xFFFFFF);
+    }
+
+    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        renderConfirmButton(guiGraphics, mouseX, mouseY);
+        renderCancelButton(guiGraphics, mouseX, mouseY);
     }
 
     private void renderConfirmButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int buttonX = parent.screenLeftPos + CONFIRM_BUTTON_X;
-        int buttonY = parent.screenTopPos + CONFIRM_BUTTON_Y;
+        int buttonX = getConfirmButtonX();
+        int buttonY = getButtonY();
 
         boolean isHovering = isHoveringConfirmButton(mouseX, mouseY);
         int buttonOffset = getButtonOffsetToRender(confirmButtonDown, isHovering, mouseX, mouseY);
-        guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 147, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+        int buttonTextX = buttonX + BUTTON_WIDTH / 2;
+        int buttonTextY = buttonY + BUTTON_HEIGHT / 2;
+        Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.confirm");
+
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, BUTTON_WIDTH, 0xFFFFFF);
+    }
+
+    private int getConfirmButtonX() {
+        return getScreenStartX() + getButtonSpacing();
+    }
+
+    private void renderCancelButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int buttonX = getCancelButtonX();
+        int buttonY = getButtonY();
+
+        boolean isHovering = isHoveringCancelButton(mouseX, mouseY);
+        int buttonOffset = getButtonOffsetToRender(cancelButtonDown, isHovering, mouseX, mouseY);
+        guiGraphics.blit(TEXTURE, buttonX, buttonY, 147, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+        int buttonTextX = buttonX + BUTTON_WIDTH / 2;
+        int buttonTextY = buttonY + BUTTON_HEIGHT / 2;
+        Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.cancel");
+
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, BUTTON_WIDTH, 0xFFFFFF);
+
+    }
+
+    private int getCancelButtonX() {
+        return getScreenStartX() + getButtonSpacing() * 2 + BUTTON_WIDTH ;
+    }
+
+    private int getButtonSpacing() {
+        return (SCREEN_WIDTH - BUTTON_WIDTH * 2) / 3;
+    }
+
+    private int getButtonY() {
+        return getScreenStartY() + BUTTON_Y;
     }
 
     private int getButtonOffsetToRender(boolean isButtonDown, boolean isHoveringButton, int mouseX, int mouseY) {
         if(isButtonDown) {
-            return 58;
+            return 26;
         }
         else if (isHoveringButton) {
-            return 45;
+            return 13;
         }
         else {
-            return 32;
+            return 0;
         }
     }
 
     private boolean isHoveringCancelButton(double mouseX, double mouseY) {
-        return isHovering(CANCEL_BUTTON_X, CANCEL_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
+        return isHovering(getCancelButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
     }
 
     private boolean isHoveringConfirmButton(double mouseX, double mouseY) {
-        return isHovering(CONFIRM_BUTTON_X, CONFIRM_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
+        return isHovering(getConfirmButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
     }
 
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        int i = this.parent.screenLeftPos;
-        int j = this.parent.screenTopPos;
+        int i = 0;
+        int j = 0;
         pMouseX -= i;
         pMouseY -= j;
         return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
     }
 
     @Override
-    public void setFocused(boolean pFocused) {
-
-    }
-
-    @Override
-    public boolean isFocused() {
-        return false;
+    public void onClose() {
+        super.onClose();
+        this.manageScreen.createAttunementCards();
     }
 
     @Override
@@ -123,7 +161,7 @@ public class AttunementNexusConfirmationScreen extends Screen {
             this.onClose();
             return true;
         } else if(confirmButtonDown && isHoveringConfirmButton(mouseX, mouseY)){
-            PacketHandler.sendToServer(new SB_RemoveAttunedItem(itemToDeleteUUID));
+            PacketHandler.sendToServer(new SB_RemoveAttunedItem(itemToDelete.itemUUID()));
             this.onClose();
             return true;
         }

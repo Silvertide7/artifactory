@@ -191,10 +191,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     // Block Entity Data Methods
     public int getScaledProgress() {
         int progress = getProgress();
-        int maxProgress = MAX_PROGRESS;
         int progressArrowSize = 18;
 
-        return MAX_PROGRESS != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
+        return progress != 0 ? progress * progressArrowSize / MAX_PROGRESS : 0;
     }
 
     private boolean meetsRequirementsToAttune() {

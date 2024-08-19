@@ -11,9 +11,13 @@
   "playermessage.artifactory.failed_level_cost": "You need %1$s levels to attune",
   "playermessage.artifactory.failed_level_threshold": "You must have more than %1$s levels to start attunement",
 
-  "screen.button.artifactory.attune_not_in_progress": "Attune",
-  "screen.button.artifactory.attune_in_progress": "Cancel",
-  "screen.button.artifactory.max_attunement_reached": "Max",
+  "screen.button.artifactory.attune.attune_not_in_progress": "Attune",
+  "screen.button.artifactory.attune.attune_in_progress": "Cancel",
+  "screen.button.artifactory.attune.max_attunement_reached": "Max",
+
+  "screen.button.artifactory.confirmation.confirm": "Confirm",
+  "screen.button.artifactory.confirmation.cancel": "Cancel",
+  "screen.text.artifactory.confirmation.delete_text": "Are you sure you want to delete %1$s? This can't be undone.",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "This process costs %1$s levels.",

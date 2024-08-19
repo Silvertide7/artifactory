@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -9,13 +10,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
-import net.silvertide.artifactory.network.PacketHandler;
-import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class AttunementNexusManageScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
@@ -35,7 +35,7 @@ public class AttunementNexusManageScreen extends Screen {
 
 
     // Instance Variables
-    private AttunementNexusAttuneScreen parent;
+    private AttunementNexusAttuneScreen attuneScreen;
     private LocalPlayer player;
     private boolean closeButtonDown = false;
     private float sliderProgress = 0.0F;
@@ -43,8 +43,13 @@ public class AttunementNexusManageScreen extends Screen {
 
     protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
         super(Component.literal(""));
-        this.parent = parent;
+        this.attuneScreen = parent;
         this.player = parent.getMinecraft().player;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
         createAttunementCards();
     }
 
@@ -53,10 +58,9 @@ public class AttunementNexusManageScreen extends Screen {
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID());
         attunedItems.sort(Comparator.comparingInt(AttunedItem::order));
         for(int i = 0; i < attunedItems.size(); i++) {
-            attunementCards.add(new AttunementCard(i, attunedItems.get(i)));
+            attunementCards.add(new AttunementCard(i, attunedItems.get(i), this));
         }
     }
-
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
@@ -70,10 +74,10 @@ public class AttunementNexusManageScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        int x = (this.parent.width - this.parent.screenWidth) / 2;
-        int y = (this.parent.height - this.parent.screenHeight) / 2;
+        int x = this.attuneScreen.getScreenLeftPos();
+        int y = this.attuneScreen.getScreenTopPos();
 
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, this.parent.screenWidth, this.parent.screenHeight);
+        guiGraphics.blit(TEXTURE, x, y, 0, 0, this.attuneScreen.getImageWidth(), this.attuneScreen.getImageHeight());
 
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics);
@@ -85,19 +89,18 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private void renderCloseButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int buttonX = parent.screenLeftPos + CLOSE_BUTTON_X;
-        int buttonY = parent.screenTopPos + CLOSE_BUTTON_Y;
+        int buttonX = attuneScreen.getScreenLeftPos() + CLOSE_BUTTON_X;
+        int buttonY = attuneScreen.getScreenTopPos() + CLOSE_BUTTON_Y;
 
         int buttonOffset = getCloseButtonOffsetToRender(mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
     }
 
     private void renderSlider(GuiGraphics guiGraphics) {
-        int sliderX = parent.screenLeftPos + SLIDER_BASE_X;
-        int sliderY = parent.screenTopPos + SLIDER_BASE_Y;
+        int sliderX = attuneScreen.getScreenLeftPos() + SLIDER_BASE_X;
+        int sliderY = attuneScreen.getScreenTopPos() + SLIDER_BASE_Y;
 
         guiGraphics.blit(TEXTURE, sliderX, sliderY, 177, 0, SLIDER_WIDTH, SLIDER_HEIGHT);
-
     }
 
 
@@ -105,10 +108,6 @@ public class AttunementNexusManageScreen extends Screen {
         for(AttunementCard attunementCard : attunementCards) {
             attunementCard.render(guiGraphics, mouseX, mouseY);
         }
-    }
-
-    private void renderAttunementCard(GuiGraphics guiGraphics, AttunedItem attunedItem, int cardIndex) {
-
     }
 
     private int getCloseButtonOffsetToRender(int mouseX, int mouseY) {
@@ -133,21 +132,11 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        int i = this.parent.screenLeftPos;
-        int j = this.parent.screenTopPos;
+        int i = this.attuneScreen.getScreenLeftPos();
+        int j = this.attuneScreen.getScreenTopPos();
         pMouseX -= i;
         pMouseY -= j;
         return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
-    }
-
-    @Override
-    public void setFocused(boolean pFocused) {
-
-    }
-
-    @Override
-    public boolean isFocused() {
-        return false;
     }
 
     @Override
@@ -177,6 +166,10 @@ public class AttunementNexusManageScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    public AttunementNexusAttuneScreen getAttuneScreen() {
+        return attuneScreen;
+    }
+
     private class AttunementCard {
         private static final int ATTUNEMENT_CARD_X = 23;
         private static final int ATTUNEMENT_CARD_Y = 20;
@@ -192,11 +185,13 @@ public class AttunementNexusManageScreen extends Screen {
         private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
+        AttunementNexusManageScreen manageScreen;
 
-        public AttunementCard(int index, AttunedItem attunedItem) {
+        public AttunementCard(int index, AttunedItem attunedItem, AttunementNexusManageScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
             deltaY = 0;
+            this.manageScreen = manageScreen;
         }
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -237,28 +232,31 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         public int getAttunementCardX() {
-            return parent.screenLeftPos + ATTUNEMENT_CARD_X;
+            return attuneScreen.getScreenLeftPos() + ATTUNEMENT_CARD_X;
         }
 
         public int getAttunementCardY() {
-            return parent.screenTopPos + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT + deltaY;
+            return attuneScreen.getScreenTopPos() + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT + deltaY;
         }
 
         public void mouseReleased(double mouseX, double mouseY) {
             if(isDeleteButtonDown && isHoveringDeleteButton(mouseX, mouseY)) {
-
+                handleDeleteButtonPress();
             }
             this.isDeleteButtonDown = false;
+        }
+
+        private void handleDeleteButtonPress() {
+            Minecraft minecraft = this.manageScreen.getAttuneScreen().getMinecraft();
+            if(minecraft.gameMode != null) {
+                minecraft.pushGuiLayer(new AttunementNexusConfirmationScreen(this.manageScreen, attunedItem));
+            }
         }
 
         public void mouseClicked(double mouseX, double mouseY) {
             if(isHoveringDeleteButton(mouseX, mouseY)) {
                 this.isDeleteButtonDown = true;
             }
-        }
-
-        public void deleteAttunedItem() {
-            PacketHandler.sendToServer(new SB_RemoveAttunedItem(this.attunedItem.itemUUID()));
         }
     }
 }

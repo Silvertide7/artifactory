@@ -1,7 +1,9 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -9,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
 import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,10 +26,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private static final int MANAGE_BUTTON_HEIGHT = 12;
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
-    public int screenWidth;
-    public int screenHeight;
-    public int screenLeftPos;
-    public int screenTopPos;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
 
     public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
@@ -41,11 +40,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
-
-        this.screenWidth = imageWidth;
-        this.screenHeight = imageHeight;
-        this.screenLeftPos = leftPos;
-        this.screenTopPos = topPos;
     }
 
     @Override
@@ -111,11 +105,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private Component getAttuneButtonText() {
         if(menu.getProgress() > 0) {
-            return Component.translatable("screen.button.artifactory.attune_in_progress");
+            return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
         } else if (menu.canItemAscend()) {
-            return Component.translatable("screen.button.artifactory.attune_not_in_progress");
+            return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
         } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
-            return Component.translatable("screen.button.artifactory.max_attunement_reached");
+            return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
         } else {
             return Component.literal("");
         }
@@ -222,6 +216,22 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(this.minecraft != null && this.minecraft.gameMode != null) {
             this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
         }
+    }
+
+    public int getImageWidth() {
+        return this.imageWidth;
+    }
+
+    public int getImageHeight() {
+        return this.imageHeight;
+    }
+
+    public int getScreenLeftPos() {
+        return this.leftPos;
+    }
+
+    public int getScreenTopPos() {
+        return this.topPos;
     }
 
     @Override
