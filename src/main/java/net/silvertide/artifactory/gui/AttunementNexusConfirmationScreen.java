@@ -10,10 +10,10 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
-
-import java.util.UUID;
+import net.silvertide.artifactory.util.GUIUtil;
 
 public class AttunementNexusConfirmationScreen extends Screen {
+    private static final float TEXT_SCALE = 0.85F;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
     private static final int SCREEN_WIDTH = 146;
     private static final int SCREEN_HEIGHT = 81;
@@ -50,6 +50,7 @@ public class AttunementNexusConfirmationScreen extends Screen {
 
         guiGraphics.blit(TEXTURE, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+
         renderDeleteText(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
     }
@@ -65,8 +66,8 @@ public class AttunementNexusConfirmationScreen extends Screen {
     }
 
     private void renderDeleteText(GuiGraphics guiGraphics) {
-        Component deleteText = Component.translatable("screen.text.artifactory.confirmation.delete_text", itemToDelete.displayName());
-        guiGraphics.drawWordWrap(this.font, deleteText, getScreenStartX() + SCREEN_WIDTH / 10, getScreenStartY() + 8, SCREEN_WIDTH * 8 / 10, 0xFFFFFF);
+        Component deleteText = Component.translatable("screen.text.artifactory.confirmation.delete_text", GUIUtil.prettifyName(itemToDelete.displayName()));
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, TEXT_SCALE, this.font, deleteText, getScreenStartX() + SCREEN_WIDTH / 2, getScreenStartY() + 18, SCREEN_WIDTH * 8 / 10, 0xFFFFFF);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -82,11 +83,11 @@ public class AttunementNexusConfirmationScreen extends Screen {
         int buttonOffset = getButtonOffsetToRender(confirmButtonDown, isHovering, mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 147, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
 
+        Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.confirm");
         int buttonTextX = buttonX + BUTTON_WIDTH / 2;
         int buttonTextY = buttonY + BUTTON_HEIGHT / 2;
-        Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.confirm");
 
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, BUTTON_WIDTH, 0xFFFFFF);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, TEXT_SCALE, this.font, buttonTextComp, buttonTextX, buttonTextY, BUTTON_WIDTH, 0xFFFFFF);
     }
 
     private int getConfirmButtonX() {
@@ -105,8 +106,7 @@ public class AttunementNexusConfirmationScreen extends Screen {
         int buttonTextY = buttonY + BUTTON_HEIGHT / 2;
         Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.cancel");
 
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, BUTTON_WIDTH, 0xFFFFFF);
-
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, TEXT_SCALE, this.font, buttonTextComp, buttonTextX, buttonTextY, BUTTON_WIDTH, 0xFFFFFF);
     }
 
     private int getCancelButtonX() {

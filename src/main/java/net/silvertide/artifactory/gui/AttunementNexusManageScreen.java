@@ -15,9 +15,9 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 public class AttunementNexusManageScreen extends Screen {
+    private static final float TEXT_SCALE = 0.85F;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
 
     //CLOSE BUTTON CONSTANTS

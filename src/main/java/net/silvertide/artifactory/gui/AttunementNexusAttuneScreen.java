@@ -1,21 +1,21 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.GUIUtil;
 import org.apache.commons.compress.utils.Lists;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> {
+    private static float TEXT_SCALE = 0.85F;
+    private static int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final int ATTUNE_BUTTON_X = 61;
     private static final int ATTUNE_BUTTON_Y = 65;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
@@ -73,7 +73,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
         Component buttonTextComp = Component.literal("Attune Gear");
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, 0xFFFFFF);
+        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, BUTTON_TEXT_COLOR);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -88,11 +88,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         int buttonOffset = getAttuneButtonOffsetToRender(mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT);
 
+        Component buttonTextComp = getAttuneButtonText();
         int buttonTextX = buttonX + ATTUNE_BUTTON_WIDTH / 2;
         int buttonTextY = buttonY + ATTUNE_BUTTON_HEIGHT / 2;
-        Component buttonTextComp = getAttuneButtonText();
 
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, buttonTextX - this.font.width(buttonTextComp)/2, buttonTextY - this.font.lineHeight/2, ATTUNE_BUTTON_WIDTH, 0xFFFFFF);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, TEXT_SCALE, this.font, buttonTextComp, buttonTextX, buttonTextY, ATTUNE_BUTTON_WIDTH, BUTTON_TEXT_COLOR);
     }
 
     private void renderManageButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -145,17 +145,17 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
         Component attunementLevelComponent = Component.literal(String.valueOf(menu.getLevelAttunementAchieved()));
-        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, 0xFFFFFF);
+        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
 
         if(menu.canItemAscend()){
             if (menu.getCost() > 0) {
                 Component levelCostComponent = Component.literal(String.valueOf(menu.getCost()));
-                guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, 0xFFFFFF);
+                guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
             }
 
             if (menu.getThreshold() > 0) {
                 Component levelThresholdComponent = Component.literal(String.valueOf(menu.getThreshold()));
-                guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, 0xFFFFFF);
+                guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
             }
         }
     }
