@@ -17,7 +17,7 @@ public record AttunedItem(UUID itemUUID, String resourceLocation, String display
     public static final Codec<AttunedItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CodecTypes.UUID_CODEC.fieldOf("item_uuid").forGetter(AttunedItem::itemUUID),
             Codec.STRING.fieldOf("resource_location").forGetter(AttunedItem::resourceLocation),
-            Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::resourceLocation),
+            Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::displayName),
             Codec.INT.fieldOf("attunement_level").forGetter(AttunedItem::attunementLevel),
             Codec.INT.fieldOf("order").forGetter(AttunedItem::attunementLevel)
     ).apply(instance, AttunedItem::new));
@@ -31,8 +31,13 @@ public record AttunedItem(UUID itemUUID, String resourceLocation, String display
         return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
             int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
-            return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), stack.getDisplayName().toString(), 1, numAttunedItems + 1));
+            String itemDisplayName = getAttunedItemName(stack);
+            return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1));
         });
+    }
+
+    private static String getAttunedItemName(ItemStack stack) {
+        return StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString());
     }
 
     public static void encode(FriendlyByteBuf buf, AttunedItem attunedItem) {

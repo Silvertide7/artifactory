@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 // TODO: Create menu / screen for player management of attuned items
 // TODO: Curios slots? At least test them
 // TODO: Update hovertext to 2 lines - Attuneable (#) / Use Restricted or nothing
+// TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
+// TODO: Add a check when the bond is broken to search the players inventory and update the item if it's in there.
+// TODO: Add more checks for when the item should be updated if it has been unbonded. On pickup into inventory.
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

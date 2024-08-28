@@ -1,7 +1,9 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
@@ -60,9 +62,22 @@ public class StackNBTUtil {
     }
     public static void removeUnbreakable(ItemStack stack) {
         CompoundTag stackNBT = stack.getOrCreateTag();
-        if(stackNBT.contains("Unbreakable")){
-            stack.getOrCreateTag().remove("Unbreakable");
+        if(stackNBT.contains("Unbreakable")) stack.getOrCreateTag().remove("Unbreakable");
+    }
+
+    public static Optional<String> getDisplayNameFromNBT(ItemStack stack) {
+        CompoundTag stackNBT = stack.getOrCreateTag();
+        if(stackNBT.contains("display", Tag.TAG_COMPOUND)) {
+            CompoundTag stackDisplayNBT = stackNBT.getCompound("display");
+            if(stackDisplayNBT.contains("Name", Tag.TAG_STRING)) {
+                Component nameComponent = Component.Serializer.fromJson(stackDisplayNBT.getString("Name"));
+                if(nameComponent != null) {
+                    String name = nameComponent.getString();
+                    if(!"".equals(name)) return Optional.of(name);
+                }
+            }
         }
+        return Optional.empty();
     }
 
     public static Optional<UUID> getItemAttunementUUID(ItemStack stack) {
