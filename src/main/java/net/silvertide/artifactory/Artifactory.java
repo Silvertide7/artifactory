@@ -29,6 +29,9 @@ import org.slf4j.Logger;
 // TODO: Add a check when the bond is broken to search the players inventory and update the item if it's in there.
 // TODO: Add more checks for when the item should be updated if it has been unbonded. On pickup into inventory.
 // TODO: If an item loses its attunement data we need to break those items attunements from the players.
+// TODO: Change color in GUIs to make it easier to parse
+// TODO: Limit it so only items can be attuned in the datapack entry
+// TODO: Any time an AttunedItem changes send update to client
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
