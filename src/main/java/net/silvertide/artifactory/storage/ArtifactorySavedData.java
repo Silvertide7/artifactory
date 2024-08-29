@@ -39,8 +39,12 @@ public class ArtifactorySavedData extends SavedData {
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
-            playerAttunedItems.put(attunedItemId, attunedItem.getOneLevelHigherCopy());
+            AttunedItem higherLevelAttunedItem = attunedItem.getOneLevelHigherCopy();
+            playerAttunedItems.put(attunedItemId, higherLevelAttunedItem);
+
             this.setDirty();
+            ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
+            if(player != null) PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(higherLevelAttunedItem));
             return true;
         }
         return false;
@@ -62,6 +66,7 @@ public class ArtifactorySavedData extends SavedData {
 
     public void setAttunedItem(UUID playerUUID, AttunedItem attunedItem) {
         attunedItems.computeIfAbsent(playerUUID, i -> new HashMap<>()).put(attunedItem.itemUUID(), attunedItem);
+
         this.setDirty();
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
         if(player != null) PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
@@ -69,6 +74,7 @@ public class ArtifactorySavedData extends SavedData {
 
     public void setAttunedItems(UUID playerUUID, Map<UUID, AttunedItem> attunedItems) {
         this.attunedItems.put(playerUUID, attunedItems);
+
         this.setDirty();
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
         if (player != null) NetworkUtil.updateAllAttunedItems(player, attunedItems);
