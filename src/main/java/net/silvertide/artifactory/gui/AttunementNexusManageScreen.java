@@ -184,7 +184,7 @@ public class AttunementNexusManageScreen extends Screen {
         private static final int ATTUNEMENT_CARD_Y = 20;
         private static final int ATTUNEMENT_CARD_WIDTH = 104;
         private static final int ATTUNEMENT_CARD_HEIGHT = 22;
-        private final int DELETE_BUTTON_X= 88;
+        private final int DELETE_BUTTON_X= 86;
         private final int DELETE_BUTTON_Y = 11;
         private final int DELETE_BUTTON_WIDTH = 12;
         private final int DELETE_BUTTON_HEIGHT = 9;
@@ -232,12 +232,12 @@ public class AttunementNexusManageScreen extends Screen {
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
             Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 26, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 29, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
             Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 26, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 29, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
