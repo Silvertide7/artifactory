@@ -24,25 +24,34 @@ public final class DataPackUtil {
     public static boolean hasAttunementData(ItemStack stack) {
         return getAttunementData(stack).isPresent();
     }
+    public static boolean hasAttunementData(ResourceLocation resourceLocation) {
+        return getAttunementData(resourceLocation).isPresent();
+    }
 
     public static Optional<AttunementLevel> getAttunementLevel(ItemStack stack, int level) {
         return getAttunementData(stack).flatMap(attunementData -> Optional.ofNullable(attunementData.attunements().get(String.valueOf(level))));
     }
 
     public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
-        return getAttunementData(stack).map(attunementData -> {
-            int maxLevel = 0;
-            Set<String> attunementLevels = attunementData.attunements().keySet();
-            for(int i = 1; i <= attunementLevels.size(); i++) {
-                if(attunementLevels.contains(String.valueOf(i))){
-                    maxLevel = i;
-                } else {
-                    return maxLevel;
-                }
-            }
+        return getAttunementData(stack).map(DataPackUtil::findMaxLevelAchievable).orElse(0);
+    }
 
-            return maxLevel;
-        }).orElse(0);
+    public static int getMaxLevelOfAttunementPossible(ResourceLocation resourceLocation) {
+        return getAttunementData(resourceLocation).map(DataPackUtil::findMaxLevelAchievable).orElse(0);
+    }
+
+    private static int findMaxLevelAchievable(ItemAttunementData attunementData) {
+        int maxLevel = 0;
+        Set<String> attunementLevels = attunementData.attunements().keySet();
+        for(int i = 1; i <= attunementLevels.size(); i++) {
+            if(attunementLevels.contains(String.valueOf(i))){
+                maxLevel = i;
+            } else {
+                return maxLevel;
+            }
+        }
+
+        return maxLevel;
     }
 
     public static Optional<AttunementRequirements> getAttunementRequirements(ItemStack stack, int level) {

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Add a check when the bond is broken to search the players inventory and update the item if it's in there.
 // TODO: Add more checks for when the item should be updated if it has been unbonded. On pickup into inventory.
+// TODO: If an item loses its attunement data we need to break those items attunements from the players.
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

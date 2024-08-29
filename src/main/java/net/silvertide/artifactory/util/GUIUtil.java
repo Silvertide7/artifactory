@@ -7,6 +7,19 @@ import net.minecraft.network.chat.Component;
 public class GUIUtil {
     private GUIUtil() {}
 
+    public static void drawScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
+        if("".equals(buttonTextComp.getString())) return;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(textScale, textScale, textScale);
+
+        int scaledTextX = (int) (textX / textScale);
+        int scaledTextY = (int) (textY / textScale);
+        guiGraphics.drawWordWrap(font, buttonTextComp, scaledTextX, scaledTextY, (int) (lineWidth / textScale), color);
+
+        guiGraphics.pose().popPose();
+    }
+
     public static void drawCenteredWordWrap(GuiGraphics guiGraphics, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
         int fontWidth = font.width(buttonTextComp);
         int fontHeight = font.lineHeight;

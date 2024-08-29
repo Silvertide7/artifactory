@@ -10,11 +10,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.DataPackUtil;
+import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class AttunementNexusManageScreen extends Screen {
     private static final float TEXT_SCALE = 0.85F;
@@ -58,7 +63,11 @@ public class AttunementNexusManageScreen extends Screen {
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID());
         attunedItems.sort(Comparator.comparingInt(AttunedItem::order));
         for(int i = 0; i < attunedItems.size(); i++) {
-            attunementCards.add(new AttunementCard(i, attunedItems.get(i), this));
+            AttunedItem attunedItem = attunedItems.get(i);
+            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(ResourceLocationUtil.getResourceLocation(attunedItem.resourceLocation()));
+            if(attunementData.isPresent()) {
+                attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.get(), this));
+            }
         }
     }
 
@@ -176,35 +185,65 @@ public class AttunementNexusManageScreen extends Screen {
         private static final int ATTUNEMENT_CARD_WIDTH = 104;
         private static final int ATTUNEMENT_CARD_HEIGHT = 22;
         private final int DELETE_BUTTON_X= 88;
-        private final int DELETE_BUTTON_Y = 6;
+        private final int DELETE_BUTTON_Y = 11;
         private final int DELETE_BUTTON_WIDTH = 12;
         private final int DELETE_BUTTON_HEIGHT = 9;
 
         private int index;
         private final AttunedItem attunedItem;
+        private final ItemAttunementData attunementData;
         private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
+        private int slotsUsed = 1;
         AttunementNexusManageScreen manageScreen;
 
-        public AttunementCard(int index, AttunedItem attunedItem, AttunementNexusManageScreen manageScreen) {
+        public AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, AttunementNexusManageScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
-            deltaY = 0;
+            this.attunementData = attunementData;
             this.manageScreen = manageScreen;
+            deltaY = 0;
         }
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             renderBackground(guiGraphics);
+            renderItemImage(guiGraphics);
+            renderDisplayName(guiGraphics);
+            renderSlotsUsed(guiGraphics);
+            renderAttunementLevel(guiGraphics);
             renderDeleteButton(guiGraphics, mouseX, mouseY);
         }
+
 
         private void renderBackground(GuiGraphics guiGraphics) {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
         }
+        public void renderItemImage(GuiGraphics guiGraphics) {
+            // TODO This is a black screen. Not sure how to get the items texture yet
+            ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(this.attunedItem.resourceLocation());
+            guiGraphics.blit(resourceLocation, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3, 0, 0, 16, 16);
+        }
+
+        private void renderDisplayName(GuiGraphics guiGraphics) {
+            Component displayName = Component.literal(GUIUtil.prettifyName(this.attunedItem.displayName()));
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.57F, manageScreen.font, displayName, getAttunementCardX() + 28, getAttunementCardY() + 3, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xC1EFEF);
+        }
+
+        private void renderSlotsUsed(GuiGraphics guiGraphics) {
+            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 26, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+        }
+
+        private void renderAttunementLevel(GuiGraphics guiGraphics) {
+            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 26, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+        }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
-            guiGraphics.blit(TEXTURE, this.getAttunementCardX() + DELETE_BUTTON_X, this.getAttunementCardY() + DELETE_BUTTON_Y, 177, getDeleteButtonOffsetToRender(mouseX, mouseY), DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT);
+            if(isHovering(0, 0, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT, mouseX, mouseY)){
+                guiGraphics.blit(TEXTURE, this.getAttunementCardX() + DELETE_BUTTON_X, this.getAttunementCardY() + DELETE_BUTTON_Y, 177, getDeleteButtonOffsetToRender(mouseX, mouseY), DELETE_BUTTON_WIDTH, DELETE_BUTTON_HEIGHT);
+            }
         }
 
         private int getDeleteButtonOffsetToRender(double mouseX, double mouseY) {

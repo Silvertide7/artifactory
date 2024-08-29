@@ -40,9 +40,13 @@ public final class AttunementUtil {
         Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
 
         if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            return ArtifactorySavedData.get().getAttunedItem(attunedToUUID.get(), itemAttunementUUID.get()).map(AttunedItem::attunementLevel).orElse(0);
+            return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
         }
         return 0;
+    }
+
+    public static int getLevelOfAttunementAchieved(UUID playerUUID, UUID itemAttunementUUID) {
+        return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::attunementLevel).orElse(0);
     }
 
     public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {
