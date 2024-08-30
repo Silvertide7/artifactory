@@ -32,6 +32,9 @@ import org.slf4j.Logger;
 // TODO: Change color in GUIs to make it easier to parse
 // TODO: Limit it so only items can be attuned in the datapack entry
 // TODO: Any time an AttunedItem changes send update to client
+// TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
+// TODO: Add hover text explaining all benefits gained so far.
+
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

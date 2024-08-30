@@ -230,6 +230,7 @@ public class AttunementNexusManageScreen extends Screen {
         public void renderItemImage(GuiGraphics guiGraphics) {
             // TODO This is a black screen. Not sure how to get the items texture yet
             guiGraphics.renderItem(this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
+            guiGraphics.renderItemDecorations(this.manageScreen.font, this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
