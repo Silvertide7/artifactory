@@ -17,6 +17,7 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
+import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,7 +78,6 @@ public class AttunementNexusManageScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
-//        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -222,10 +222,12 @@ public class AttunementNexusManageScreen extends Screen {
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics);
             renderInformationIcon(guiGraphics, mouseX, mouseY);
+            renderInformationTooltip(guiGraphics, mouseX, mouseY);
             renderSlotsUsed(guiGraphics);
             renderAttunementLevel(guiGraphics);
             renderDeleteButton(guiGraphics, mouseX, mouseY);
         }
+
 
         private void renderBackground(GuiGraphics guiGraphics) {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
@@ -243,6 +245,15 @@ public class AttunementNexusManageScreen extends Screen {
 
         private void renderInformationIcon(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX() + INFORMATION_ICON_X, this.getAttunementCardY() + INFORMATION_ICON_Y, 177, getInformationIconOffsetToRender(mouseX, mouseY), INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT);
+        }
+
+
+        private void renderInformationTooltip(GuiGraphics guiGraphics, double mouseX, double mouseY) {
+            if(isHoveringInformationIcon(mouseX, mouseY)) {
+                List<Component> list = Lists.newArrayList();
+                list.add(Component.literal("SOULBOUND"));
+                guiGraphics.renderComponentTooltip(this.manageScreen.font, list, (int) mouseX, (int) mouseY);
+            }
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
