@@ -20,8 +20,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private static final int ATTUNE_BUTTON_Y = 65;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
-    private static final int MANAGE_BUTTON_X = 147;
-    private static final int MANAGE_BUTTON_Y = 19;
+    private static final int MANAGE_BUTTON_X = 135;
+    private static final int MANAGE_BUTTON_Y = 8;
     private static final int MANAGE_BUTTON_WIDTH = 18;
     private static final int MANAGE_BUTTON_HEIGHT = 12;
     private boolean attuneButtonDown = false;

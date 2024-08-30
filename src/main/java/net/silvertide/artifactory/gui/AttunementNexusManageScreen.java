@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -29,15 +28,15 @@ public class AttunementNexusManageScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
 
     //CLOSE BUTTON CONSTANTS
-    private static final int CLOSE_BUTTON_X = 147;
-    private static final int CLOSE_BUTTON_Y = 19;
+    private static final int CLOSE_BUTTON_X = 135;
+    private static final int CLOSE_BUTTON_Y = 8;
     private static final int CLOSE_BUTTON_WIDTH = 18;
     private static final int CLOSE_BUTTON_HEIGHT = 12;
 
     // SLIDER CONSTANTS
-    private static final int SLIDER_BASE_X = 130;
-    private static final int SLIDER_BASE_Y = 20;
-    private static final int SLIDER_MAX_DISTANCE_Y = 111;
+    private static final int SLIDER_BASE_X = 141;
+    private static final int SLIDER_BASE_Y = 23;
+    private static final int SLIDER_MAX_DISTANCE_Y = 105;
     private static final int SLIDER_WIDTH = 12;
     private static final int SLIDER_HEIGHT = 15;
 
@@ -184,13 +183,17 @@ public class AttunementNexusManageScreen extends Screen {
 
     private class AttunementCard {
         private static final int ATTUNEMENT_CARD_X = 23;
-        private static final int ATTUNEMENT_CARD_Y = 20;
-        private static final int ATTUNEMENT_CARD_WIDTH = 104;
+        private static final int ATTUNEMENT_CARD_Y = 23;
+        private static final int ATTUNEMENT_CARD_WIDTH = 115;
         private static final int ATTUNEMENT_CARD_HEIGHT = 22;
-        private final int DELETE_BUTTON_X= 86;
+        private final int DELETE_BUTTON_X= 101;
         private final int DELETE_BUTTON_Y = 11;
         private final int DELETE_BUTTON_WIDTH = 12;
         private final int DELETE_BUTTON_HEIGHT = 9;
+        private final int INFORMATION_ICON_X = 25;
+        private final int INFORMATION_ICON_Y = 10;
+        private final int INFORMATION_ICON_WIDTH = 10;
+        private final int INFORMATION_ICON_HEIGHT = 10;
 
         private int index;
         private final AttunedItem attunedItem;
@@ -218,11 +221,11 @@ public class AttunementNexusManageScreen extends Screen {
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics);
+            renderInformationIcon(guiGraphics, mouseX, mouseY);
             renderSlotsUsed(guiGraphics);
             renderAttunementLevel(guiGraphics);
             renderDeleteButton(guiGraphics, mouseX, mouseY);
         }
-
 
         private void renderBackground(GuiGraphics guiGraphics) {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
@@ -238,14 +241,18 @@ public class AttunementNexusManageScreen extends Screen {
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.57F, manageScreen.font, displayName, getAttunementCardX() + 28, getAttunementCardY() + 3, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xC1EFEF);
         }
 
+        private void renderInformationIcon(GuiGraphics guiGraphics, double mouseX, double mouseY) {
+            guiGraphics.blit(TEXTURE, this.getAttunementCardX() + INFORMATION_ICON_X, this.getAttunementCardY() + INFORMATION_ICON_Y, 177, getInformationIconOffsetToRender(mouseX, mouseY), INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT);
+        }
+
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
             Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 29, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
             Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 29, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -264,6 +271,18 @@ public class AttunementNexusManageScreen extends Screen {
             } else {
                 return 71;
             }
+        }
+
+        private int getInformationIconOffsetToRender(double mouseX, double mouseY) {
+            if(isHoveringInformationIcon(mouseX, mouseY)) {
+                return 122;
+            } else {
+                return 111;
+            }
+        }
+
+        private boolean isHoveringInformationIcon(double mouseX, double mouseY) {
+            return isHovering(INFORMATION_ICON_X, INFORMATION_ICON_Y, INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT, mouseX, mouseY);
         }
 
         public boolean isHoveringDeleteButton(double mouseX, double mouseY) {
