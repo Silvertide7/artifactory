@@ -6,8 +6,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -192,6 +195,7 @@ public class AttunementNexusManageScreen extends Screen {
         private int index;
         private final AttunedItem attunedItem;
         private final ItemAttunementData attunementData;
+        private final ItemStack itemToRender;
         private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
@@ -204,6 +208,10 @@ public class AttunementNexusManageScreen extends Screen {
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
             deltaY = 0;
+
+            Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(attunedItem.resourceLocation());
+            this.itemToRender = new ItemStack(baseItem);
+
         }
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -221,8 +229,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
         public void renderItemImage(GuiGraphics guiGraphics) {
             // TODO This is a black screen. Not sure how to get the items texture yet
-            ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(this.attunedItem.resourceLocation());
-            guiGraphics.blit(resourceLocation, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3, 0, 0, 16, 16);
+            guiGraphics.renderItem(this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
