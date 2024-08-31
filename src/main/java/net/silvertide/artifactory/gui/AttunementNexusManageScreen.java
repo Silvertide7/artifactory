@@ -159,7 +159,7 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private boolean isHoveringSlider(double mouseX, double mouseY) {
-        return isHovering(SLIDER_BASE_X, SLIDER_BASE_Y, SLIDER_WIDTH, SLIDER_HEIGHT, mouseX, mouseY);
+        return isHovering(SLIDER_BASE_X, getCurrentSliderY(), SLIDER_WIDTH, SLIDER_HEIGHT, mouseX, mouseY);
     }
 
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
@@ -200,8 +200,8 @@ public class AttunementNexusManageScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (sliderButtonDown &&  this.canScroll()) {
-            int i = this.attuneScreen.getScreenTopPos() + 14;
-            int j = i + 54;
+            int i = this.attuneScreen.getScreenTopPos() + 24 + (int) (SLIDER_HEIGHT*sliderProgress);
+            int j = i + SLIDER_MAX_DISTANCE_Y;
             this.sliderProgress = ((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F);
             this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
             return true;
