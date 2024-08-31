@@ -8,6 +8,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
@@ -25,13 +26,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class AttunementNexusManageScreen extends Screen {
-    private static final float TEXT_SCALE = 0.85F;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
 
     //CLOSE BUTTON CONSTANTS
-    private static final int CLOSE_BUTTON_X = 135;
+    private static final int CLOSE_BUTTON_X = 141;
     private static final int CLOSE_BUTTON_Y = 8;
-    private static final int CLOSE_BUTTON_WIDTH = 18;
+    private static final int CLOSE_BUTTON_WIDTH = 12;
     private static final int CLOSE_BUTTON_HEIGHT = 12;
 
     // SLIDER CONSTANTS
@@ -46,6 +46,7 @@ public class AttunementNexusManageScreen extends Screen {
     private AttunementNexusAttuneScreen attuneScreen;
     private LocalPlayer player;
     private boolean closeButtonDown = false;
+    private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
     private List<AttunementCard> attunementCards = new ArrayList<>();
 
@@ -91,7 +92,7 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.blit(TEXTURE, x, y, 0, 0, this.attuneScreen.getImageWidth(), this.attuneScreen.getImageHeight());
 
         renderButtons(guiGraphics, mouseX, mouseY);
-        renderSlider(guiGraphics);
+        renderSlider(guiGraphics, mouseX, mouseY);
         renderAttunementCards(guiGraphics, mouseX, mouseY);
     }
 
@@ -107,11 +108,28 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
     }
 
-    private void renderSlider(GuiGraphics guiGraphics) {
+    private void renderSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int sliderX = attuneScreen.getScreenLeftPos() + SLIDER_BASE_X;
-        int sliderY = attuneScreen.getScreenTopPos() + SLIDER_BASE_Y;
+        int sliderY = attuneScreen.getScreenTopPos() + getCurrentSliderY();
 
-        guiGraphics.blit(TEXTURE, sliderX, sliderY, 177, 0, SLIDER_WIDTH, SLIDER_HEIGHT);
+        guiGraphics.blit(TEXTURE, sliderX, sliderY, 190, getSliderOffsetToRender(mouseX, mouseY), SLIDER_WIDTH, SLIDER_HEIGHT);
+    }
+
+    private int getSliderOffsetToRender(int mouseX, int mouseY) {
+        if(!this.canScroll()) {
+            return 48;
+        } else if(sliderButtonDown) {
+            return 32;
+        } else if(isHoveringSlider(mouseX, mouseY)) {
+            return 16;
+        } else {
+            return 0;
+        }
+    }
+
+    private int getCurrentSliderY() {
+        if(!this.canScroll()) return SLIDER_BASE_Y;
+        return SLIDER_BASE_Y + (int) (sliderProgress * SLIDER_MAX_DISTANCE_Y);
     }
 
 
@@ -132,22 +150,20 @@ public class AttunementNexusManageScreen extends Screen {
             return 32;
         }
     }
-    private boolean canScroll()
-    {
-        return !ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID()).isEmpty();
+    private boolean canScroll() {
+        return attunementCards.size() >= 2;
     }
-
 
     private boolean isHoveringCloseButton(double mouseX, double mouseY) {
         return isHovering(CLOSE_BUTTON_X, CLOSE_BUTTON_Y, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT, mouseX, mouseY);
     }
 
+    private boolean isHoveringSlider(double mouseX, double mouseY) {
+        return isHovering(SLIDER_BASE_X, SLIDER_BASE_Y, SLIDER_WIDTH, SLIDER_HEIGHT, mouseX, mouseY);
+    }
+
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        int i = this.attuneScreen.getScreenLeftPos();
-        int j = this.attuneScreen.getScreenTopPos();
-        pMouseX -= i;
-        pMouseY -= j;
-        return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
+        return GUIUtil.isHovering(this.attuneScreen.getScreenLeftPos(), this.attuneScreen.getScreenTopPos(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
     @Override
@@ -161,6 +177,7 @@ public class AttunementNexusManageScreen extends Screen {
             }
         }
         closeButtonDown = false;
+        sliderButtonDown = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
@@ -169,12 +186,28 @@ public class AttunementNexusManageScreen extends Screen {
         if(isHoveringCloseButton(mouseX, mouseY)) {
             closeButtonDown = true;
             return true;
+        } else if (isHoveringSlider(mouseX, mouseY)) {
+            sliderButtonDown = true;
+            return true;
         } else {
             for(AttunementCard attunementCard : attunementCards) {
                 attunementCard.mouseClicked(mouseX, mouseY);
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (sliderButtonDown &&  this.canScroll()) {
+            int i = this.attuneScreen.getScreenTopPos() + 14;
+            int j = i + 54;
+            this.sliderProgress = ((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F);
+            this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
+            return true;
+        } else {
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
     }
 
     public AttunementNexusAttuneScreen getAttuneScreen() {
@@ -301,11 +334,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-            int i = getAttunementCardX();
-            int j = getAttunementCardY();
-            pMouseX -= i;
-            pMouseY -= j;
-            return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
+            return GUIUtil.isHovering(getAttunementCardX(), getAttunementCardY(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
         }
 
         public int getAttunementCardX() {

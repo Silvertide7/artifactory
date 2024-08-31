@@ -7,6 +7,12 @@ import net.minecraft.network.chat.Component;
 public class GUIUtil {
     private GUIUtil() {}
 
+    public static boolean isHovering(int i, int j, int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
+        pMouseX -= i;
+        pMouseY -= j;
+        return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
+    }
+
     public static void drawScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
         if("".equals(buttonTextComp.getString())) return;
 
