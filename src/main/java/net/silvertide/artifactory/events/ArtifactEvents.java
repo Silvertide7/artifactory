@@ -14,6 +14,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -22,7 +23,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.modifications.AttributeModification;
-import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -82,16 +82,8 @@ public class ArtifactEvents {
         ItemStack stack = tossEvent.getEntity().getItem();
 
         if(!stack.isEmpty()) {
-            ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
-            artifactorySavedData.getAttunedItemsAsList(player.getUUID()).ifPresent(attunedItemsList -> {
-                for(int i = 0; i < attunedItemsList.size(); i++) {
-                    Artifactory.LOGGER.info("Attuned item " + i + ": " + attunedItemsList.get(i));
-                }
-            });
-
             DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
             Artifactory.LOGGER.info("Item thrown attuned to player: " + AttunementUtil.arePlayerAndItemAttuned(player, stack));
-
             Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
         }
     }
@@ -103,7 +95,7 @@ public class ArtifactEvents {
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent playerTickEvent) {
         ticksIgnoredSinceLastProcess++;
-        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 10) return;
+        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 17) return;
         ticksIgnoredSinceLastProcess = 0;
 
         Player player = playerTickEvent.player;
@@ -153,10 +145,18 @@ public class ArtifactEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerDestroyItemEvent(PlayerDestroyItemEvent playerDestroyItemEvent) {
+        ItemStack stack = playerDestroyItemEvent.getOriginal();
+        if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
+            AttunementService.removeAttunementFromPlayerAndItem(stack);
+        }
+    }
+
+    @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
-        if (AttunementUtil.isAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+        if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
             CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
