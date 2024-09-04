@@ -48,7 +48,7 @@ public class AttunementNexusManageScreen extends Screen {
     private boolean closeButtonDown = false;
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
-    private List<AttunementCard> attunementCards = new ArrayList<>();
+    private final List<AttunementCard> attunementCards = new ArrayList<>();
 
     protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
         super(Component.literal(""));
@@ -86,14 +86,42 @@ public class AttunementNexusManageScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
+        renderScrollAreaBackground(guiGraphics);
+        renderAttunementCards(guiGraphics, mouseX, mouseY);
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0F, 0F, 1000F);
+
+        renderScreenBackground(guiGraphics);
+        renderButtons(guiGraphics, mouseX, mouseY);
+        renderSlider(guiGraphics, mouseX, mouseY);
+
+        guiGraphics.pose().popPose();
+    }
+
+    private void renderScrollAreaBackground(GuiGraphics guiGraphics) {
+        int scrollAreaX = attuneScreen.getScreenLeftPos() + 23;
+        int scrollAreaY = attuneScreen.getScreenTopPos() + 23;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0F, 0F ,-2000F);
+
+        guiGraphics.blit(TEXTURE, scrollAreaX, scrollAreaY, 0, 190, 115, 60);
+        guiGraphics.blit(TEXTURE, scrollAreaX, scrollAreaY + 60, 0, 190, 115, 60);
+        guiGraphics.pose().popPose();
+    }
+
+    private void renderAttunementCards(GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        for(AttunementCard attunementCard : attunementCards) {
+            attunementCard.render(guiGraphics, mouseX, mouseY, sliderProgress, this.attunementCards.size());
+        }
+    }
+
+    private void renderScreenBackground(GuiGraphics guiGraphics) {
         int x = this.attuneScreen.getScreenLeftPos();
         int y = this.attuneScreen.getScreenTopPos();
 
         guiGraphics.blit(TEXTURE, x, y, 0, 0, this.attuneScreen.getImageWidth(), this.attuneScreen.getImageHeight());
-
-        renderButtons(guiGraphics, mouseX, mouseY);
-        renderSlider(guiGraphics, mouseX, mouseY);
-        renderAttunementCards(guiGraphics, mouseX, mouseY);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -133,12 +161,6 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
 
-    private void renderAttunementCards(GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        for(AttunementCard attunementCard : attunementCards) {
-            attunementCard.render(guiGraphics, mouseX, mouseY);
-        }
-    }
-
     private int getCloseButtonOffsetToRender(int mouseX, int mouseY) {
         if(closeButtonDown) {
             return 58;
@@ -151,7 +173,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
     }
     private boolean canScroll() {
-        return attunementCards.size() >= 2;
+        return attunementCards.size() >= 6;
     }
 
     private boolean isHoveringCloseButton(double mouseX, double mouseY) {
@@ -214,7 +236,8 @@ public class AttunementNexusManageScreen extends Screen {
         return attuneScreen;
     }
 
-    private class AttunementCard {
+    private class AttunementCard{
+        private static final int CARD_WINDOW_HEIGHT = 120;
         private static final int ATTUNEMENT_CARD_X = 23;
         private static final int ATTUNEMENT_CARD_Y = 23;
         private static final int ATTUNEMENT_CARD_WIDTH = 115;
@@ -232,10 +255,10 @@ public class AttunementNexusManageScreen extends Screen {
         private final AttunedItem attunedItem;
         private final ItemAttunementData attunementData;
         private final ItemStack itemToRender;
-        private int deltaY;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
-        private int slotsUsed = 1;
+        private float distanceScrolledY = 0;
+        private boolean isOffScreen = false;
         AttunementNexusManageScreen manageScreen;
 
         public AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, AttunementNexusManageScreen manageScreen) {
@@ -243,32 +266,67 @@ public class AttunementNexusManageScreen extends Screen {
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
-            deltaY = 0;
 
             Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(attunedItem.resourceLocation());
             this.itemToRender = new ItemStack(baseItem);
 
         }
 
-        public void render(GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0F, 0F, -1000F);
+
+            // If 6 or more cards then the window will be scrollable / have overlap.
+            if(numCards >= 6) {
+                int maxDistanceScrollableY = numCards * ATTUNEMENT_CARD_HEIGHT - CARD_WINDOW_HEIGHT;
+                this.distanceScrolledY = maxDistanceScrollableY*sliderProgress;
+                this.isOffScreen = isOffScreenAboveWindow() || isOffscreenBelowWindow();
+
+                // Check if the card is above or below the scoll area entirely (offscreen) and don't render if so.
+                if (this.isOffScreen) {
+                    guiGraphics.pose().popPose();
+                    return;
+                }
+
+                guiGraphics.pose().translate(0, -this.distanceScrolledY, 0F);
+            } else {
+                this.distanceScrolledY = 0;
+                this.isOffScreen = false;
+            }
+
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics);
-            renderInformationIcon(guiGraphics, mouseX, mouseY);
-            renderInformationTooltip(guiGraphics, mouseX, mouseY);
             renderSlotsUsed(guiGraphics);
             renderAttunementLevel(guiGraphics);
+            renderInformationIcon(guiGraphics, mouseX, mouseY);
+            renderInformationTooltip(guiGraphics, mouseX, mouseY);
             renderDeleteButton(guiGraphics, mouseX, mouseY);
+
+            guiGraphics.pose().popPose();
         }
 
+        public int getTopOfCardY() {
+            return this.index * ATTUNEMENT_CARD_HEIGHT;
+        }
+
+        public int getBottomOfCardY() {
+            return getTopOfCardY() + ATTUNEMENT_CARD_HEIGHT;
+        }
+
+        public boolean isOffScreenAboveWindow() {
+            return this.distanceScrolledY >= getBottomOfCardY();
+        }
+
+        public boolean isOffscreenBelowWindow() {
+            return getTopOfCardY() > CARD_WINDOW_HEIGHT + this.distanceScrolledY;
+        }
 
         private void renderBackground(GuiGraphics guiGraphics) {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
         }
         public void renderItemImage(GuiGraphics guiGraphics) {
-            // TODO This is a black screen. Not sure how to get the items texture yet
             guiGraphics.renderItem(this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
-            guiGraphics.renderItemDecorations(this.manageScreen.font, this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
@@ -334,7 +392,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-            return GUIUtil.isHovering(getAttunementCardX(), getAttunementCardY(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
+            return GUIUtil.isHovering(getAttunementCardX(), getAttunementCardY() - (int) this.distanceScrolledY, pX, pY, pWidth, pHeight, pMouseX, pMouseY);
         }
 
         public int getAttunementCardX() {
@@ -342,7 +400,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         public int getAttunementCardY() {
-            return attuneScreen.getScreenTopPos() + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT + deltaY;
+            return attuneScreen.getScreenTopPos() + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT;
         }
 
         public void mouseReleased(double mouseX, double mouseY) {
