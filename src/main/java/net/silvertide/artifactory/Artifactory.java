@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 // TODO: Any time an AttunedItem changes send update to client
 // TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
 // TODO: Add hover text explaining all benefits gained so far.
+// TODO: Implement isValidAttunementItem in correct spots. Should items that were valid but become invalid have all data erased?
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory

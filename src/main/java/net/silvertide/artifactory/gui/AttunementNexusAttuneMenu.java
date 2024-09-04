@@ -108,7 +108,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         attunementSlot = new Slot(inputSlot, 0, 80, 23) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return AttunementUtil.isAttunementItem(stack);
+                return AttunementUtil.isValidAttunementItem(stack);
             }
 
             @Override

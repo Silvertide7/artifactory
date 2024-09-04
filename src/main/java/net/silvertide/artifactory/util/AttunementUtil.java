@@ -56,7 +56,7 @@ public final class AttunementUtil {
     }
 
     public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
-        if(stack.isEmpty()) return false;
+        if(stack.isEmpty() || !AttunementUtil.isValidAttunementItem(stack)) return false;
         return DataPackUtil.getAttunementData(stack).map(attunementData -> {
             if(isItemAttunedToPlayer(player, stack)) {
                 int levelAchieved = getLevelOfAttunementAchieved(stack);
@@ -115,10 +115,10 @@ public final class AttunementUtil {
 
     public static boolean isAvailableToAttune(ItemStack stack) {
         // TODO: Might want to check if the player still has the item attuned here and break the connection if not.
-        return isAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
+        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
     }
 
-    public static boolean isAttunementItem(ItemStack stack) {
-        return !stack.isEmpty() && DataPackUtil.hasAttunementData(stack);
+    public static boolean isValidAttunementItem(ItemStack stack) {
+        return !stack.isEmpty() && DataPackUtil.getAttunementData(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
     }
 }

@@ -24,7 +24,7 @@ public class CuriosCompat {
         if(!event.isCanceled() && slotContext.entity() instanceof Player) {
             if(slotContext.entity() instanceof Player player && !player.level().isClientSide()){
                 ItemStack stack = event.getStack();
-                if(AttunementUtil.isAttunementItem(stack) && !DataPackUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
+                if(AttunementUtil.isValidAttunementItem(stack) && !DataPackUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
                     PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
                     event.setResult(Event.Result.DENY);
                 }

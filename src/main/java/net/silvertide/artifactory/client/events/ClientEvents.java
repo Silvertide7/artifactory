@@ -19,7 +19,7 @@ public class ClientEvents {
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if(!stack.isEmpty()) {
+        if(!stack.isEmpty() && AttunementUtil.isValidAttunementItem(stack)) {
             DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
                 createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
                 addTraitTooltips(event.getToolTip(), stack);
