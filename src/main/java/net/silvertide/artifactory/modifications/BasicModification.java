@@ -35,6 +35,10 @@ public class BasicModification implements AttunementModification {
 
     @Override
     public String toString() {
-        return "BasicModification/" + modificationType.toString();
+        return switch(modificationType) {
+            case UNBREAKABLE -> "Unbreakable";
+            case INVULNERABLE -> "Invulnerable";
+            case SOULBOUND -> "Soulbound";
+        };
     }
 }

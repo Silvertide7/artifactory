@@ -12,6 +12,19 @@ public record AttunementLevel(List<String> modifications, AttunementRequirements
             .apply(instance, AttunementLevel::new)
     );
 
+    public String getModifications() {
+        StringBuilder result = new StringBuilder();
+
+        for(int i = 0; i < modifications.size(); i++){
+            result.append(modifications.get(i));
+            if(i != modifications().size() - 1 ){
+                result.append(',');
+            }
+        }
+
+        return result.toString();
+    }
+
     public String toString() {
         StringBuilder result = new StringBuilder("AttunementLevel: \n" +
                 " modifications: [");

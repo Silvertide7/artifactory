@@ -56,6 +56,11 @@ public class GUIUtil {
             prettifiedLocation = resourceLocation.split(":")[1];
         }
 
+        if(prettifiedLocation.contains(".")) {
+            String[] periodSeperated = prettifiedLocation.split("\\.");
+            prettifiedLocation = periodSeperated[periodSeperated.length - 1];
+        }
+
         if(prettifiedLocation.contains("_")) {
             StringBuilder result = new StringBuilder();
             String[] words = prettifiedLocation.split("_");

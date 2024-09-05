@@ -8,10 +8,8 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
-import net.silvertide.artifactory.network.CB_RemoveAttunedItem;
-import net.silvertide.artifactory.network.CB_ResetAttunedItems;
-import net.silvertide.artifactory.network.CB_UpdateAttunedItem;
-import net.silvertide.artifactory.network.PacketHandler;
+import net.silvertide.artifactory.network.*;
+import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.*;
@@ -50,16 +48,6 @@ public class ArtifactorySavedData extends SavedData {
         return false;
     }
 
-    public Optional<List<AttunedItem>> getAttunedItemsAsList(UUID playerUUID) {
-        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
-        if(!playerAttunedItems.isEmpty()) {
-            List<AttunedItem> items = new ArrayList<>(playerAttunedItems.values());
-            return Optional.of(items);
-        } else {
-            return Optional.empty();
-        }
-    }
-
     public Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {
         return attunedItems.getOrDefault(playerUUID, new HashMap<>());
     }
@@ -69,15 +57,10 @@ public class ArtifactorySavedData extends SavedData {
 
         this.setDirty();
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-        if(player != null) PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
-    }
-
-    public void setAttunedItems(UUID playerUUID, Map<UUID, AttunedItem> attunedItems) {
-        this.attunedItems.put(playerUUID, attunedItems);
-
-        this.setDirty();
-        ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-        if (player != null) NetworkUtil.updateAllAttunedItems(player, attunedItems);
+        if(player != null){
+            PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
+            NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
+        }
     }
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
@@ -92,7 +75,10 @@ public class ArtifactorySavedData extends SavedData {
         if(attunedItems.remove(playerUUID) != null) {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-            if (player != null) PacketHandler.sendToClient(player, new CB_ResetAttunedItems());
+            if (player != null) {
+                PacketHandler.sendToClient(player, new CB_ResetAttunedItems());
+            }
+
         }
     }
 

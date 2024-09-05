@@ -26,7 +26,7 @@ public final class AttunementUtil {
         Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
-            numAttunementSlotsUsed += DataPackUtil.getAttunementData(new ResourceLocation(attunedItem.resourceLocation())).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
+            numAttunementSlotsUsed += DataPackUtil.getAttunementData(attunedItem.resourceLocation()).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
         }
         return numAttunementSlotsUsed;
     }

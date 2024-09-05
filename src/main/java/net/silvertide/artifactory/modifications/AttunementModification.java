@@ -4,4 +4,5 @@ import net.minecraft.world.item.ItemStack;
 
 public interface AttunementModification {
     void applyModification(ItemStack stack);
+    String toString();
 }

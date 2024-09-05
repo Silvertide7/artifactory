@@ -64,11 +64,11 @@ public class AttunementNexusManageScreen extends Screen {
 
     public void createAttunementCards() {
         attunementCards.clear();
-        List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList(this.player.getUUID());
+        List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
         attunedItems.sort(Comparator.comparingInt(AttunedItem::order));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(ResourceLocationUtil.getResourceLocation(attunedItem.resourceLocation()));
+            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.resourceLocation());
             if(attunementData.isPresent()) {
                 attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.get(), this));
             }
@@ -86,11 +86,15 @@ public class AttunementNexusManageScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        renderScrollAreaBackground(guiGraphics);
-        renderAttunementCards(guiGraphics, mouseX, mouseY);
-
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0F, 0F, 1000F);
+
+        renderScrollAreaBackground(guiGraphics);
+        renderAttunementCards(guiGraphics, mouseX, mouseY);
+        guiGraphics.pose().popPose();
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0F, 0F, 5000F);
 
         renderScreenBackground(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
@@ -255,6 +259,7 @@ public class AttunementNexusManageScreen extends Screen {
         private final AttunedItem attunedItem;
         private final ItemAttunementData attunementData;
         private final ItemStack itemToRender;
+        private List<String> modificationDescPerLevel;
         private boolean isDeleteButtonDown = false;
         private boolean isDeleteButtonDisabled = false;
         private float distanceScrolledY = 0;
@@ -266,6 +271,7 @@ public class AttunementNexusManageScreen extends Screen {
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
+            this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.resourceLocation());
 
             Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(attunedItem.resourceLocation());
             this.itemToRender = new ItemStack(baseItem);
@@ -274,7 +280,7 @@ public class AttunementNexusManageScreen extends Screen {
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0F, 0F, -1000F);
+            guiGraphics.pose().translate(0F, 0F, 2000F);
 
             // If 6 or more cards then the window will be scrollable / have overlap.
             if(numCards >= 6) {
@@ -341,9 +347,16 @@ public class AttunementNexusManageScreen extends Screen {
 
         private void renderInformationTooltip(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             if(isHoveringInformationIcon(mouseX, mouseY)) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0F, 0F, 10000F);
+
                 List<Component> list = Lists.newArrayList();
-                list.add(Component.literal("SOULBOUND"));
+                for(String levelDescription : this.modificationDescPerLevel) {
+                    list.add(Component.literal(levelDescription));
+                }
                 guiGraphics.renderComponentTooltip(this.manageScreen.font, list, (int) mouseX, (int) mouseY);
+
+                guiGraphics.pose().popPose();
             }
         }
 

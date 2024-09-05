@@ -6,26 +6,24 @@ import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
+import net.silvertide.artifactory.modifications.AttunementModification;
 
 import java.util.*;
 
 public final class DataPackUtil {
     private DataPackUtil() {}
 
+    public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
+        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(resourceLocation));
+    }
+
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(stackResourceLocation));
     }
 
-    public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
-        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(resourceLocation));
-    }
-
-    public static boolean hasAttunementData(ItemStack stack) {
-        return getAttunementData(stack).isPresent();
-    }
-    public static boolean hasAttunementData(ResourceLocation resourceLocation) {
-        return getAttunementData(resourceLocation).isPresent();
+    public static Optional<ItemAttunementData> getAttunementData(String resourceLocation) {
+        return getAttunementData(ResourceLocationUtil.getResourceLocation(resourceLocation));
     }
 
     public static Optional<AttunementLevel> getAttunementLevel(ItemStack stack, int level) {
@@ -60,5 +58,23 @@ public final class DataPackUtil {
     
     public static Optional<List<String>> getAttunementModifications(ItemStack stack, int level) {
         return getAttunementLevel(stack, level).map(AttunementLevel::modifications);
+    }
+
+    public static String getAttunementLevelDescriptions(String resourceLocation) {
+        // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
+        return getAttunementData(resourceLocation).map(itemAttunementData -> {
+            StringBuilder stringBuilder = new StringBuilder(resourceLocation + ";");
+
+            Iterator<Map.Entry<String, AttunementLevel>> iterator = itemAttunementData.attunements().entrySet().iterator();
+
+            while (iterator.hasNext()) {
+                Map.Entry<String, AttunementLevel> entry = iterator.next();
+
+                stringBuilder.append(entry.getKey()).append("#").append(entry.getValue().getModifications());
+
+                if (iterator.hasNext()) stringBuilder.append("~");
+            }
+            return stringBuilder.toString();
+        }).orElse("");
     }
 }

@@ -25,10 +25,17 @@ public class PacketHandler {
 
         INSTANCE = net;
 
+        // CLIENT BOUND
         net.messageBuilder(CB_UpdateAttunedItem.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(CB_UpdateAttunedItem::new)
                 .encoder(CB_UpdateAttunedItem::encode)
                 .consumerMainThread(CB_UpdateAttunedItem::handle)
+                .add();
+
+        net.messageBuilder(CB_UpdateAttunedItemModifications.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_UpdateAttunedItemModifications::new)
+                .encoder(CB_UpdateAttunedItemModifications::encode)
+                .consumerMainThread(CB_UpdateAttunedItemModifications::handle)
                 .add();
 
         net.messageBuilder(CB_ResetAttunedItems.class, id(), NetworkDirection.PLAY_TO_CLIENT)
@@ -43,6 +50,7 @@ public class PacketHandler {
                 .consumerMainThread(CB_RemoveAttunedItem::handle)
                 .add();
 
+        // SERVER BOUND
         net.messageBuilder(SB_RemoveAttunedItem.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(SB_RemoveAttunedItem::new)
                 .encoder(SB_RemoveAttunedItem::encode)

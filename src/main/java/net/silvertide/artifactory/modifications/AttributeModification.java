@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 import javax.annotation.Nullable;
@@ -125,7 +126,13 @@ public class AttributeModification implements AttunementModification {
 
     @Override
     public String toString() {
-        return "AttributeModification/" + attribute + "/" + operation + "/" + value + "/" + attributeUUID;
-    }
+        StringBuilder result = new StringBuilder();
+        String operand = this.operation == 0 ? "+" : "x";
 
+        // minecraft:generic.attack_damage
+        result.append(operand).append(this.value).append(" ").append(GUIUtil.prettifyName(attribute));
+
+
+        return result.toString();
+    }
 }
