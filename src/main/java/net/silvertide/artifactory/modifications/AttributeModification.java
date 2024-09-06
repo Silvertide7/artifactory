@@ -128,10 +128,8 @@ public class AttributeModification implements AttunementModification {
     public String toString() {
         StringBuilder result = new StringBuilder();
         String operand = this.operation == 0 ? "+" : "x";
-
         // minecraft:generic.attack_damage
         result.append(operand).append(this.value).append(" ").append(GUIUtil.prettifyName(attribute));
-
 
         return result.toString();
     }

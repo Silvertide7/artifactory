@@ -2,6 +2,8 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.AttunementRequirements;
@@ -60,7 +62,7 @@ public final class DataPackUtil {
         return getAttunementLevel(stack, level).map(AttunementLevel::modifications);
     }
 
-    public static String getAttunementLevelDescriptions(String resourceLocation) {
+    public static String getAttunementLevelDescriptions(String resourceLocation, int currentAttunementLevel) {
         // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
         return getAttunementData(resourceLocation).map(itemAttunementData -> {
             StringBuilder stringBuilder = new StringBuilder(resourceLocation + ";");
@@ -69,12 +71,29 @@ public final class DataPackUtil {
 
             while (iterator.hasNext()) {
                 Map.Entry<String, AttunementLevel> entry = iterator.next();
+                if(shouldSendAttunementLevelInformation(entry.getKey(), currentAttunementLevel)){
+                    stringBuilder.append(entry.getKey()).append("#").append(entry.getValue().getModifications());
+                    if (iterator.hasNext()) stringBuilder.append("~");
+                }
 
-                stringBuilder.append(entry.getKey()).append("#").append(entry.getValue().getModifications());
-
-                if (iterator.hasNext()) stringBuilder.append("~");
             }
             return stringBuilder.toString();
         }).orElse("");
+    }
+
+    private static boolean shouldSendAttunementLevelInformation(String level, int currentAttunementLevel) {
+        String currentInformationLevel = Config.ATTUNEMENT_INFORMATION_EXTENT.get();
+        if(Objects.equals(currentInformationLevel, "all")) return true;
+        else {
+            try {
+                int informationLevel = Integer.parseInt(level);
+                if(Objects.equals(currentInformationLevel, "next")) return informationLevel <= currentAttunementLevel + 1;
+                if(Objects.equals(currentInformationLevel, "current")) return informationLevel <= currentAttunementLevel;
+            } catch (NumberFormatException exception) {
+                Artifactory.LOGGER.error("Error converting datapack attunement level to integer.");
+                return false;
+            }
+        }
+        return false;
     }
 }

@@ -50,10 +50,10 @@ public class ClientAttunedItems {
 
                     // This code should successfully create a modification. We will then use that modifications toString
                     // to get the relevant information.
-                    AttunementModification modification = ModificationUtil.createAttunementModification(modificationCode);
-                    if(modification != null) levelDescription.append(modification);
-                    if(i != modificationCodes.length - 1) {
-                        levelDescription.append(", ");
+                    Optional<AttunementModification> modification = ModificationUtil.createAttunementModification(modificationCode);
+                    if(modification.isPresent()) {
+                        levelDescription.append(modification.get());
+                        if(i != modificationCodes.length - 1) levelDescription.append(", ");
                     }
                 }
                 results.add(levelDescription.toString());

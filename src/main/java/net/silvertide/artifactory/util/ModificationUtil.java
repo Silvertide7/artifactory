@@ -9,6 +9,8 @@ import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.BasicModification;
 import net.silvertide.artifactory.modifications.BasicModificationType;
 
+import java.util.Optional;
+
 public class ModificationUtil {
     private ModificationUtil() {}
 
@@ -24,26 +26,25 @@ public class ModificationUtil {
     }
 
     public static void applyAttunementModification(ItemStack stack, String modificationString) {
-        AttunementModification attunementModification = ModificationUtil.createAttunementModification(modificationString);
-        if (attunementModification != null) {
-            attunementModification.applyModification(stack);
-        }
+        ModificationUtil.createAttunementModification(modificationString).ifPresent(modification -> {
+            modification.applyModification(stack);
+        });
     }
-    public static AttunementModification createAttunementModification(String modificationFromAttunementData) {
+    public static Optional<AttunementModification> createAttunementModification(String modificationFromAttunementData) {
         if(modificationFromAttunementData.indexOf('/') >= 0) {
             String modificationIdentifier = modificationFromAttunementData.split("/")[0];
             if (modificationIdentifier.equalsIgnoreCase(AttributeModification.ATTRIBUTE_MODIFICATION_TYPE)) {
-                return AttributeModification.fromAttunementDataString(modificationFromAttunementData);
+                return Optional.ofNullable(AttributeModification.fromAttunementDataString(modificationFromAttunementData));
             }
         } else {
             try {
                 BasicModificationType modification = BasicModificationType.valueOf(modificationFromAttunementData.toUpperCase());
-                return new BasicModification(modification);
+                return Optional.of(new BasicModification(modification));
             } catch (IllegalArgumentException e) {
                 Artifactory.LOGGER.error("Artifactory - Unknown attunement modification " + modificationFromAttunementData);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public static boolean hasModification(ItemStack stack, String modification) {
