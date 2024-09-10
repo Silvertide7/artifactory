@@ -1,6 +1,6 @@
 package net.silvertide.artifactory.util;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -40,6 +40,18 @@ public final class AttunementUtil {
         Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
 
         if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
+            return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
+        }
+        return 0;
+    }
+
+    public static int getLevelOfAttunementAchievedByPlayer(ServerPlayer player, ItemStack stack) {
+        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
+        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
+
+        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
+            if(player.getUUID() != attunedToUUID.get()) return 0;
+
             return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
         }
         return 0;

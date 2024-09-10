@@ -38,6 +38,12 @@ public class PacketHandler {
                 .consumerMainThread(CB_UpdateAttunedItemModifications::handle)
                 .add();
 
+        net.messageBuilder(CB_UpdateAttunementNexusSlotInformation.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_UpdateAttunementNexusSlotInformation::new)
+                .encoder(CB_UpdateAttunementNexusSlotInformation::encode)
+                .consumerMainThread(CB_UpdateAttunementNexusSlotInformation::handle)
+                .add();
+
         net.messageBuilder(CB_ResetAttunedItems.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(CB_ResetAttunedItems::new)
                 .encoder(CB_ResetAttunedItems::encode)

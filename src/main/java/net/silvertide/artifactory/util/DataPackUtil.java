@@ -8,7 +8,6 @@ import net.silvertide.artifactory.config.codecs.AttuneableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.modifications.AttunementModification;
 
 import java.util.*;
 

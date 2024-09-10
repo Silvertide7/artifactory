@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.gui;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -8,16 +9,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.events.custom.PostAttuneEvent;
 import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.util.AttunementService;
-import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.DataPackUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
 public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
@@ -46,15 +46,15 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 6;
 
     protected final Container inputSlot = new SimpleContainer(1) {
-        /**
-         * For block entities, ensures the chunk containing the block entity is saved to disk later - the game won't think
-         * it hasn't changed and skip it.
-         */
         public void setChanged() {
             super.setChanged();
             AttunementNexusAttuneMenu.this.slotsChanged(this);
+            AttunementNexusAttuneMenu.this.inputSlotChanged(this);
+
         }
     };
+
+
     public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
@@ -114,7 +114,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 initializeDataSlots();
-
+                ClientAttunementNexusSlotInformation.clearSlotInformation();
                 super.onTake(player, stack);
             }
         };
@@ -162,9 +162,16 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void slotsChanged(Container pContainer) {
-        super.slotsChanged(pContainer);
+    public void slotsChanged(Container container) {
+        super.slotsChanged(container);
         updateAttunementState();
+    }
+
+    private void inputSlotChanged(SimpleContainer container) {
+        if(!container.isEmpty() && this.player instanceof ServerPlayer serverPlayer) {
+            // TODO: Why is this firing 3 times?
+            NetworkUtil.updateAttunementNexusSlotInformation(serverPlayer, container.getItem(0));
+        }
     }
 
     @Override
