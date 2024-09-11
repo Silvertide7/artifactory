@@ -16,7 +16,6 @@ import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,29 +30,15 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private int progress = 0;
     private int isActive = 0;
     private int canItemAscend = 0;
-    private int levelAttunementAchieved = 0;
-    private int cost = -1;
-    private int threshold = -1;
     private int playerHasAttunedItem = 0;
 
     // Data Accessor Indices
     private final int PROGRESS_INDEX = 0;
     private final int IS_ACTIVE_INDEX = 1;
     private final int CAN_ITEM_ASCEND_INDEX = 2;
-    private final int LEVEL_ATTUNEMENT_ACHIEVED_INDEX = 3;
-    private final int COST_INDEX = 4;
-    private final int THRESHOLD_INDEX = 5;
-    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 6;
+    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 3;
 
-    protected final Container inputSlot = new SimpleContainer(1) {
-        public void setChanged() {
-            super.setChanged();
-            AttunementNexusAttuneMenu.this.slotsChanged(this);
-            AttunementNexusAttuneMenu.this.inputSlotChanged(this);
-
-        }
-    };
-
+    protected final Container inputSlot = new SimpleContainer(1);
 
     public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -73,33 +58,27 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public int get(int index) {
                 return switch(index) {
-                    case 0 -> AttunementNexusAttuneMenu.this.progress;
-                    case 1 -> AttunementNexusAttuneMenu.this.isActive;
-                    case 2 -> AttunementNexusAttuneMenu.this.canItemAscend;
-                    case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved;
-                    case 4 -> AttunementNexusAttuneMenu.this.cost;
-                    case 5 -> AttunementNexusAttuneMenu.this.threshold;
-                    case 6 -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
-                    default -> 0;
+                    case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress;
+                    case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive;
+                    case CAN_ITEM_ASCEND_INDEX -> AttunementNexusAttuneMenu.this.canItemAscend;
+                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
+                    default -> PROGRESS_INDEX;
                 };
             }
 
             @Override
             public void set(int index, int value) {
                 switch(index) {
-                    case 0 -> AttunementNexusAttuneMenu.this.progress = value;
-                    case 1 -> AttunementNexusAttuneMenu.this.isActive = value;
-                    case 2 -> AttunementNexusAttuneMenu.this.canItemAscend = value;
-                    case 3 -> AttunementNexusAttuneMenu.this.levelAttunementAchieved = value;
-                    case 4 -> AttunementNexusAttuneMenu.this.cost = value;
-                    case 5 -> AttunementNexusAttuneMenu.this.threshold = value;
-                    case 6 -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
+                    case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress = value;
+                    case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive = value;
+                    case CAN_ITEM_ASCEND_INDEX -> AttunementNexusAttuneMenu.this.canItemAscend = value;
+                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 7;
+                return 4;
             }
         };
 
@@ -117,6 +96,12 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 ClientAttunementNexusSlotInformation.clearSlotInformation();
                 super.onTake(player, stack);
             }
+
+            @Override
+            public void set(ItemStack pStack) {
+                super.set(pStack);
+                if(pStack != null) AttunementNexusAttuneMenu.this.inputSlotChanged(this);
+            }
         };
 
         this.addSlot(attunementSlot);
@@ -127,9 +112,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void initializeDataSlots() {
         setIsActive(0);
         setProgress(0);
-        setCost(-1);
-        setThreshold(-1);
-        setLevelAttunementAchieved(0);
         setCanItemAscend(0);
     }
 
@@ -140,12 +122,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setIsActive(int value) { this.data.set(IS_ACTIVE_INDEX, value); }
     public boolean canItemAscend() { return this.data.get(CAN_ITEM_ASCEND_INDEX) > 0; }
     public void setCanItemAscend(int value) { this.data.set(CAN_ITEM_ASCEND_INDEX, value); }
-    public int getLevelAttunementAchieved() { return this.data.get(LEVEL_ATTUNEMENT_ACHIEVED_INDEX); }
-    public void setLevelAttunementAchieved(int value) { this.data.set(LEVEL_ATTUNEMENT_ACHIEVED_INDEX, value); }
-    public int getCost() { return this.data.get(COST_INDEX); }
-    public void setCost(int value) { this.data.set(COST_INDEX, value); }
-    public int getThreshold() { return this.data.get(THRESHOLD_INDEX); }
-    public void setThreshold(int value) { this.data.set(THRESHOLD_INDEX, value); }
     public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
     public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
     @Override
@@ -167,10 +143,10 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         updateAttunementState();
     }
 
-    private void inputSlotChanged(SimpleContainer container) {
-        if(!container.isEmpty() && this.player instanceof ServerPlayer serverPlayer) {
+    private void inputSlotChanged(Slot slot) {
+        if(slot.hasItem() && this.player instanceof ServerPlayer serverPlayer) {
             // TODO: Why is this firing 3 times?
-            NetworkUtil.updateAttunementNexusSlotInformation(serverPlayer, container.getItem(0));
+            NetworkUtil.updateAttunementNexusSlotInformation(serverPlayer, slot.getItem());
         }
     }
 
@@ -204,8 +180,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private boolean meetsRequirementsToAttune() {
-        int cost = getCost();
-        int threshold = getThreshold();
+        int cost = 11; //getCost();
+        int threshold = 15; //getThreshold();
 
         if(cost <= 0 && threshold <= 0) return true;
 
@@ -223,7 +199,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private void payCostForAttunement() {
-        int cost = getCost();
+        int cost = 10; //getCost();
         if(cost > 0) player.giveExperienceLevels(-cost);
     }
 
@@ -239,14 +215,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
         if(!inputSlot.isEmpty()) {
             ItemStack attuneableItemStack = inputSlot.getItem(0);
-
-            int levelAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(attuneableItemStack);
-            setLevelAttunementAchieved(levelAttunementAchieved);
-
-            int nextLevelOfAttunement = levelAttunementAchieved + 1;
-
             if(AttunementUtil.canIncreaseAttunementLevel(player, attuneableItemStack) && (player.getAbilities().instabuild || meetsRequirementsToAttune())) {
-                updateAttunementRequirements(attuneableItemStack, nextLevelOfAttunement);
                 setCanItemAscend(1);
             } else {
                 if(this.canItemAscend != 0) setCanItemAscend(0);
@@ -254,28 +223,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         } else {
             if(this.canItemAscend != 0) setCanItemAscend(0);
         }
-    }
-
-    private void updateAttunementRequirements(ItemStack attuneableItemStack, int nextLevelOfAttunement) {
-        DataPackUtil.getAttunementRequirements(attuneableItemStack, nextLevelOfAttunement).ifPresentOrElse(
-            attunementRequirements -> {
-                if(attunementRequirements.xpLevelsConsumed() >= 0) {
-                    setCost(attunementRequirements.xpLevelsConsumed());
-                } else {
-                    setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
-                }
-
-                if(attunementRequirements.xpLevelThreshold() >= 0) {
-                    setThreshold(attunementRequirements.xpLevelThreshold());
-                } else {
-                    setThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
-                }
-            },
-            () -> {
-                setCost(Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get());
-                setThreshold(Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get());
-            }
-        );
     }
 
     public boolean hasAttuneableItemInSlot() {

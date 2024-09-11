@@ -8,6 +8,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
+import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.GUIUtil;
 import org.apache.commons.compress.utils.Lists;
 
@@ -65,10 +67,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         renderButtons(guiGraphics, mouseX, mouseY);
         renderTooltips(guiGraphics, mouseX, mouseY);
         renderProgressGraphic(guiGraphics, x, y);
-
-        if(this.menu.hasAttuneableItemInSlot()) {
-            renderAttunementInformation(guiGraphics, x, y);
-        }
+        renderAttunementInformation(guiGraphics, x, y);
     }
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
@@ -131,9 +130,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(menu.hasAttuneableItemInSlot() && menu.canItemAscend()) {
-                list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", menu.getThreshold()));
-                list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", menu.getCost()));
+            if(menu.hasAttuneableItemInSlot() && menu.canItemAscend() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
+                AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+                list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
+                list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
             } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
                 list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
             } else {
@@ -144,18 +144,21 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
-        Component attunementLevelComponent = Component.literal(String.valueOf(menu.getLevelAttunementAchieved()));
-        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
+        AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+        if(slotInformation != null && this.menu.hasAttuneableItemInSlot()){
+            Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchieved()));
+            guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
 
-        if(menu.canItemAscend()){
-            if (menu.getCost() > 0) {
-                Component levelCostComponent = Component.literal(String.valueOf(menu.getCost()));
-                guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
-            }
+            if(menu.canItemAscend()) {
+                if (slotInformation.xpConsumed() > 0) {
+                    Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
+                    guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
+                }
 
-            if (menu.getThreshold() > 0) {
-                Component levelThresholdComponent = Component.literal(String.valueOf(menu.getThreshold()));
-                guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
+                if (slotInformation.xpThreshold() > 0) {
+                    Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
+                    guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
+                }
             }
         }
     }
