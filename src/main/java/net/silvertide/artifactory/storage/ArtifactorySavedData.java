@@ -42,7 +42,10 @@ public class ArtifactorySavedData extends SavedData {
 
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-            if(player != null) PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(higherLevelAttunedItem));
+            if(player != null){
+                PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(higherLevelAttunedItem));
+                NetworkUtil.updateAttunedItemModificationDescription(player, higherLevelAttunedItem);
+            }
             return true;
         }
         return false;
@@ -59,6 +62,7 @@ public class ArtifactorySavedData extends SavedData {
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
         if(player != null){
             PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
+            // TODO Is this updating correctly?
             NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
         }
     }

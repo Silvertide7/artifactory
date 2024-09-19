@@ -48,11 +48,14 @@ public class AttunementNexusConfirmationScreen extends Screen {
         int x = getScreenStartX();
         int y = getScreenStartY();
 
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0F, 0F, 5000F);
         guiGraphics.blit(TEXTURE, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
 
         renderDeleteText(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
+
+        guiGraphics.pose().popPose();
     }
 
     private int getScreenStartX() {

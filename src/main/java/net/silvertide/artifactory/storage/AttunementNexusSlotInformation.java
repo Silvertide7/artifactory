@@ -12,12 +12,12 @@ import java.util.Optional;
 
 public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int xpThreshold, int levelAchieved, int maxLevelPossible, String itemRequirementOne, int itemRequirementOneQuantity, String itemRequirementTwo, int itemRequirementTwoQuantity, String itemRequirementThree, int itemRequirementThreeQuantity) {
 
-    public static Optional<AttunementNexusSlotInformation> createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
-        if(!AttunementUtil.isValidAttunementItem(stack)) return Optional.empty();
+    public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
+        if(!AttunementUtil.isValidAttunementItem(stack)) return null;
 
-        return DataPackUtil.getAttunementData(stack).flatMap(itemAttunementData -> {
+        return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
             // First check if it's already attuned to a player and make sure that is the player requesting this information.
-            if(AttunementUtil.isItemAttunedToAPlayer(stack) && !AttunementUtil.isItemAttunedToPlayer(player, stack)) return Optional.empty();
+            if(AttunementUtil.isItemAttunedToAPlayer(stack) && !AttunementUtil.isItemAttunedToPlayer(player, stack)) return null;
 
             // Get the level of attunement achieved by the player.
             int currentAttunementLevelOfPlayerToItem = AttunementUtil.getLevelOfAttunementAchievedByPlayer(player, stack);
@@ -42,20 +42,19 @@ public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int 
                 }
             }
 
-            return Optional.of(new AttunementNexusSlotInformation(
+            return new AttunementNexusSlotInformation(
                     itemAttunementData.attunementSlotsUsed(),
                     xpConsumed,
                     xpThreshold,
                     currentAttunementLevelOfPlayerToItem,
                     maxLevel,
-                    itemRequirements.getItemRequirementOne(),
-                    itemRequirements.getItemRequirementOneQuantity(),
-                    itemRequirements.getItemRequirementTwo(),
-                    itemRequirements.getItemRequirementTwoQuantity(),
-                    itemRequirements.getItemRequirementThree(),
-                    itemRequirements.getItemRequirementThreeQuantity())
-            );
-        });
+                    itemRequirements.getRequirement(0),
+                    itemRequirements.getRequirementQuantity(0),
+                    itemRequirements.getRequirement(1),
+                    itemRequirements.getRequirementQuantity(1),
+                    itemRequirements.getRequirement(2),
+                    itemRequirements.getRequirementQuantity(2));
+        }).orElse(null);
     }
 
     public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
@@ -85,5 +84,32 @@ public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int 
         String itemRequirementThree = buf.readUtf();
         int itemRequirementThreeQuantity = buf.readInt();
         return new AttunementNexusSlotInformation(slotsUsed, xpConsumed, xpThreshold, levelAchieved, maxLevelPossible, itemRequirementOne, itemRequirementOneQuantity, itemRequirementTwo, itemRequirementTwoQuantity, itemRequirementThree, itemRequirementThreeQuantity);
+    }
+
+    public String getItemRequirement(int index) {
+        return switch (index) {
+            case 0 -> this.itemRequirementOne();
+            case 1 -> this.itemRequirementTwo();
+            case 2 -> this.itemRequirementThree();
+            default -> "";
+        };
+    }
+
+    public int getItemRequirementQuantity(int index) {
+        return switch (index) {
+            case 0 -> this.itemRequirementOneQuantity();
+            case 1 -> this.itemRequirementTwoQuantity();
+            case 2 -> this.itemRequirementThreeQuantity();
+            default -> 0;
+        };
+    }
+
+    public boolean hasItemRequirement(int index) {
+        return getItemRequirementQuantity(index) > 0 && !"".equals(getItemRequirement(index));
+    }
+
+    public boolean meetsItemRequirement(int index, String itemResourceLocation, int itemQuantity) {
+        if(getItemRequirementQuantity(index) == 0 || "".equals(getItemRequirement(index))) return true;
+        return getItemRequirement(index).equals(itemResourceLocation) && getItemRequirementQuantity(index) == itemQuantity;
     }
 }

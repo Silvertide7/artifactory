@@ -8,8 +8,6 @@
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",
-  "playermessage.artifactory.failed_level_cost": "You need %1$s levels to attune",
-  "playermessage.artifactory.failed_level_threshold": "You must have more than %1$s levels to start attunement",
 
   "screen.button.artifactory.attune.attune_not_in_progress": "Attune",
   "screen.button.artifactory.attune.attune_in_progress": "Cancel",
@@ -22,7 +20,7 @@
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
-  "screen.tooltip.artifactory.xp_levels_consumed": "This process costs %1$s levels.",
+  "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",
   "screen.tooltip.artifactory.attuned_to_other_player": "This is attuned to another player. Cannot attune.",
   "screen.tooltip.artifactory.able_to_attune": "Attune this item.",
   "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",

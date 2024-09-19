@@ -105,9 +105,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private Component getAttuneButtonText() {
         if(menu.getProgress() > 0) {
             return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
-        } else if (menu.canItemAscend()) {
+        } else if (!menu.isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
-        } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
+        } else if (menu.hasAttuneableItemInSlot() && menu.isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
         } else {
             return Component.literal("");
@@ -130,11 +130,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(menu.hasAttuneableItemInSlot() && menu.canItemAscend() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
+            if(menu.hasAttuneableItemInSlot() && !menu.isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
                 AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-            } else if (menu.hasAttuneableItemInSlot() && !menu.canItemAscend()) {
+            } else if (menu.hasAttuneableItemInSlot() && menu.isItemAtMaxLevel()) {
                 list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
             } else {
                 list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
@@ -149,7 +149,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchieved()));
             guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
 
-            if(menu.canItemAscend()) {
+            if(!menu.isItemAtMaxLevel()) {
                 if (slotInformation.xpConsumed() > 0) {
                     Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
                     guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
@@ -172,7 +172,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     // HELPERS
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!menu.canItemAscend()) {
+        if(!menu.ascensionCanStart()) {
             return 39;
         }
         else if(attuneButtonDown) {
@@ -210,7 +210,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void handleAttuneButtonPress() {
-        if(this.minecraft != null && this.minecraft.gameMode != null && menu.canItemAscend()) {
+        if(this.minecraft != null && this.minecraft.gameMode != null && !menu.isItemAtMaxLevel() && menu.ascensionCanStart()) {
             this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
         }
     }

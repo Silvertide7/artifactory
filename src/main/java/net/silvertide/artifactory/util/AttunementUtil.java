@@ -50,7 +50,7 @@ public final class AttunementUtil {
         Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
 
         if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            if(player.getUUID() != attunedToUUID.get()) return 0;
+            if(!player.getUUID().equals(attunedToUUID.get())) return 0;
 
             return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
         }

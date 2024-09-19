@@ -10,9 +10,8 @@ public class ItemRequirements {
     List<ItemRequirement> requirements = new ArrayList<>();
     public void addRequirements(List<String> rawRequirements) {
         List<String> itemRequirements = new ArrayList<>(rawRequirements);
-        // There are only 3 available slots for items, if there are more included in the list then shuffle
-        // them up and take the first 3.
-        if(itemRequirements.size() > 3) Collections.shuffle(itemRequirements);
+        // There are only 3 available slots for items so this will only take
+        // the first three in the list.
         for(int i = 0; i < Math.min(itemRequirements.size(), 3); i++) {
             String description = itemRequirements.get(i);
             int quantity = 1;
@@ -31,30 +30,6 @@ public class ItemRequirements {
 
             requirements.add(new ItemRequirement(description, quantity));
         }
-    }
-
-    public String getItemRequirementOne() {
-        return getRequirement(0);
-    }
-
-    public int getItemRequirementOneQuantity() {
-        return getRequirementQuantity(0);
-    }
-
-    public String getItemRequirementTwo() {
-        return getRequirement(1);
-    }
-
-    public int getItemRequirementTwoQuantity() {
-        return getRequirementQuantity(1);
-    }
-
-    public String getItemRequirementThree() {
-        return getRequirement(2);
-    }
-
-    public int getItemRequirementThreeQuantity() {
-        return getRequirementQuantity(2);
     }
 
     public String getRequirement(int index) {

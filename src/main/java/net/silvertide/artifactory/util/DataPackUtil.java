@@ -75,6 +75,7 @@ public final class DataPackUtil {
                     if (iterator.hasNext()) stringBuilder.append("~");
                 }
 
+
             }
             return stringBuilder.toString();
         }).orElse("");
@@ -82,12 +83,12 @@ public final class DataPackUtil {
 
     private static boolean shouldSendAttunementLevelInformation(String level, int currentAttunementLevel) {
         String currentInformationLevel = Config.ATTUNEMENT_INFORMATION_EXTENT.get();
-        if(Objects.equals(currentInformationLevel, "all")) return true;
+        if("all".equals(currentInformationLevel)) return true;
         else {
             try {
                 int informationLevel = Integer.parseInt(level);
-                if(Objects.equals(currentInformationLevel, "next")) return informationLevel <= currentAttunementLevel + 1;
-                if(Objects.equals(currentInformationLevel, "current")) return informationLevel <= currentAttunementLevel;
+                if("next".equals(currentInformationLevel)) return informationLevel <= currentAttunementLevel + 1;
+                if("current".equals(currentInformationLevel)) return informationLevel <= currentAttunementLevel;
             } catch (NumberFormatException exception) {
                 Artifactory.LOGGER.error("Error converting datapack attunement level to integer.");
                 return false;

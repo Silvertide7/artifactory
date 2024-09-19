@@ -31,6 +31,11 @@ public class ClientAttunedItems {
         ArrayList<String> results = new ArrayList<>();
         // "1#soulbound,invulnerable~2#unbreakable"
 
+        // Clear off ending ~ if exists
+        if(modificationSerialization.endsWith("~")) {
+            modificationSerialization = modificationSerialization.substring(0, modificationSerialization.length() - 1);
+        }
+
         // Break the encoding up by level
         String[] modificationLevelCodes = modificationSerialization.split("~");
         for (String modLevelCode : modificationLevelCodes) {

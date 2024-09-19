@@ -28,10 +28,8 @@ public class NetworkUtil {
         PacketHandler.sendToClient(player, new CB_UpdateAttunedItemModifications(description));
     }
 
-    public static void updateAttunementNexusSlotInformation(ServerPlayer serverPlayer, ItemStack stack) {
-        AttunementNexusSlotInformation.createAttunementNexusSlotInformation(serverPlayer, stack).ifPresent(slotInformation -> {
-            PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(slotInformation));
-        });
+    public static void updateAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
+        PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(attunementNexusSlotInformation));
 
     }
 }

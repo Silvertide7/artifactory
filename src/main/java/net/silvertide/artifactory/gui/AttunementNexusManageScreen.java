@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -272,10 +273,17 @@ public class AttunementNexusManageScreen extends Screen {
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
             this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.resourceLocation());
+            this.itemToRender = getItemToRender(attunedItem.resourceLocation());
+        }
 
-            Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(attunedItem.resourceLocation());
-            this.itemToRender = new ItemStack(baseItem);
-
+        private ItemStack getItemToRender(String resourceLocation) {
+            try {
+                Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(resourceLocation);
+                return new ItemStack(baseItem);
+            } catch (ResourceLocationException exception) {
+                Artifactory.LOGGER.error("Artifactory - AttunementNexusManageScreen AttunementCard could not get item from " + attunedItem.resourceLocation());
+                return ItemStack.EMPTY;
+            }
         }
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
