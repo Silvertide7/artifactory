@@ -267,13 +267,13 @@ public class AttunementNexusManageScreen extends Screen {
         private boolean isOffScreen = false;
         AttunementNexusManageScreen manageScreen;
 
-        public AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, AttunementNexusManageScreen manageScreen) {
+        private AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, AttunementNexusManageScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
             this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.resourceLocation());
-            this.itemToRender = getItemToRender(attunedItem.resourceLocation());
+            this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(attunedItem.resourceLocation());
         }
 
         private ItemStack getItemToRender(String resourceLocation) {

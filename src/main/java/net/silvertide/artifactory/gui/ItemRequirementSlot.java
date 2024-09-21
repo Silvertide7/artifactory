@@ -62,7 +62,7 @@ public abstract class ItemRequirementSlot extends Slot {
     }
 
     public ItemRequirementState getItemRequirementState() {
-        if(this.hasRequiredItems()) {
+        if(this.stackRequired != null && this.stackRequired != ItemStack.EMPTY) {
             if(this.hasItem()) {
                 if(this.hasRequiredItems()) {
                     return ItemRequirementState.FULFILLED;

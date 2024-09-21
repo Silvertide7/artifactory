@@ -62,7 +62,6 @@ public class ArtifactorySavedData extends SavedData {
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
         if(player != null){
             PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
-            // TODO Is this updating correctly?
             NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
         }
     }

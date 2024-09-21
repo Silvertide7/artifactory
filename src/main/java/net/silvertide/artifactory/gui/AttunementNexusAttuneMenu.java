@@ -91,12 +91,12 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setAscensionCanStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
     public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
     public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
-    public int getItemRequirementOneInfo() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
-    public void setItemRequirementOneInfo(int value) { this.data.set(ITEM_REQUIREMENT_ONE_INFO_INDEX, value); }
-    public int getItemRequirementTwoInfo() { return this.data.get(ITEM_REQUIREMENT_TWO_INFO_INDEX); }
-    public void setItemRequirementTwoInfo(int value) { this.data.set(ITEM_REQUIREMENT_TWO_INFO_INDEX, value); }
-    public int getItemRequirementThreeInfo() { return this.data.get(ITEM_REQUIREMENT_THREE_INFO_INDEX); }
-    public void setItemRequirementThreeInfo(int value) { this.data.set(ITEM_REQUIREMENT_THREE_INFO_INDEX, value); }
+    public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
+    public void setItemRequirementOneState(int value) { this.data.set(ITEM_REQUIREMENT_ONE_INFO_INDEX, value); }
+    public int getItemRequirementTwoState() { return this.data.get(ITEM_REQUIREMENT_TWO_INFO_INDEX); }
+    public void setItemRequirementTwoState(int value) { this.data.set(ITEM_REQUIREMENT_TWO_INFO_INDEX, value); }
+    public int getItemRequirementThreeState() { return this.data.get(ITEM_REQUIREMENT_THREE_INFO_INDEX); }
+    public void setItemRequirementThreeState(int value) { this.data.set(ITEM_REQUIREMENT_THREE_INFO_INDEX, value); }
 
     private ContainerData getContainerData() {
         return new ContainerData() {
@@ -168,7 +168,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private ItemRequirementSlot getItemRequirementOneSlot() {
-        return new ItemRequirementSlot(itemRequirementOneContainer, 0, 60, 50) {
+        return new ItemRequirementSlot(itemRequirementOneContainer, 0, 41, 31) {
 
             @Override
             public boolean isAttunementActive() {
@@ -303,13 +303,15 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private void updateItemSlotRequirements(AttunementNexusSlotInformation attunementNexusSlotInformation) {
         if(attunementNexusSlotInformation.hasItemRequirement(0)) {
             this.itemRequirementOneSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementOne(), attunementNexusSlotInformation.itemRequirementOneQuantity());
+        } else {
+            this.itemRequirementOneSlot.clearItemRequired();
         }
         updateItemRequirementDataSlots();
     }
 
 
     private void updateItemRequirementDataSlots() {
-        setItemRequirementOneInfo(itemRequirementOneSlot.getItemRequirementState().getValue());
+        setItemRequirementOneState(itemRequirementOneSlot.getItemRequirementState().getValue());
         updateAscensionCanStart();
     }
 
@@ -318,9 +320,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         setItemAtMaxLevel(false);
         setAscensionCanStart(false);
 
-        setItemRequirementOneInfo(ItemRequirementState.NOT_REQUIRED.getValue());
-        setItemRequirementTwoInfo(ItemRequirementState.NOT_REQUIRED.getValue());
-        setItemRequirementThreeInfo(ItemRequirementState.NOT_REQUIRED.getValue());
+        setItemRequirementOneState(ItemRequirementState.NOT_REQUIRED.getValue());
+        setItemRequirementTwoState(ItemRequirementState.NOT_REQUIRED.getValue());
+        setItemRequirementThreeState(ItemRequirementState.NOT_REQUIRED.getValue());
 
         this.attunementNexusSlotInformation = null;
 

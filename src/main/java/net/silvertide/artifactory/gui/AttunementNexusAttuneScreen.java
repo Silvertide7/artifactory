@@ -1,16 +1,21 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
@@ -29,6 +34,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
+    private ItemRequirementSlotRenderer itemRequirementSlotOneRenderer = null;
+    private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
+    private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
 
     public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
         super(pMenu, playerInventory, pTitle);
@@ -46,6 +54,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        updateItemRequirementSlotRenderers();
         renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
@@ -57,22 +66,32 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
+        int backgroundX = (width - imageWidth) / 2;
+        int backgroundY = (height - imageHeight) / 2;
 
 
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        guiGraphics.blit(TEXTURE, backgroundX, backgroundY, 0, 0, imageWidth, imageHeight);
 
-        renderTitle(guiGraphics, x, y);
+        renderTitle(guiGraphics, backgroundX, backgroundY);
+        renderItemRequirementSlots(guiGraphics, backgroundX, backgroundY);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderTooltips(guiGraphics, mouseX, mouseY);
-        renderProgressGraphic(guiGraphics, x, y);
-        renderAttunementInformation(guiGraphics, x, y);
+        renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
+        renderAttunementInformation(guiGraphics, backgroundX, backgroundY);
     }
+
+
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
         Component buttonTextComp = Component.literal("Attune Gear");
         guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, BUTTON_TEXT_COLOR);
+    }
+
+
+    private void renderItemRequirementSlots(GuiGraphics guiGraphics, int x, int y) {
+        if(this.itemRequirementSlotOneRenderer != null) this.itemRequirementSlotOneRenderer.render(guiGraphics, x, y);
+        if(this.itemRequirementSlotTwoRenderer != null) this.itemRequirementSlotTwoRenderer.render(guiGraphics, x, y);
+        if(this.itemRequirementSlotThreeRenderer != null) this.itemRequirementSlotThreeRenderer.render(guiGraphics, x, y);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -171,6 +190,27 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     // HELPERS
+
+    private void updateItemRequirementSlotRenderers() {
+        if(menu.getItemRequirementOneState() > 0 && this.itemRequirementSlotOneRenderer == null){
+            this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
+        } else if(menu.getItemRequirementOneState() == 0) {
+            this.itemRequirementSlotOneRenderer = null;
+        }
+
+        if(menu.getItemRequirementTwoState() > 0 && this.itemRequirementSlotTwoRenderer == null){
+            this.itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
+        } else if(menu.getItemRequirementTwoState() == 0) {
+            this.itemRequirementSlotTwoRenderer = null;
+        }
+
+        if(menu.getItemRequirementThreeState() > 0 && this.itemRequirementSlotThreeRenderer == null){
+            this.itemRequirementSlotThreeRenderer = new ItemRequirementSlotRenderer(2);
+        } else if(menu.getItemRequirementThreeState() == 0) {
+            this.itemRequirementSlotThreeRenderer = null;
+        }
+    }
+
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
         if(!menu.ascensionCanStart()) {
             return 39;
@@ -259,5 +299,44 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private class ItemRequirementSlotRenderer {
+        ItemStack itemToRender = null;
+        int index;
+        public ItemRequirementSlotRenderer(int index) {
+            this.index = index;
+        }
+
+        public void render(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
+            // Render background for item
+            guiGraphics.blit(TEXTURE, backgroundX + getItemRequirementSlotOffsetX(index), backgroundY + getItemRequirementSlotOffsetY(index), 177, 123, 18, 18);
+            if(itemToRender != null) {
+                guiGraphics.renderItem(itemToRender, backgroundX + this.getItemRequirementSlotOffsetX(index) + 1, backgroundY + this.getItemRequirementSlotOffsetY(index) + 1);
+            } else {
+                updateItemToRender();
+            }
+        }
+
+        private void updateItemToRender() {
+            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+            if(slotInformation != null && slotInformation.hasItemRequirement(index)) {
+                try {
+                    this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(0));
+                } catch (ResourceLocationException exception) {
+                    Artifactory.LOGGER.warn("Artifactory - Attunement Nexus - Couldn't create resource location from item requirement string " + ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(index));
+                }
+            }
+        }
+
+        private int getItemRequirementSlotOffsetX(int requirementSlotIndex) {
+            int[] xOffsetArray = new int[] { 40, 79, 135 };
+            return xOffsetArray[requirementSlotIndex];
+        }
+
+        private int getItemRequirementSlotOffsetY(int requirementSlotIndex) {
+            int[] yOffsetArray = new int[] { 30, 22, 30 };
+            return yOffsetArray[requirementSlotIndex];
+        }
     }
 }

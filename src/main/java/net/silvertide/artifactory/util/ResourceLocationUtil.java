@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.util;
 
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -26,5 +27,15 @@ public final class ResourceLocationUtil {
     }
     public static Item getItemFromResourceLocation(ResourceLocation location) {
         return BuiltInRegistries.ITEM.get(location);
+    }
+
+    public static ItemStack getItemStackFromResourceLocation(String resourceLocation) {
+        try {
+            Item baseItem = getItemFromResourceLocation(resourceLocation);
+            return new ItemStack(baseItem);
+        } catch (ResourceLocationException exception) {
+            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from " + resourceLocation);
+            return ItemStack.EMPTY;
+        }
     }
 }
