@@ -31,6 +31,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private int isActive = 0;
     private int itemAtMaxLevel = 0;
     private int ascensionCanStart = 0;
+    private int ascensionOccured = 0;
     private int playerHasAttunedItem = 0;
     private int itemRequirementOneInfo = 0;
     private int itemRequirementTwoInfo = 0;
@@ -41,10 +42,11 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private final int IS_ACTIVE_INDEX = 1;
     private final int ITEM_AT_MAX_LEVEL = 2;
     private final int ASCENSION_CAN_START_INDEX = 3;
-    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 4;
-    private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 5;
-    private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 6;
-    private final int ITEM_REQUIREMENT_THREE_INFO_INDEX = 7;
+    private final int ASCENSION_OCCURED_INDEX = 4;
+    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 5;
+    private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 6;
+    private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 7;
+    private final int ITEM_REQUIREMENT_THREE_INFO_INDEX = 8;
 
     // Slots
     private final Slot attunementInputSlot;
@@ -99,6 +101,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setItemAtMaxLevel(boolean value) { this.data.set(ITEM_AT_MAX_LEVEL, value ? 1 : 0); }
     public boolean ascensionCanStart() { return this.data.get(ASCENSION_CAN_START_INDEX) > 0; }
     public void setAscensionCanStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
+    public boolean ascensionOccured() { return this.data.get(ASCENSION_OCCURED_INDEX) > 0; }
+    public void setAscensionOccured(boolean value) { this.data.set(ASCENSION_OCCURED_INDEX, value ? 1 : 0); }
     public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
     public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
     public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
@@ -117,6 +121,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive;
                     case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart;
+                    case ASCENSION_OCCURED_INDEX -> AttunementNexusAttuneMenu.this.ascensionOccured;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
                     case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo;
                     case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo;
@@ -132,6 +137,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive = value;
                     case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel = value;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart = value;
+                    case ASCENSION_OCCURED_INDEX -> AttunementNexusAttuneMenu.this.ascensionOccured = value;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
                     case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo = value;
                     case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo = value;
@@ -141,7 +147,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
             @Override
             public int getCount() {
-                return 8;
+                return 9;
             }
         };
     }
@@ -230,7 +236,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private ItemRequirementSlot getItemRequirementThreeSlot() {
-        return new ItemRequirementSlot(itemRequirementThreeContainer, 1, GUIConstants.ITEM_REQ_SLOT_THREE_X, GUIConstants.ITEM_REQ_SLOT_THREE_Y) {
+        return new ItemRequirementSlot(itemRequirementThreeContainer, 0, GUIConstants.ITEM_REQ_SLOT_THREE_X, GUIConstants.ITEM_REQ_SLOT_THREE_Y) {
 
             @Override
             public boolean isAttunementActive() {
@@ -281,6 +287,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
                         handleAttunement(stack);
+                        setAscensionOccured(true);
                         MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
                     }
                 }
@@ -470,7 +477,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 2;  // must be the number of slots you have!
+    private static final int TE_INVENTORY_SLOT_COUNT = 4;  // must be the number of slots you have!
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
         Slot sourceSlot = slots.get(pIndex);

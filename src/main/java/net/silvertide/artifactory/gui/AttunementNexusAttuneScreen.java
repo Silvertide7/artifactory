@@ -117,11 +117,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private Component getAttuneButtonText() {
-        if(menu.getProgress() > 0) {
+        if(getMenu().getProgress() > 0) {
             return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
-        } else if (!menu.isItemAtMaxLevel()) {
+        } else if (!getMenu().isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
-        } else if (menu.hasAttuneableItemInSlot() && menu.isItemAtMaxLevel()) {
+        } else if (getMenu().hasAttuneableItemInSlot() && getMenu().isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
         } else {
             return Component.literal("");
@@ -144,11 +144,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(menu.hasAttuneableItemInSlot() && !menu.isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
+            if(getMenu().hasAttuneableItemInSlot() && !getMenu().isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
                 AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-            } else if (menu.hasAttuneableItemInSlot() && menu.isItemAtMaxLevel()) {
+            } else if (getMenu().hasAttuneableItemInSlot() && getMenu().isItemAtMaxLevel()) {
                 list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
             } else {
                 list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
@@ -159,11 +159,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
         AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-        if(slotInformation != null && this.menu.hasAttuneableItemInSlot()){
+        if(slotInformation != null && this.getMenu().hasAttuneableItemInSlot()){
             Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchieved()));
             guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
 
-            if(!menu.isItemAtMaxLevel()) {
+            if(!getMenu().isItemAtMaxLevel()) {
                 if (slotInformation.xpConsumed() > 0) {
                     Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
                     guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
@@ -178,36 +178,37 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
-        if(menu.getProgress() > 0) {
-            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, menu.getScaledProgress() / 2);
-            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * menu.getScaledProgress() / 2);
+        if(getMenu().getProgress() > 0) {
+            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, getMenu().getScaledProgress() / 2);
+            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * getMenu().getScaledProgress() / 2);
         }
     }
 
     // HELPERS
-    // TODO Need to clear these out when an item levels up
     private void updateItemRequirementSlotRenderers() {
-        if(menu.getItemRequirementOneState() > 0 && this.itemRequirementSlotOneRenderer == null){
-            this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
-        } else if(menu.getItemRequirementOneState() == 0) {
+        // Handle ascension occurrence
+        if(getMenu().ascensionOccured()) {
             this.itemRequirementSlotOneRenderer = null;
-        }
-
-        if(menu.getItemRequirementTwoState() > 0 && this.itemRequirementSlotTwoRenderer == null){
-            this.itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
-        } else if(menu.getItemRequirementTwoState() == 0) {
             this.itemRequirementSlotTwoRenderer = null;
+            this.itemRequirementSlotThreeRenderer = null;
+            getMenu().setAscensionOccured(false);
+        }
+        
+        if(getMenu().getItemRequirementOneState() > 0 && this.itemRequirementSlotOneRenderer == null){
+            this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
         }
 
-        if(menu.getItemRequirementThreeState() > 0 && this.itemRequirementSlotThreeRenderer == null){
+        if(getMenu().getItemRequirementTwoState() > 0 && this.itemRequirementSlotTwoRenderer == null){
+            this.itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
+        }
+
+        if(getMenu().getItemRequirementThreeState() > 0 && this.itemRequirementSlotThreeRenderer == null){
             this.itemRequirementSlotThreeRenderer = new ItemRequirementSlotRenderer(2);
-        } else if(menu.getItemRequirementThreeState() == 0) {
-            this.itemRequirementSlotThreeRenderer = null;
         }
     }
 
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!menu.ascensionCanStart()) {
+        if(!getMenu().ascensionCanStart()) {
             return 39;
         }
         else if(attuneButtonDown) {
@@ -222,7 +223,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private int getManageButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!menu.playerHasAttunedItem()) {
+        if(!getMenu().playerHasAttunedItem()) {
             return 91;
         }
         else if(manageButtonDown) {
@@ -245,7 +246,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void handleAttuneButtonPress() {
-        if(this.minecraft != null && this.minecraft.gameMode != null && !menu.isItemAtMaxLevel() && menu.ascensionCanStart()) {
+        if(this.minecraft != null && this.minecraft.gameMode != null && !getMenu().isItemAtMaxLevel() && getMenu().ascensionCanStart()) {
             this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
         }
     }
@@ -297,7 +298,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             attuneButtonDown = true;
             return true;
-        } else if (isHoveringManageButton(mouseX, mouseY) && menu.playerHasAttunedItem()) {
+        } else if (isHoveringManageButton(mouseX, mouseY) && getMenu().playerHasAttunedItem()) {
             manageButtonDown = true;
             return true;
         }
@@ -349,9 +350,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
         public int getItemRequirementState() {
             return switch (index) {
-                case 0 -> menu.getItemRequirementOneState();
-                case 1 -> menu.getItemRequirementTwoState();
-                case 2 -> menu.getItemRequirementThreeState();
+                case 0 -> getMenu().getItemRequirementOneState();
+                case 1 -> getMenu().getItemRequirementTwoState();
+                case 2 -> getMenu().getItemRequirementThreeState();
                 default -> 0;
             };
         }
