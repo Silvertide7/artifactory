@@ -24,6 +24,7 @@ public class ItemRequirements {
                     continue;
                 }
 
+                //TODO Check here if item can stack to more than the stack size it has, cap at stack size
                 description = itemParts[0];
                 quantity = Integer.parseInt(itemParts[1]);
             }

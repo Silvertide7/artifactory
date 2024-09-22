@@ -6,7 +6,9 @@ import net.minecraft.network.chat.Component;
 
 public class GUIUtil {
     private GUIUtil() {}
-
+    public static boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
+        return isHovering(0, 0, pX, pY, pWidth, pHeight, pMouseX, pMouseY);
+    }
     public static boolean isHovering(int i, int j, int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         pMouseX -= i;
         pMouseY -= j;
@@ -52,15 +54,18 @@ public class GUIUtil {
 
     public static String prettifyName(String resourceLocation) {
         String prettifiedLocation = resourceLocation;
+        // Split the path by modid:moditem
         if(prettifiedLocation.contains(":")) {
             prettifiedLocation = resourceLocation.split(":")[1];
         }
 
+        // Added this to deal with attributes like general.movement_speed
         if(prettifiedLocation.contains(".")) {
             String[] periodSeperated = prettifiedLocation.split("\\.");
             prettifiedLocation = periodSeperated[periodSeperated.length - 1];
         }
 
+        // Separate into multiple words
         if(prettifiedLocation.contains("_")) {
             StringBuilder result = new StringBuilder();
             String[] words = prettifiedLocation.split("_");
@@ -75,6 +80,8 @@ public class GUIUtil {
                 }
             }
             prettifiedLocation = result.toString();
+        } else {
+            prettifiedLocation = prettifiedLocation.substring(0,1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
         }
 
         return prettifiedLocation;

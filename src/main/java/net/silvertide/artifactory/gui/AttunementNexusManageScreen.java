@@ -1,7 +1,6 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -10,7 +9,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
@@ -276,16 +274,6 @@ public class AttunementNexusManageScreen extends Screen {
             this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(attunedItem.resourceLocation());
         }
 
-        private ItemStack getItemToRender(String resourceLocation) {
-            try {
-                Item baseItem = ResourceLocationUtil.getItemFromResourceLocation(resourceLocation);
-                return new ItemStack(baseItem);
-            } catch (ResourceLocationException exception) {
-                Artifactory.LOGGER.error("Artifactory - AttunementNexusManageScreen AttunementCard could not get item from " + attunedItem.resourceLocation());
-                return ItemStack.EMPTY;
-            }
-        }
-
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0F, 0F, 2000F);
@@ -296,7 +284,7 @@ public class AttunementNexusManageScreen extends Screen {
                 this.distanceScrolledY = maxDistanceScrollableY*sliderProgress;
                 this.isOffScreen = isOffScreenAboveWindow() || isOffscreenBelowWindow();
 
-                // Check if the card is above or below the scoll area entirely (offscreen) and don't render if so.
+                // Check if the card is above or below the scroll area entirely (offscreen) and don't render if so.
                 if (this.isOffScreen) {
                     guiGraphics.pose().popPose();
                     return;

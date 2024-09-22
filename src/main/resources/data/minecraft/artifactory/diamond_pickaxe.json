@@ -13,14 +13,16 @@
       "modifications": ["soulbound"],
       "requirements": {
         "xpLevelsConsumed": 4,
-        "xpLevelThreshold": 20
+        "xpLevelThreshold": 20,
+        "items": ["minecraft:iron_pickaxe"]
       }
     },
     "3": {
       "modifications": ["invulnerable"],
       "requirements": {
         "xpLevelsConsumed": 6,
-        "xpLevelThreshold": 25
+        "xpLevelThreshold": 25,
+        "items": ["minecraft:diamond_pickaxe#2", "minecraft:kelp"]
       }
     }
   },

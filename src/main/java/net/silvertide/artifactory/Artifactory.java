@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 // TODO: Add hover text explaining all benefits gained so far.
 // TODO: Implement isValidAttunementItem in correct spots. Should items that were valid but become invalid have all data erased?
 // TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
-
+// TODO: Fix indexoutofbounds exception, something to do with slots and setslot with attunement nexus screen / menu
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

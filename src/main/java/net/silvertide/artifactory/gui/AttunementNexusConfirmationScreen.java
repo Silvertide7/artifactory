@@ -137,19 +137,11 @@ public class AttunementNexusConfirmationScreen extends Screen {
     }
 
     private boolean isHoveringCancelButton(double mouseX, double mouseY) {
-        return isHovering(getCancelButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
+        return GUIUtil.isHovering(getCancelButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
     }
 
     private boolean isHoveringConfirmButton(double mouseX, double mouseY) {
-        return isHovering(getConfirmButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
-    }
-
-    private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        int i = 0;
-        int j = 0;
-        pMouseX -= i;
-        pMouseY -= j;
-        return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
+        return GUIUtil.isHovering(getConfirmButtonX(), getButtonY(), BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY);
     }
 
     @Override

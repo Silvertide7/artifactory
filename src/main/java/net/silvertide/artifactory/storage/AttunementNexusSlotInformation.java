@@ -7,6 +7,7 @@ import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
+import net.silvertide.artifactory.util.GUIUtil;
 
 import java.util.Optional;
 
@@ -106,6 +107,14 @@ public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int 
 
     public boolean hasItemRequirement(int index) {
         return getItemRequirementQuantity(index) > 0 && !"".equals(getItemRequirement(index));
+    }
+
+    public String getItemRequirementText(int index) {
+        String resourceLocation = getItemRequirement(index);
+        if(resourceLocation == null || "".equals(resourceLocation)) return "";
+        String itemName = GUIUtil.prettifyName(resourceLocation);
+        int quantity = getItemRequirementQuantity(index);
+        return quantity + "x " + itemName;
     }
 
     public boolean meetsItemRequirement(int index, String itemResourceLocation, int itemQuantity) {

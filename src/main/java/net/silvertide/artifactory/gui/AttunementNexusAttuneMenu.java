@@ -53,7 +53,11 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private final ItemRequirementSlot itemRequirementOneSlot;
     protected final Container itemRequirementOneContainer = new SimpleContainer(1);
 
+    private final ItemRequirementSlot itemRequirementTwoSlot;
+    protected final Container itemRequirementTwoContainer = new SimpleContainer(1);
 
+    private final ItemRequirementSlot itemRequirementThreeSlot;
+    protected final Container itemRequirementThreeContainer = new SimpleContainer(1);
     public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
@@ -76,6 +80,12 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
         this.itemRequirementOneSlot = getItemRequirementOneSlot();
         this.addSlot(itemRequirementOneSlot);
+
+        this.itemRequirementTwoSlot = getItemRequirementTwoSlot();
+        this.addSlot(itemRequirementTwoSlot);
+
+        this.itemRequirementThreeSlot = getItemRequirementThreeSlot();
+        this.addSlot(itemRequirementThreeSlot);
 
         setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty());
     }
@@ -168,7 +178,59 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private ItemRequirementSlot getItemRequirementOneSlot() {
-        return new ItemRequirementSlot(itemRequirementOneContainer, 0, 41, 31) {
+        return new ItemRequirementSlot(itemRequirementOneContainer, 0, GUIConstants.ITEM_REQ_SLOT_ONE_X + 1, GUIConstants.ITEM_REQ_SLOT_ONE_Y + 1) {
+
+            @Override
+            public boolean isAttunementActive() {
+                return getIsActive();
+            }
+
+            @Override
+            public void onTake(Player player, ItemStack stack) {
+                if(!player.level().isClientSide()) {
+                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                }
+                super.onTake(player, stack);
+            }
+
+            @Override
+            public void setChanged() {
+                if(!player.level().isClientSide()) {
+                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                }
+                super.setChanged();
+            }
+        };
+    }
+
+    private ItemRequirementSlot getItemRequirementTwoSlot() {
+        return new ItemRequirementSlot(itemRequirementTwoContainer, 0, GUIConstants.ITEM_REQ_SLOT_TWO_X, GUIConstants.ITEM_REQ_SLOT_TWO_Y) {
+
+            @Override
+            public boolean isAttunementActive() {
+                return getIsActive();
+            }
+
+            @Override
+            public void onTake(Player player, ItemStack stack) {
+                if(!player.level().isClientSide()) {
+                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                }
+                super.onTake(player, stack);
+            }
+
+            @Override
+            public void setChanged() {
+                if(!player.level().isClientSide()) {
+                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                }
+                super.setChanged();
+            }
+        };
+    }
+
+    private ItemRequirementSlot getItemRequirementThreeSlot() {
+        return new ItemRequirementSlot(itemRequirementThreeContainer, 1, GUIConstants.ITEM_REQ_SLOT_THREE_X, GUIConstants.ITEM_REQ_SLOT_THREE_Y) {
 
             @Override
             public boolean isAttunementActive() {
@@ -241,6 +303,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         if(this.attunementNexusSlotInformation == null) return false;
 
         if(!this.itemRequirementOneSlot.hasRequiredItems()) return false;
+        if(!this.itemRequirementTwoSlot.hasRequiredItems()) return false;
+        if(!this.itemRequirementThreeSlot.hasRequiredItems()) return false;
 
         int cost = this.attunementNexusSlotInformation.xpConsumed();
         int threshold = this.attunementNexusSlotInformation.xpThreshold();
@@ -261,6 +325,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         if(cost > 0) player.giveExperienceLevels(-cost);
 
         itemRequirementOneSlot.consumeRequiredItems();
+        itemRequirementTwoSlot.consumeRequiredItems();
+        itemRequirementThreeSlot.consumeRequiredItems();
     }
 
     private void handleAttunement(ItemStack stackToAttune) {
@@ -268,6 +334,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         if(!player.getAbilities().instabuild) this.payCostForAttunement();
         this.access.execute((level, blockPos) -> {
             this.clearContainer(player, this.itemRequirementOneContainer);
+            this.clearContainer(player, this.itemRequirementTwoContainer);
+            this.clearContainer(player, this.itemRequirementThreeContainer);
         });
         updateAttunementState();
     }
@@ -306,12 +374,26 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         } else {
             this.itemRequirementOneSlot.clearItemRequired();
         }
+
+        if(attunementNexusSlotInformation.hasItemRequirement(1)) {
+            this.itemRequirementTwoSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementTwo(), attunementNexusSlotInformation.itemRequirementTwoQuantity());
+        } else {
+            this.itemRequirementTwoSlot.clearItemRequired();
+        }
+
+        if(attunementNexusSlotInformation.hasItemRequirement(2)) {
+            this.itemRequirementThreeSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementThree(), attunementNexusSlotInformation.itemRequirementThreeQuantity());
+        } else {
+            this.itemRequirementThreeSlot.clearItemRequired();
+        }
         updateItemRequirementDataSlots();
     }
 
 
     private void updateItemRequirementDataSlots() {
         setItemRequirementOneState(itemRequirementOneSlot.getItemRequirementState().getValue());
+        setItemRequirementTwoState(itemRequirementTwoSlot.getItemRequirementState().getValue());
+        setItemRequirementThreeState(itemRequirementThreeSlot.getItemRequirementState().getValue());
         updateAscensionCanStart();
     }
 
@@ -367,6 +449,8 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         this.access.execute((level, blockPos) -> {
             this.clearContainer(player, this.attunementInputContainer);
             this.clearContainer(player, this.itemRequirementOneContainer);
+            this.clearContainer(player, this.itemRequirementTwoContainer);
+            this.clearContainer(player, this.itemRequirementThreeContainer);
         });
     }
 
