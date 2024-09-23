@@ -5,6 +5,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +19,7 @@ import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
 
-public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> {
+public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
     private static float TEXT_SCALE = 0.85F;
     private static int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final int ATTUNE_BUTTON_X = 61;
@@ -38,6 +39,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
         super(pMenu, playerInventory, pTitle);
+        ClientAttunementNexusSlotInformation.registerListener(this);
     }
 
     @Override
@@ -52,11 +54,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        updateItemRequirementSlotRenderers();
         renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
+
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -84,9 +86,15 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
 
     private void renderItemRequirementSlots(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(this.itemRequirementSlotOneRenderer != null) this.itemRequirementSlotOneRenderer.render(guiGraphics, mouseX, mouseY);
-        if(this.itemRequirementSlotTwoRenderer != null) this.itemRequirementSlotTwoRenderer.render(guiGraphics, mouseX, mouseY);
-        if(this.itemRequirementSlotThreeRenderer != null) this.itemRequirementSlotThreeRenderer.render(guiGraphics, mouseX, mouseY);
+        if(this.itemRequirementSlotOneRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+            this.itemRequirementSlotOneRenderer.render(guiGraphics, mouseX, mouseY);
+        }
+        if(this.itemRequirementSlotTwoRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+            this.itemRequirementSlotTwoRenderer.render(guiGraphics, mouseX, mouseY);
+        }
+        if(this.itemRequirementSlotThreeRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+            this.itemRequirementSlotThreeRenderer.render(guiGraphics, mouseX, mouseY);
+        }
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -136,7 +144,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderManageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringManageButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            list.add(Component.literal("Manage Attunements"));
+            list.add(Component.translatable("screen.tooltip.artifactory.manage_button"));
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }
     }
@@ -184,29 +192,28 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
     }
 
-    // HELPERS
-    private void updateItemRequirementSlotRenderers() {
-        // Handle ascension occurrence
-        if(getMenu().ascensionOccured()) {
-            this.itemRequirementSlotOneRenderer = null;
-            this.itemRequirementSlotTwoRenderer = null;
-            this.itemRequirementSlotThreeRenderer = null;
-            getMenu().setAscensionOccured(false);
-        }
-        
-        if(getMenu().getItemRequirementOneState() > 0 && this.itemRequirementSlotOneRenderer == null){
+    @Override
+    public void onSlotInformationUpdated(AttunementNexusSlotInformation newSlotInformation) {
+        if(newSlotInformation.hasItemRequirement(0)) {
             this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
+        } else {
+            this.itemRequirementSlotOneRenderer = null;
         }
 
-        if(getMenu().getItemRequirementTwoState() > 0 && this.itemRequirementSlotTwoRenderer == null){
+        if(newSlotInformation.hasItemRequirement(1)) {
             this.itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
+        } else {
+            this.itemRequirementSlotTwoRenderer = null;
         }
 
-        if(getMenu().getItemRequirementThreeState() > 0 && this.itemRequirementSlotThreeRenderer == null){
+        if(newSlotInformation.hasItemRequirement(2)) {
             this.itemRequirementSlotThreeRenderer = new ItemRequirementSlotRenderer(2);
+        } else {
+            this.itemRequirementSlotThreeRenderer = null;
         }
     }
 
+    // HELPERS
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
         if(!getMenu().ascensionCanStart()) {
             return 39;
@@ -305,6 +312,13 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        ClientAttunementNexusSlotInformation.removeListener(this);
+    }
+
     private class ItemRequirementSlotRenderer {
         private final int SLOT_WIDTH = 18;
         private final int SLOT_HEIGHT = 18;
@@ -315,20 +329,23 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
 
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-            int backgroundX = getBackgroundX();
-            int backgroundY = getBackgroundY();
+            int itemRequirementState = getItemRequirementState();
+            if(itemRequirementState != ItemRequirementState.NOT_REQUIRED.getValue()) {
+                int backgroundX = getBackgroundX();
+                int backgroundY = getBackgroundY();
 
-            // Render background for item
-            guiGraphics.blit(TEXTURE, backgroundX + getItemRequirementSlotOffsetX(index), backgroundY + getItemRequirementSlotOffsetY(index), 177, getBackgroundOffsetY(), SLOT_WIDTH, SLOT_HEIGHT);
+                // Render background for item
+                guiGraphics.blit(TEXTURE, backgroundX + getItemRequirementSlotOffsetX(index), backgroundY + getItemRequirementSlotOffsetY(index), 177, getBackgroundOffsetY(), SLOT_WIDTH, SLOT_HEIGHT);
 
-            // Render the item
-            if(itemToRender != null && getItemRequirementState() == ItemRequirementState.EMPTY.getValue()) {
-                renderItem(guiGraphics, backgroundX, backgroundY);
-            } else {
-                if(itemToRender == null) updateItemToRender();
+                // Render the required item if no item is in the slot
+                if(itemToRender != null && getItemRequirementState() == ItemRequirementState.EMPTY.getValue()) {
+                    renderItem(guiGraphics, backgroundX, backgroundY);
+                } else {
+                    if(itemToRender == null) updateItemToRender();
+                }
+
+                renderSlotTooltip(guiGraphics, mouseX, mouseY);
             }
-
-            renderSlotTooltip(guiGraphics, mouseX, mouseY);
         }
 
         private int getBackgroundOffsetY() {
@@ -343,9 +360,12 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
 
         private void renderItem(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
-            // Render item required
-            guiGraphics.renderItem(itemToRender, backgroundX + this.getItemRequirementSlotOffsetX(index) + 1, backgroundY + this.getItemRequirementSlotOffsetY(index) + 1);
-            guiGraphics.renderItemDecorations(font, itemToRender, backgroundX + this.getItemRequirementSlotOffsetX(index) + 1, backgroundY + this.getItemRequirementSlotOffsetY(index) + 1);
+            int itemX = backgroundX + this.getItemRequirementSlotOffsetX(index) + 1;
+            int itemY = backgroundY + this.getItemRequirementSlotOffsetY(index) + 1;
+
+            guiGraphics.renderFakeItem(itemToRender, itemX, itemY);
+            guiGraphics.renderItemDecorations(font, itemToRender, itemX, itemY);
+            guiGraphics.fill(RenderType.guiGhostRecipeOverlay(), itemX, itemY, itemX + 16, itemY + 16, 0x80888888);
         }
 
         public int getItemRequirementState() {
@@ -363,7 +383,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             if(slotInformation != null && slotInformation.hasItemRequirement(index)) {
                 try {
                     this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(index));
-                    if(this.itemToRender != ItemStack.EMPTY) this.itemToRender.setCount(slotInformation.getItemRequirementQuantity(index));
+                    if(!this.itemToRender.isEmpty()) this.itemToRender.setCount(slotInformation.getItemRequirementQuantity(index));
                 } catch (ResourceLocationException exception) {
                     Artifactory.LOGGER.warn("Artifactory - Attunement Nexus - Couldn't create resource location from item requirement string " + ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(index));
                 }
@@ -394,6 +414,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
         private boolean isHoveringItemRequirementSlot(int mouseX, int mouseY) {
             return GUIUtil.isHovering(getBackgroundX(), getBackgroundY(), getItemRequirementSlotOffsetX(index), getItemRequirementSlotOffsetY(index), SLOT_WIDTH, SLOT_HEIGHT, mouseX, mouseY);
+        }
+
+        public void clearItem() {
+            this.itemToRender = null;
         }
     }
 }

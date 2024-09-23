@@ -299,8 +299,8 @@ public class AttunementNexusManageScreen extends Screen {
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics);
-            renderSlotsUsed(guiGraphics);
             renderAttunementLevel(guiGraphics);
+            renderSlotsUsed(guiGraphics);
             renderInformationIcon(guiGraphics, mouseX, mouseY);
             renderInformationTooltip(guiGraphics, mouseX, mouseY);
             renderDeleteButton(guiGraphics, mouseX, mouseY);
@@ -356,13 +356,13 @@ public class AttunementNexusManageScreen extends Screen {
             }
         }
 
-        private void renderSlotsUsed(GuiGraphics guiGraphics) {
-            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+        private void renderAttunementLevel(GuiGraphics guiGraphics) {
+            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
-        private void renderAttunementLevel(GuiGraphics guiGraphics) {
-            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
+        private void renderSlotsUsed(GuiGraphics guiGraphics) {
+            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 

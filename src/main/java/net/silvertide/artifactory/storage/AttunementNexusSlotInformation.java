@@ -114,7 +114,7 @@ public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int 
         if(resourceLocation == null || "".equals(resourceLocation)) return "";
         String itemName = GUIUtil.prettifyName(resourceLocation);
         int quantity = getItemRequirementQuantity(index);
-        return quantity + "x " + itemName;
+        return quantity + " " + itemName;
     }
 
     public boolean meetsItemRequirement(int index, String itemResourceLocation, int itemQuantity) {

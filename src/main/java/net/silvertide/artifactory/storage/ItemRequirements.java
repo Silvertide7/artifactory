@@ -1,9 +1,10 @@
 package net.silvertide.artifactory.storage;
 
+import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ItemRequirements {
@@ -16,20 +17,30 @@ public class ItemRequirements {
             String description = itemRequirements.get(i);
             int quantity = 1;
 
-            // If the requirements has a custom quantity attached to it.
+            // If the requirements has a custom quantity attached to it. modid:item_name#quantity
             if(description.contains("#")) {
                 String[] itemParts = description.split("#");
                 if(itemParts.length > 2) {
-                    Artifactory.LOGGER.warn("Artifactory - ItemRequirement not valid - ");
+                    Artifactory.LOGGER.warn("Artifactory - ItemRequirement not valid, must be modid:itemid#quantity - " + description);
                     continue;
                 }
 
-                //TODO Check here if item can stack to more than the stack size it has, cap at stack size
                 description = itemParts[0];
                 quantity = Integer.parseInt(itemParts[1]);
             }
 
-            requirements.add(new ItemRequirement(description, quantity));
+            // Check to make sure this is a valid item
+            ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(description);
+            if(stack != null && !stack.isEmpty()) {
+                if(quantity <= 0) return;
+
+                if(quantity > stack.getMaxStackSize()) {
+                    quantity = stack.getMaxStackSize();
+                }
+                requirements.add(new ItemRequirement(description, quantity));
+            } else {
+                Artifactory.LOGGER.warn("Artifactory - ItemRequirement not valid, invalid item - " + description);
+            }
         }
     }
 

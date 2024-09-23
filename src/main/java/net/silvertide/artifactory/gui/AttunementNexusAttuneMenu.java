@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.events.custom.PostAttuneEvent;
 import net.silvertide.artifactory.events.custom.PreAttuneEvent;
 import net.silvertide.artifactory.registry.BlockRegistry;
@@ -29,9 +28,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     protected final ContainerData data;
     private int progress = 0;
     private int isActive = 0;
+    private int hasAttunementItemInSlot = 0;
     private int itemAtMaxLevel = 0;
     private int ascensionCanStart = 0;
-    private int ascensionOccured = 0;
     private int playerHasAttunedItem = 0;
     private int itemRequirementOneInfo = 0;
     private int itemRequirementTwoInfo = 0;
@@ -40,9 +39,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     // Data Slot Accessor Indices
     private final int PROGRESS_INDEX = 0;
     private final int IS_ACTIVE_INDEX = 1;
-    private final int ITEM_AT_MAX_LEVEL = 2;
-    private final int ASCENSION_CAN_START_INDEX = 3;
-    private final int ASCENSION_OCCURED_INDEX = 4;
+    private final int HAS_ATTUNEMENT_ITEM_IN_SLOT_INDEX = 2;
+    private final int ITEM_AT_MAX_LEVEL = 3;
+    private final int ASCENSION_CAN_START_INDEX = 4;
     private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 5;
     private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 6;
     private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 7;
@@ -97,12 +96,12 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
     public boolean getIsActive() { return this.data.get(IS_ACTIVE_INDEX) > 0; }
     public void setIsActive(boolean value) { this.data.set(IS_ACTIVE_INDEX, value ? 1 : 0); }
+    public boolean hasAttunementItemInSlot() { return this.data.get(HAS_ATTUNEMENT_ITEM_IN_SLOT_INDEX) > 0; }
+    public void setHasAttunementItemInSlot(boolean value) { this.data.set(HAS_ATTUNEMENT_ITEM_IN_SLOT_INDEX, value ? 1 : 0); }
     public boolean isItemAtMaxLevel() { return this.data.get(ITEM_AT_MAX_LEVEL) > 0; }
     public void setItemAtMaxLevel(boolean value) { this.data.set(ITEM_AT_MAX_LEVEL, value ? 1 : 0); }
     public boolean ascensionCanStart() { return this.data.get(ASCENSION_CAN_START_INDEX) > 0; }
     public void setAscensionCanStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
-    public boolean ascensionOccured() { return this.data.get(ASCENSION_OCCURED_INDEX) > 0; }
-    public void setAscensionOccured(boolean value) { this.data.set(ASCENSION_OCCURED_INDEX, value ? 1 : 0); }
     public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
     public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
     public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
@@ -119,9 +118,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 return switch(index) {
                     case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress;
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive;
+                    case HAS_ATTUNEMENT_ITEM_IN_SLOT_INDEX -> AttunementNexusAttuneMenu.this.hasAttunementItemInSlot;
                     case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart;
-                    case ASCENSION_OCCURED_INDEX -> AttunementNexusAttuneMenu.this.ascensionOccured;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
                     case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo;
                     case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo;
@@ -135,9 +134,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 switch(index) {
                     case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress = value;
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive = value;
+                    case HAS_ATTUNEMENT_ITEM_IN_SLOT_INDEX -> AttunementNexusAttuneMenu.this.hasAttunementItemInSlot = value;
                     case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel = value;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart = value;
-                    case ASCENSION_OCCURED_INDEX -> AttunementNexusAttuneMenu.this.ascensionOccured = value;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
                     case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo = value;
                     case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo = value;
@@ -165,7 +164,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 clearItemDataSlotData();
-                ClientAttunementNexusSlotInformation.clearSlotInformation();
                 super.onTake(player, stack);
             }
 
@@ -210,7 +208,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private ItemRequirementSlot getItemRequirementTwoSlot() {
-        return new ItemRequirementSlot(itemRequirementTwoContainer, 0, GUIConstants.ITEM_REQ_SLOT_TWO_X, GUIConstants.ITEM_REQ_SLOT_TWO_Y) {
+        return new ItemRequirementSlot(itemRequirementTwoContainer, 0, GUIConstants.ITEM_REQ_SLOT_TWO_X + 1, GUIConstants.ITEM_REQ_SLOT_TWO_Y + 1) {
 
             @Override
             public boolean isAttunementActive() {
@@ -236,7 +234,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private ItemRequirementSlot getItemRequirementThreeSlot() {
-        return new ItemRequirementSlot(itemRequirementThreeContainer, 0, GUIConstants.ITEM_REQ_SLOT_THREE_X, GUIConstants.ITEM_REQ_SLOT_THREE_Y) {
+        return new ItemRequirementSlot(itemRequirementThreeContainer, 0, GUIConstants.ITEM_REQ_SLOT_THREE_X + 1, GUIConstants.ITEM_REQ_SLOT_THREE_Y + 1) {
 
             @Override
             public boolean isAttunementActive() {
@@ -287,7 +285,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
                         handleAttunement(stack);
-                        setAscensionOccured(true);
                         MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
                     }
                 }
@@ -353,6 +350,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(this.player.getUUID()).isEmpty());
 
         if(!attunementInputContainer.isEmpty()) {
+            setHasAttunementItemInSlot(true);
             ItemStack stack = attunementInputContainer.getItem(0);
             if(this.player instanceof ServerPlayer serverPlayer) {
                 this.attunementNexusSlotInformation = AttunementNexusSlotInformation.createAttunementNexusSlotInformation(serverPlayer, stack);
@@ -408,6 +406,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void clearItemDataSlotData() {
         setItemAtMaxLevel(false);
         setAscensionCanStart(false);
+        setHasAttunementItemInSlot(false);
 
         setItemRequirementOneState(ItemRequirementState.NOT_REQUIRED.getValue());
         setItemRequirementTwoState(ItemRequirementState.NOT_REQUIRED.getValue());
@@ -448,7 +447,6 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         clearItemDataSlotData();
         setPlayerHasAttunedItem(false);
-        setItemAtMaxLevel(false);
         setProgress(0);
         setIsActive(false);
 

@@ -6,7 +6,7 @@
       "requirements": {
         "xpLevelsConsumed": 24,
         "xpLevelThreshold": 75,
-        "items": ["minecraft:diamond#2", "minecraft:emerald", "minecraft:coal#2", "minecraft:iron_pickaxe"]
+        "items": ["minecraft:diamond#2", "minecraft:emerald", "minecraft:coal#80", "minecraft:iron_pickaxe"]
       }
     },
     "2": {
@@ -14,7 +14,7 @@
       "requirements": {
         "xpLevelsConsumed": 4,
         "xpLevelThreshold": 20,
-        "items": ["minecraft:iron_pickaxe"]
+        "items": ["minecraft:iron_pickaxe", "minecraft:fake_item", "minecraft:diamond#-1"]
       }
     },
     "3": {
@@ -22,7 +22,7 @@
       "requirements": {
         "xpLevelsConsumed": 6,
         "xpLevelThreshold": 25,
-        "items": ["minecraft:diamond_pickaxe#2", "minecraft:kelp"]
+        "items": ["minecraft:diamond_pickaxe#2", "minecraft:ender_pearl#24"]
       }
     }
   },
