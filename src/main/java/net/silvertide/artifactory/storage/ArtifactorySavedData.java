@@ -9,7 +9,6 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.*;
-import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.*;

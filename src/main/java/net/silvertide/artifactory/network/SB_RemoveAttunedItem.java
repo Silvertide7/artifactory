@@ -34,6 +34,9 @@ public class SB_RemoveAttunedItem {
     private static void handleMessage(@Nullable ServerPlayer player, SB_RemoveAttunedItem msg) {
         if(player != null) {
             ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), msg.itemUUIDToRemove);
+            // TODO Search players inventory and remove any broken attunements if it finds any.
+            // If the player is in a screen attunementManage / attunementScreen then check the item
+            // in it as well?
         }
     }
 }

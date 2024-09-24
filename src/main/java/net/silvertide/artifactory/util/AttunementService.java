@@ -61,4 +61,20 @@ public final class AttunementService {
         // Clear the attunement data off of the item itself.
         StackNBTUtil.removeArtifactoryTag(stack);
     }
+
+    // The purpose of this method is to check if the itemstack is attuned to a player
+    // but that player is no longer attuned to that item. If so clear the items attunement
+    // data, so it can be attuned again.
+    public static void clearAttunementIfBrokenByPlayer(ItemStack stack) {
+        StackNBTUtil.getAttunedToUUID(stack).ifPresent(playerUUID -> {
+            StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemAttunementUUID -> {
+                if(ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).isEmpty()) {
+                    if (ModificationUtil.hasModification(stack, "unbreakable")) {
+                        StackNBTUtil.removeUnbreakable(stack);
+                    }
+                    StackNBTUtil.removeArtifactoryTag(stack);
+                }
+            });
+        });
+    }
 }

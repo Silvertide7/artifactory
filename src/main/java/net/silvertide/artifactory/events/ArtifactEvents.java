@@ -74,18 +74,13 @@ public class ArtifactEvents {
         }
     }
 
-    //TODO Remove this for release
     @SubscribeEvent
     public static void onItemToss(ItemTossEvent tossEvent) {
         Player player = tossEvent.getPlayer();
         if(player.level().isClientSide() || tossEvent.isCanceled()) return;
         ItemStack stack = tossEvent.getEntity().getItem();
+        // TODO Add check to remove attunements from item when tossed if attunement broken
 
-        if(!stack.isEmpty()) {
-            DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> Artifactory.LOGGER.info("Item Attunemeent Data: \n" + itemAttunementData));
-            Artifactory.LOGGER.info("Item thrown attuned to player: " + AttunementUtil.arePlayerAndItemAttuned(player, stack));
-            Artifactory.LOGGER.info("Item NBT: " + stack.getOrCreateTag());
-        }
     }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
@@ -105,6 +100,7 @@ public class ArtifactEvents {
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
             for (ItemStack armorStack : armorItems) {
+                AttunementService.clearAttunementIfBrokenByPlayer(armorStack);
                 if(armorStack.isEmpty() || AttunementUtil.isItemAttunedToPlayer(player, armorStack)) continue;
 
                 if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
@@ -116,6 +112,7 @@ public class ArtifactEvents {
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack handStack : handItems) {
+                AttunementService.clearAttunementIfBrokenByPlayer(handStack);
                 if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
                     EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
                 }
@@ -152,6 +149,7 @@ public class ArtifactEvents {
         }
     }
 
+    //TODO Make sure this works with curios
     @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers

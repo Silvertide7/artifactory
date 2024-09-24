@@ -96,22 +96,11 @@ public final class AttunementUtil {
     }
 
     public static boolean isAttunedToAnotherPlayer(Player player, ItemStack stack) {
-        return DataPackUtil.getAttunementData(stack).map(itemAttunementData ->
-                        isItemAttunedToAPlayer(stack) && !arePlayerAndItemAttuned(player, stack))
-                .orElse(false);
+        return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> !player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
     public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
-        if (isItemAttunedToPlayer(player, stack)) {
-            if(isPlayerAttunedToItem(player, stack)) {
-                return true;
-            }
-
-            // If the item is attuned to the player but the player is no longer attuned to the item remove the
-            // items attunement data to sync it.
-            AttunementService.removeAttunementFromPlayerAndItem(stack);
-        }
-        return false;
+        return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
     }
 
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
