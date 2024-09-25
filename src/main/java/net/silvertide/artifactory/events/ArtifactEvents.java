@@ -100,7 +100,7 @@ public class ArtifactEvents {
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
             for (ItemStack armorStack : armorItems) {
-                AttunementService.clearAttunementIfBrokenByPlayer(armorStack);
+                AttunementService.clearBrokenAttunementIfExists(armorStack);
                 if(armorStack.isEmpty() || AttunementUtil.isItemAttunedToPlayer(player, armorStack)) continue;
 
                 if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
@@ -112,7 +112,7 @@ public class ArtifactEvents {
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack handStack : handItems) {
-                AttunementService.clearAttunementIfBrokenByPlayer(handStack);
+                AttunementService.clearBrokenAttunementIfExists(handStack);
                 if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
                     EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
                 }

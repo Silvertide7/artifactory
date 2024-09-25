@@ -115,7 +115,6 @@ public final class AttunementUtil {
     }
 
     public static boolean isAvailableToAttune(ItemStack stack) {
-        // TODO: Might want to check if the player still has the item attuned here and break the connection if not.
         return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
     }
 

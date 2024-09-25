@@ -165,7 +165,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                AttunementService.clearAttunementIfBrokenByPlayer(stack);
+                checkItemInAttunementSlotForBrokenAttunement();
                 AttunementNexusAttuneMenu.this.updateAttunementState();
             }
 
@@ -175,6 +175,14 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 return super.mayPickup(player);
             }
         };
+    }
+
+    public void checkItemInAttunementSlotForBrokenAttunement() {
+        if(attunementInputSlot.hasItem()){
+            if(AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem())) {
+                updateAttunementState();
+            }
+        }
     }
 
     private ItemRequirementSlot getItemRequirementOneSlot() {

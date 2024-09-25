@@ -62,19 +62,28 @@ public final class AttunementService {
         StackNBTUtil.removeArtifactoryTag(stack);
     }
 
+    public static void clearBrokenAttunements(Player player) {
+        for (int i = 0; i < player.getInventory().items.size(); i++) {
+            clearBrokenAttunementIfExists(player.getInventory().items.get(i));
+        }
+    }
+
     // The purpose of this method is to check if the itemstack is attuned to a player
     // but that player is no longer attuned to that item. If so clear the items attunement
-    // data, so it can be attuned again.
-    public static void clearAttunementIfBrokenByPlayer(ItemStack stack) {
-        StackNBTUtil.getAttunedToUUID(stack).ifPresent(playerUUID -> {
-            StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemAttunementUUID -> {
-                if(ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).isEmpty()) {
-                    if (ModificationUtil.hasModification(stack, "unbreakable")) {
-                        StackNBTUtil.removeUnbreakable(stack);
-                    }
-                    StackNBTUtil.removeArtifactoryTag(stack);
+    // data, so it can be attuned again. Returns true if a broken attunement was cleaned up.
+    public static boolean clearBrokenAttunementIfExists(ItemStack stack) {
+        if(stack.isEmpty()) return false;
+
+        return StackNBTUtil.getAttunedToUUID(stack).flatMap(playerUUID -> StackNBTUtil.getItemAttunementUUID(stack).map(itemAttunementUUID -> {
+            if(ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).isEmpty()) {
+                if (ModificationUtil.hasModification(stack, "unbreakable")) {
+                    StackNBTUtil.removeUnbreakable(stack);
                 }
-            });
-        });
+                StackNBTUtil.removeArtifactoryTag(stack);
+                return true;
+            }
+            return false;
+        })).orElse(false);
+
     }
 }
