@@ -48,11 +48,10 @@ public class CuriosCompat {
             for (int i = 0; i < itemHandler.getSlots(); ++i) {
                 int finalI = i;
                 ItemStack curiosStack = itemHandler.getEquippedCurios().getStackInSlot(finalI);
-                if(!curiosStack.isEmpty() && StackNBTUtil.isSoulbound(curiosStack)) {
+                if(AttunementUtil.isValidAttunementItem(curiosStack) && StackNBTUtil.isSoulbound(curiosStack)) {
                     event.addOverride(stack -> stack == itemHandler.getEquippedCurios().getStackInSlot(finalI), ICurio.DropRule.ALWAYS_KEEP);
                 }
             }
         });
     }
-
 }

@@ -20,22 +20,18 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
-// TODO: Need to find a good place to trigger removing item nbt if no longer attuned, like placing into attunement nexus slot
-// TODO: Create GUI's and textures
-// TODO: Create menu / screen for player management of attuned items
 // TODO: Curios slots? At least test them to disallow equipping
-// TODO: Update hovertext to 2 lines - Attunable (#) / Use Restricted or nothing
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
-// TODO: Add a check when the bond is broken to search the players inventory and update the item if it's in there.
-// TODO: Add more checks for when the item should be updated if it has been unbonded. On pickup into inventory.
-// TODO: If an item loses its attunement data break those items attunements from the players.
 // TODO: Change color in GUIs to make it easier to parse
 // TODO: Limit it so only items can be attuned in the datapack entry
-// TODO: Any time an AttunedItem changes send update to client
 // TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
-// TODO: Add hover text explaining all benefits gained so far.
-// TODO: Implement isValidAttunementItem in correct spots. Should items that were valid but become invalid have all data erased?
+// TODO: Implement isValidAttunementItem in correct spots.
 // TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
+// TODO: Add effects modifications
+// TODO: Add enchantment modifications
+// TODO: Add (Max) next to attunement level in manage screen if its maxed out
+// TODO: Add current slots used / max slots to manage screen and attune screen.
+
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
