@@ -43,7 +43,6 @@ public class AttunementNexusManageScreen extends Screen {
 
     // Instance Variables
     private AttunementNexusAttuneScreen attuneScreen;
-    private LocalPlayer player;
     private boolean closeButtonDown = false;
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
@@ -52,7 +51,6 @@ public class AttunementNexusManageScreen extends Screen {
     protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
         super(Component.literal(""));
         this.attuneScreen = parent;
-        this.player = parent.getMinecraft().player;
     }
 
     @Override
@@ -61,6 +59,7 @@ public class AttunementNexusManageScreen extends Screen {
         createAttunementCards();
     }
 
+    // Need to allow no attunement data
     public void createAttunementCards() {
         attunementCards.clear();
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
@@ -68,9 +67,7 @@ public class AttunementNexusManageScreen extends Screen {
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
             Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.resourceLocation());
-            if(attunementData.isPresent()) {
-                attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.get(), this));
-            }
+                attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
         }
     }
 
@@ -362,7 +359,10 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
-            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_data_not_found");
+            if(attunementData != null) {
+                slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+            }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 

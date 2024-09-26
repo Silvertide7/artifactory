@@ -24,13 +24,14 @@ import org.slf4j.Logger;
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Change color in GUIs to make it easier to parse
 // TODO: Limit it so only items can be attuned in the datapack entry
-// TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
-// TODO: Implement isValidAttunementItem in correct spots.
-// TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
 // TODO: Add effects modifications
 // TODO: Add enchantment modifications
+
+// GUI
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
 // TODO: Add current slots used / max slots to manage screen and attune screen.
+// TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
+// TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory

@@ -18,6 +18,7 @@
   "screen.text.artifactory.confirmation.delete_text": "Are you sure you want to remove attunement to %1$s? This can't be undone.",
   "screen.text.artifactory.manage.slots_used": "Slots taken: %1$s",
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
+  "screen.text.artifactory.manage.attunement_data_not_found": "No attunement data found.",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",
