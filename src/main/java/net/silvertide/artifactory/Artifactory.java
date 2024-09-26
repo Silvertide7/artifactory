@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 // TODO: Create GUI's and textures
 // TODO: Create menu / screen for player management of attuned items
 // TODO: Curios slots? At least test them to disallow equipping
-// TODO: Update hovertext to 2 lines - Attuneable (#) / Use Restricted or nothing
+// TODO: Update hovertext to 2 lines - Attunable (#) / Use Restricted or nothing
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Add a check when the bond is broken to search the players inventory and update the item if it's in there.
 // TODO: Add more checks for when the item should be updated if it has been unbonded. On pickup into inventory.
@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 // TODO: Add hover text explaining all benefits gained so far.
 // TODO: Implement isValidAttunementItem in correct spots. Should items that were valid but become invalid have all data erased?
 // TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
-// TODO: Fix indexoutofbounds exception, something to do with slots and setslot with attunement nexus screen / menu
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

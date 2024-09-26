@@ -419,7 +419,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
         this.itemRequirementOneSlot.clearItemRequired();
     }
 
-    public boolean hasAttuneableItemInSlot() {
+    public boolean hasAttunableItemInSlot() {
         return !this.attunementInputContainer.isEmpty();
     }
 

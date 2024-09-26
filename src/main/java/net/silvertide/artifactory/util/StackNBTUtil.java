@@ -1,7 +1,6 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -179,13 +178,6 @@ public class StackNBTUtil {
 
     public static void removeArtifactoryTag(ItemStack stack) {
         if(artifactoryTagExists(stack)) stack.getOrCreateTag().remove(Artifactory.MOD_ID);
-    }
-
-    public static void removeTagFromArtifactoryTag(ItemStack stack, String tagKey ) {
-        CompoundTag artifactoryTag = getOrCreateArtifactoryCompoundTag(stack);
-        if (artifactoryTag.contains(tagKey)) {
-            artifactoryTag.remove(tagKey);
-        }
     }
 
     public static boolean artifactoryTagExists(ItemStack stack) {

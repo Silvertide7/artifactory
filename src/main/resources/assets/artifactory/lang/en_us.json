@@ -3,8 +3,8 @@
   "block.artifactory.attunement_nexus": "Attunement Nexus",
 
   "hovertext.artifactory.attuned_item": "Attuned",
-  "hovertext.artifactory.use_without_attunement": "Can attune",
-  "hovertext.artifactory.use_with_attunement": "Attune to use",
+  "hovertext.artifactory.use_without_attunement": "Attunable",
+  "hovertext.artifactory.use_with_attunement": "Attunable (Required)",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",

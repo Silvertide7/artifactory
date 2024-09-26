@@ -26,7 +26,7 @@ public class EffectUtil {
 
                 MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(effectName));
                 if(effect != null && effectLevel > 0) {
-                    mobEffects.add(new MobEffectInstance(effect, 15, effectLevel-1, false, false));
+                    mobEffects.add(new MobEffectInstance(effect, 20, effectLevel-1, false, false));
                 }
             }
         }
@@ -36,8 +36,8 @@ public class EffectUtil {
 
     public static void applyMobEffectInstancesToPlayer(Player player, String serializedMobEffects) {
         List<MobEffectInstance> mobEffectInstances = getMobEffectInstancesFromConfig(serializedMobEffects);
-        for(MobEffectInstance mobEffectInstance : mobEffectInstances){
-            if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 10) {
+        for(MobEffectInstance mobEffectInstance : mobEffectInstances) {
+            if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 18) {
                 player.addEffect(mobEffectInstance);
             }
         }

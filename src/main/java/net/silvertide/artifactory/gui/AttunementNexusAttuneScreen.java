@@ -129,7 +129,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
         } else if (!getMenu().isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
-        } else if (getMenu().hasAttuneableItemInSlot() && getMenu().isItemAtMaxLevel()) {
+        } else if (getMenu().hasAttunableItemInSlot() && getMenu().isItemAtMaxLevel()) {
             return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
         } else {
             return Component.literal("");
@@ -152,11 +152,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(getMenu().hasAttuneableItemInSlot() && !getMenu().isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
+            if(getMenu().hasAttunableItemInSlot() && !getMenu().isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
                 AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                 list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-            } else if (getMenu().hasAttuneableItemInSlot() && getMenu().isItemAtMaxLevel()) {
+            } else if (getMenu().hasAttunableItemInSlot() && getMenu().isItemAtMaxLevel()) {
                 list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
             } else {
                 list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
@@ -167,7 +167,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
         AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-        if(slotInformation != null && this.getMenu().hasAttuneableItemInSlot()){
+        if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()){
             Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchieved()));
             guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
 

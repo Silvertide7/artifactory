@@ -15,6 +15,7 @@ import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -75,12 +76,10 @@ public class ArtifactEvents {
     }
 
     @SubscribeEvent
-    public static void onItemToss(ItemTossEvent tossEvent) {
-        Player player = tossEvent.getPlayer();
-        if(player.level().isClientSide() || tossEvent.isCanceled()) return;
-        ItemStack stack = tossEvent.getEntity().getItem();
-        // TODO Add check to remove attunements from item when tossed if attunement broken
-
+    public static void onItemPickup(PlayerEvent.ItemPickupEvent itemPickupEvent) {
+        Player player = itemPickupEvent.getEntity();
+        if(player.level().isClientSide() || itemPickupEvent.isCanceled()) return;
+        AttunementService.clearBrokenAttunementIfExists(itemPickupEvent.getStack());
     }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
@@ -90,7 +89,7 @@ public class ArtifactEvents {
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent playerTickEvent) {
         ticksIgnoredSinceLastProcess++;
-        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 17) return;
+        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 18) return;
         ticksIgnoredSinceLastProcess = 0;
 
         Player player = playerTickEvent.player;
@@ -100,21 +99,32 @@ public class ArtifactEvents {
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
             for (ItemStack armorStack : armorItems) {
+                if(armorStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(armorStack);
-                if(armorStack.isEmpty() || AttunementUtil.isItemAttunedToPlayer(player, armorStack)) continue;
 
-                if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
-                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-                } else if (!AttunementUtil.canUseWithoutAttunement(armorStack)) {
-                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
+                if(AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
+                    // TODO Apply positive effects here.
+                } else {
+                    if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
+                        EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+                    } else if (!AttunementUtil.canUseWithoutAttunement(armorStack)) {
+                        EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
+                    }
                 }
+
             }
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack handStack : handItems) {
+                if(handStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(handStack);
-                if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
-                    EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+
+                if(AttunementUtil.isItemAttunedToPlayer(player, handStack)) {
+                    // TODO Apply positive effects here.
+                } else {
+                    if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
+                        EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+                    }
                 }
             }
         }

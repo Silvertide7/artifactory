@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
-import net.silvertide.artifactory.config.codecs.AttuneableItems;
+import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -15,12 +15,12 @@ public final class DataPackUtil {
     private DataPackUtil() {}
 
     public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
-        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(resourceLocation));
+        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
     }
 
     public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-        return Optional.ofNullable(AttuneableItems.DATA_LOADER.getData().get(stackResourceLocation));
+        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(stackResourceLocation));
     }
 
     public static Optional<ItemAttunementData> getAttunementData(String resourceLocation) {
