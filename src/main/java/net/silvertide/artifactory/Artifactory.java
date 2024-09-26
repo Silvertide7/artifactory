@@ -20,14 +20,15 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
-// TODO: Curios slots? At least test them to disallow equipping
-// TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
-// TODO: Change color in GUIs to make it easier to parse
-// TODO: Limit it so only items can be attuned in the datapack entry
+// FUNCTIONAL
+// TODO: Limit it so only items and single stack items can be attuned in the datapack entry
 // TODO: Add effects modifications
 // TODO: Add enchantment modifications
+// TODO: Curios slots? At least test them to disallow equipping
 
 // GUI
+// TODO: Change color in GUIs to make it easier to parse
+// TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
 // TODO: Add current slots used / max slots to manage screen and attune screen.
 // TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
