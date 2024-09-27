@@ -38,4 +38,14 @@ public final class ResourceLocationUtil {
             return ItemStack.EMPTY;
         }
     }
+
+    public static ItemStack getItemStackFromResourceLocation(ResourceLocation resourceLocation) {
+        try {
+            Item baseItem = getItemFromResourceLocation(resourceLocation);
+            return new ItemStack(baseItem);
+        } catch (ResourceLocationException exception) {
+            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from " + resourceLocation);
+            return ItemStack.EMPTY;
+        }
+    }
 }

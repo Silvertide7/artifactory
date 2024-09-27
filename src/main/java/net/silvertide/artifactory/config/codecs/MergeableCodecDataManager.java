@@ -36,11 +36,18 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.DataPackUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -143,8 +150,37 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     @Override
     protected void apply(final Map<ResourceLocation, FINE> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
+        Map<ResourceLocation, FINE> filteredData = filterItems(processedData);
+        sanitizeItemRequirements(filteredData);
+
         // now that we're on the main thread, we can finalize the data
-        this.data.putAll(processedData);
+        this.data.putAll(filteredData);
+    }
+
+    /**
+     * This goes through all resource locations and makes sure that the items given attunements meet 3 critera:
+     * 1 - They are valid items and do not fail to find an item from the resource location
+     * 2 - They have a max stack size of 1. The functionality of this mod doesn't make sense with items that can stack
+     * 3 - It is not a block item, again that doesn't seem to fit the functionality of this mod.
+     * @param processedData The data to filter
+     * @return
+     */
+    private Map<ResourceLocation,FINE> filterItems(Map<ResourceLocation,FINE> processedData) {
+        Map<ResourceLocation, FINE> filteredData = new HashMap<>();
+        for(ResourceLocation key : processedData.keySet()) {
+            ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
+            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)) filteredData.put(key, processedData.get(key));
+        }
+        return filteredData;
+    }
+
+    /**
+     * This method looks at all attunement level item requirements and makes sure they exist
+     * in the game. If it can't create an ItemStack of them then it will remove it.
+     * @param filteredData - The filtered data to search for item requirements in
+     */
+    private void sanitizeItemRequirements(Map<ResourceLocation,FINE> filteredData) {
+        // TODO
     }
 
     /**
