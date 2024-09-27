@@ -37,16 +37,12 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
-import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,10 +57,8 @@ import java.util.function.Function;
  * This works best if initialized during your mod's construction.
  * After creating the manager, subscribeAsSyncable can optionally be called on it to subscribe the manager
  * to the forge events necessary for syncing datapack data to clients.
- * @param <RAW> The type of the objects that the codec is parsing jsons as
- * @param <FINE> The type of the object we get after merging the parsed objects. Can be the same as RAW
  */
-public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReloadListener<Map<ResourceLocation, FINE>>
+public class MergeableCodecDataManager extends SimplePreparableReloadListener<Map<ResourceLocation, ItemAttunementData>>
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -74,11 +68,11 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     protected static final int JSON_EXTENSION_LENGTH = JSON_EXTENSION.length();
 
     /** the loaded data **/
-    protected Map<ResourceLocation, FINE> data = new HashMap<>();
+    protected Map<ResourceLocation, ItemAttunementData> data = new HashMap<>();
 
     private final String folderName;
-    private final Codec<RAW> codec;
-    private final Function<List<RAW>, FINE> merger;
+    private final Codec<ItemAttunementData> codec;
+    private final Function<List<ItemAttunementData>, ItemAttunementData> merger;
 
     /**
      * Initialize a data manager with the given folder name, codec, and merger
@@ -93,7 +87,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name itemUUID,
      * and then all tag jsons defined with the same ID are merged additively into a single set of items, etc
      */
-    public MergeableCodecDataManager(final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger)
+    public MergeableCodecDataManager(final String folderName, Codec<ItemAttunementData> codec, final Function<List<ItemAttunementData>, ItemAttunementData> merger)
     {
         this.folderName = folderName;
         this.codec = codec;
@@ -103,22 +97,22 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     /**
      * @return The immutable map of data entries
      */
-    public Map<ResourceLocation, FINE> getData()
+    public Map<ResourceLocation, ItemAttunementData> getData()
     {
         return this.data;
     }
 
     /** Off-thread processing (can include reading files from hard drive) **/
     @Override
-    protected Map<ResourceLocation, FINE> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected Map<ResourceLocation, ItemAttunementData> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         LOGGER.info("Beginning loading of data for data loader: {}", this.folderName);
-        final Map<ResourceLocation, FINE> map = new HashMap<>();
+        final Map<ResourceLocation, ItemAttunementData> map = new HashMap<>();
 
         Map<ResourceLocation,List<Resource>> resourceStacks = resourceManager.listResourceStacks(this.folderName, id -> id.getPath().endsWith(JSON_EXTENSION));
         for (var entry : resourceStacks.entrySet())
         {
-            List<RAW> raws = new ArrayList<>();
+            List<ItemAttunementData> raws = new ArrayList<>();
             ResourceLocation fullId = entry.getKey();
             String fullPath = fullId.getPath(); // includes folderName/ and .json
             ResourceLocation id = new ResourceLocation(
@@ -148,9 +142,9 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final Map<ResourceLocation, FINE> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected void apply(final Map<ResourceLocation, ItemAttunementData> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
-        Map<ResourceLocation, FINE> filteredData = filterItems(processedData);
+        Map<ResourceLocation, ItemAttunementData> filteredData = filterItems(processedData);
         sanitizeItemRequirements(filteredData);
 
         // now that we're on the main thread, we can finalize the data
@@ -162,14 +156,14 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * 1 - They are valid items and do not fail to find an item from the resource location
      * 2 - They have a max stack size of 1. The functionality of this mod doesn't make sense with items that can stack
      * 3 - It is not a block item, again that doesn't seem to fit the functionality of this mod.
-     * @param processedData The data to filter
+     * @param data The data to filter
      * @return
      */
-    private Map<ResourceLocation,FINE> filterItems(Map<ResourceLocation,FINE> processedData) {
-        Map<ResourceLocation, FINE> filteredData = new HashMap<>();
-        for(ResourceLocation key : processedData.keySet()) {
+    private Map<ResourceLocation,ItemAttunementData> filterItems(Map<ResourceLocation, ItemAttunementData> data) {
+        Map<ResourceLocation, ItemAttunementData> filteredData = new HashMap<>();
+        for(ResourceLocation key : data.keySet()) {
             ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
-            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)) filteredData.put(key, processedData.get(key));
+            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)) filteredData.put(key, data.get(key));
         }
         return filteredData;
     }
@@ -177,10 +171,15 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     /**
      * This method looks at all attunement level item requirements and makes sure they exist
      * in the game. If it can't create an ItemStack of them then it will remove it.
-     * @param filteredData - The filtered data to search for item requirements in
+     * @param data - The data to search for item requirements in
      */
-    private void sanitizeItemRequirements(Map<ResourceLocation,FINE> filteredData) {
+    private void sanitizeItemRequirements(Map<ResourceLocation, ItemAttunementData> data) {
         // TODO
+//        for(ItemAttunementData attunementData : data.values()) {
+//            for(String levelString : attunementData.attunements().keySet()) {
+//
+//            }
+//        }
     }
 
     /**
@@ -191,8 +190,8 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * @param packetFactory  A packet constructor or factory method that converts the given map to a packet object to send on the given channel
      * @return this manager object
      */
-    public <PACKET> MergeableCodecDataManager<RAW, FINE> subscribeAsSyncable(final SimpleChannel channel,
-                                                                             final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory)
+    public <PACKET> MergeableCodecDataManager subscribeAsSyncable(final SimpleChannel channel,
+                                                                             final Function<Map<ResourceLocation, ItemAttunementData>, PACKET> packetFactory)
     {
         MinecraftForge.EVENT_BUS.addListener(this.getDatapackSyncListener(channel, packetFactory));
         return this;
@@ -200,7 +199,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
 
     /** Generate an event listener function for the on-datapack-sync event **/
     private <PACKET> Consumer<OnDatapackSyncEvent> getDatapackSyncListener(final SimpleChannel channel,
-                                                                           final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory)
+                                                                           final Function<Map<ResourceLocation, ItemAttunementData>, PACKET> packetFactory)
     {
         return event -> {
             ServerPlayer player = event.getPlayer();

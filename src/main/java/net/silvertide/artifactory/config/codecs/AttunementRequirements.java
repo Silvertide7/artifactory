@@ -11,7 +11,7 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
                     Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::xpLevelsConsumed),
                     Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::xpLevelThreshold),
                     Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::kills),
-                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::feats),
+                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::items),
                     Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::feats))
             .apply(instance, AttunementRequirements::new)
     );

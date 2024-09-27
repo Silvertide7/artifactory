@@ -3,7 +3,7 @@ package net.silvertide.artifactory.config.codecs;
 import java.util.List;
 
 public class AttunableItems {
-    public static final MergeableCodecDataManager<ItemAttunementData, ItemAttunementData> DATA_LOADER = new MergeableCodecDataManager<>(
+    public static final MergeableCodecDataManager DATA_LOADER = new MergeableCodecDataManager(
             "artifactory",
             ItemAttunementData.CODEC,
             AttunableItems::processItemAttunements);
