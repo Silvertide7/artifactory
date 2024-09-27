@@ -5,16 +5,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.silvertide.artifactory.Artifactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public record ItemAttunementData(int attunementSlotsUsed, Map<String, AttunementLevel> attunements, boolean useWithoutAttunement, boolean replace) {
-
-    // Custom codec for keys (String that must be a number between 1 and 10000)
-    public static final Codec<String> STRING_INTEGER_CODEC = Codec.STRING.flatXmap(
-            ItemAttunementData::validateStringNumber,
-            ItemAttunementData::validateStringNumber
-    );
+public record ItemAttunementData(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement, boolean replace) {
 
     // Validation method for ensuring the string is a number in the range 1-10000
     private static DataResult<String> validateStringNumber(String input) {
@@ -34,7 +30,7 @@ public record ItemAttunementData(int attunementSlotsUsed, Map<String, Attunement
 
     public static final Codec<ItemAttunementData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.optionalFieldOf("slots_used", -1).forGetter(ItemAttunementData::attunementSlotsUsed),
-            Codec.unboundedMap(STRING_INTEGER_CODEC, AttunementLevel.CODEC).optionalFieldOf("attunements", createDefaultAttunementsMap()).forGetter(ItemAttunementData::attunements),
+            Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", new ArrayList<>()).forGetter(ItemAttunementData::attunementLevels),
             Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(ItemAttunementData::useWithoutAttunement),
             Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace))
             .apply(instance, ItemAttunementData::new)
@@ -48,8 +44,9 @@ public record ItemAttunementData(int attunementSlotsUsed, Map<String, Attunement
     public String toString() {
         StringBuilder attunementString = new StringBuilder();
 
-        for(Map.Entry<String, AttunementLevel> attunementLevels :  attunements.entrySet()){
-            attunementString.append("Level " + attunementLevels.getKey() + ": " + attunementLevels.getValue()).append(": \n");
+        for(int i = 0; i < attunementLevels().size(); i++) {
+            attunementString.append("Level ").append(i + 1).append(": ").append(attunementLevels().get(i)).append(": \n");
+
         }
 
         return "replace: " + replace + "\n" +

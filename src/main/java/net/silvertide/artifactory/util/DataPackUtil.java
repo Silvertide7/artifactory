@@ -2,7 +2,6 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
@@ -27,38 +26,12 @@ public final class DataPackUtil {
         return getAttunementData(ResourceLocationUtil.getResourceLocation(resourceLocation));
     }
 
-    public static Optional<AttunementLevel> getAttunementLevel(ItemStack stack, int level) {
-        return getAttunementData(stack).flatMap(attunementData -> Optional.ofNullable(attunementData.attunements().get(String.valueOf(level))));
+    public static AttunementLevel getAttunementLevel(ItemStack stack, int level) {
+        return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().get(level - 1)).orElse(null);
     }
 
     public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
-        return getAttunementData(stack).map(DataPackUtil::findMaxLevelAchievable).orElse(0);
-    }
-
-    public static int getMaxLevelOfAttunementPossible(ResourceLocation resourceLocation) {
-        return getAttunementData(resourceLocation).map(DataPackUtil::findMaxLevelAchievable).orElse(0);
-    }
-
-    private static int findMaxLevelAchievable(ItemAttunementData attunementData) {
-        int maxLevel = 0;
-        Set<String> attunementLevels = attunementData.attunements().keySet();
-        for(int i = 1; i <= attunementLevels.size(); i++) {
-            if(attunementLevels.contains(String.valueOf(i))){
-                maxLevel = i;
-            } else {
-                return maxLevel;
-            }
-        }
-
-        return maxLevel;
-    }
-
-    public static Optional<AttunementRequirements> getAttunementRequirements(ItemStack stack, int level) {
-        return getAttunementLevel(stack, level).map(AttunementLevel::requirements);
-    }
-    
-    public static Optional<List<String>> getAttunementModifications(ItemStack stack, int level) {
-        return getAttunementLevel(stack, level).map(AttunementLevel::modifications);
+        return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
     }
 
     public static String getAttunementLevelDescriptions(String resourceLocation, int currentAttunementLevel) {
@@ -66,33 +39,23 @@ public final class DataPackUtil {
         return getAttunementData(resourceLocation).map(itemAttunementData -> {
             StringBuilder stringBuilder = new StringBuilder(resourceLocation + ";");
 
-            Iterator<Map.Entry<String, AttunementLevel>> iterator = itemAttunementData.attunements().entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<String, AttunementLevel> entry = iterator.next();
-                if(shouldSendAttunementLevelInformation(entry.getKey(), currentAttunementLevel)){
-                    stringBuilder.append(entry.getKey()).append("#").append(entry.getValue().getModifications());
-                    if (iterator.hasNext()) stringBuilder.append("~");
+            for(int i = 0; i < itemAttunementData.attunementLevels().size(); i++) {
+                AttunementLevel attunementLevel = itemAttunementData.attunementLevels().get(i);
+                if(shouldSendAttunementLevelInformation(i, currentAttunementLevel)){
+                    stringBuilder.append(i).append("#").append(attunementLevel.getModifications());
+                    if (i != itemAttunementData.attunementLevels().size() - 1) stringBuilder.append("~");
                 }
-
-
             }
             return stringBuilder.toString();
         }).orElse("");
     }
 
-    private static boolean shouldSendAttunementLevelInformation(String level, int currentAttunementLevel) {
+    private static boolean shouldSendAttunementLevelInformation(int level, int currentAttunementLevel) {
         String currentInformationLevel = Config.ATTUNEMENT_INFORMATION_EXTENT.get();
         if("all".equals(currentInformationLevel)) return true;
         else {
-            try {
-                int informationLevel = Integer.parseInt(level);
-                if("next".equals(currentInformationLevel)) return informationLevel <= currentAttunementLevel + 1;
-                if("current".equals(currentInformationLevel)) return informationLevel <= currentAttunementLevel;
-            } catch (NumberFormatException exception) {
-                Artifactory.LOGGER.error("Error converting datapack attunement level to integer.");
-                return false;
-            }
+            if("next".equals(currentInformationLevel)) return level <= currentAttunementLevel + 1;
+            if("current".equals(currentInformationLevel)) return level <= currentAttunementLevel;
         }
         return false;
     }

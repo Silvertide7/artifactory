@@ -18,7 +18,7 @@ public class CmdNodeAdmin {
         return Commands.literal("admin")
                 .requires(p -> p.hasPermission(2))
                 .then(Commands.argument(TARGET_ARG, EntityArgument.players())
-                        .then(Commands.literal("attunements")
+                        .then(Commands.literal("attunementLevels")
                             .then(Commands.literal("breakAll")
                                 .executes(CmdNodeAdmin::adminBreakAttunements)
                             )

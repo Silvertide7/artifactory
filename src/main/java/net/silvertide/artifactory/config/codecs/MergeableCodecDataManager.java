@@ -152,7 +152,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     }
 
     /**
-     * This goes through all resource locations and makes sure that the items given attunements meet 3 critera:
+     * This goes through all resource locations and makes sure that the items given attunementLevels meet 3 critera:
      * 1 - They are valid items and do not fail to find an item from the resource location
      * 2 - They have a max stack size of 1. The functionality of this mod doesn't make sense with items that can stack
      * 3 - It is not a block item, again that doesn't seem to fit the functionality of this mod.
@@ -176,7 +176,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     private void sanitizeItemRequirements(Map<ResourceLocation, ItemAttunementData> data) {
         // TODO
 //        for(ItemAttunementData attunementData : data.values()) {
-//            for(String levelString : attunementData.attunements().keySet()) {
+//            for(String levelString : attunementData.attunementLevels().keySet()) {
 //
 //            }
 //        }

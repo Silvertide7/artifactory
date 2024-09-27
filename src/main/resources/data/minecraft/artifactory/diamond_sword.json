@@ -1,20 +1,20 @@
 {
   "slots_used": 1,
-  "attunements": {
-    "1": {
+  "attunement_levels": [
+    {
       "modifications": ["unbreakable", "invulnerable", "attribute/minecraft:generic.attack_damage/addition/1.0/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 30,
         "xpLevelThreshold": 35
       }
     },
-    "2": {
+    {
       "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/2.0/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 40
       }
     }
-  },
+  ],
   "use_without_attunement": false
 }

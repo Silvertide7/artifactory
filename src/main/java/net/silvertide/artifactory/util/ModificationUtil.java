@@ -3,7 +3,6 @@ package net.silvertide.artifactory.util;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.BasicModification;
@@ -16,8 +15,8 @@ public class ModificationUtil {
 
     public static void updateItemWithAttunementModifications(ItemStack stack, int level) {
         DataPackUtil.getAttunementData(stack).ifPresent(attunementData -> {
-            if (attunementData.attunements().containsKey(String.valueOf(level))) {
-                AttunementLevel attunementLevel = attunementData.attunements().get(String.valueOf(level));
+            if (attunementData.attunementLevels().size() >= level - 1) {
+                AttunementLevel attunementLevel = attunementData.attunementLevels().get(level - 1);
                 for (String modification : attunementLevel.modifications()) {
                     applyAttunementModification(stack, modification);
                 }
@@ -59,8 +58,8 @@ public class ModificationUtil {
 
     private static boolean attunementLevelHasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
         return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
-            for(int i = 1; i <= attunementLevelAchieved; i++) {
-                AttunementLevel attunementLevel = itemAttunementData.attunements().get(String.valueOf(i));
+            for(int i = 0; i < attunementLevelAchieved; i++) {
+                AttunementLevel attunementLevel = itemAttunementData.attunementLevels().get(i);
                 if(attunementLevel != null) {
                     for(String modificationString : attunementLevel.modifications()) {
                         if (modification.equals(modificationString)) return true;

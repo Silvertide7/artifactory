@@ -1,9 +1,9 @@
 {
   "slots_used": 0,
-  "attunements": {
-    "1": {
+  "attunement_levels": [
+    {
       "modifications": ["unbreakable", "invulnerable"]
     }
-  },
+  ],
   "use_without_attunement": false
 }
