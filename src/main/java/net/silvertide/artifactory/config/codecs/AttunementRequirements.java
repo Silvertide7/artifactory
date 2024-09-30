@@ -6,21 +6,72 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold, int kills, List<String> items, List<String> feats) {
+public class AttunementRequirements {
+    int xpLevelsConsumed, xpLevelThreshold, kills;
+    List<String> items, feats;
+
+    public AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold, int kills, List<String> items, List<String> feats) {
+        this.xpLevelsConsumed = xpLevelsConsumed;
+        this.xpLevelThreshold = xpLevelThreshold;
+        this.kills = kills;
+        this.items = items;
+        this.feats = feats;
+    }
+
+    public int getXpLevelsConsumed() {
+        return xpLevelsConsumed;
+    }
+
+    public void setXpLevelsConsumed(int xpLevelsConsumed) {
+        this.xpLevelsConsumed = xpLevelsConsumed;
+    }
+
+    public int getXpLevelThreshold() {
+        return xpLevelThreshold;
+    }
+
+    public void setXpLevelThreshold(int xpLevelThreshold) {
+        this.xpLevelThreshold = xpLevelThreshold;
+    }
+
+    public int getKills() {
+        return kills;
+    }
+
+    public void setKills(int kills) {
+        this.kills = kills;
+    }
+
+    public List<String> getItems() {
+        return items;
+    }
+
+    public void setItems(List<String> items) {
+        this.items = items;
+    }
+
+    public List<String> getFeats() {
+        return feats;
+    }
+
+    public void setFeats(List<String> feats) {
+        this.feats = feats;
+    }
+
     public static final Codec<AttunementRequirements> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::xpLevelsConsumed),
-                    Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::xpLevelThreshold),
-                    Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::kills),
-                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::items),
-                    Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::feats))
+                    Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::getXpLevelsConsumed),
+                    Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::getXpLevelThreshold),
+                    Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::getKills),
+                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::getItems),
+                    Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::getFeats))
             .apply(instance, AttunementRequirements::new)
     );
 
     public String toString() {
         StringBuilder result = new StringBuilder("AttunementRequirements: \n" +
-                "\txpLevelsThreshold : " + xpLevelThreshold() + "\n" +
-                "\txpLevelsConsumed : " + xpLevelsConsumed() + "\n" +
-                "\tkills: " + kills() + "\n" +
+                "\txpLevelsThreshold : " + getXpLevelThreshold() + "\n" +
+                "\txpLevelsConsumed : " + getXpLevelsConsumed() + "\n" +
+                "\tkills: " + getKills() + "\n" +
                 "\titems: {\n");
 
         for(String item : items) {

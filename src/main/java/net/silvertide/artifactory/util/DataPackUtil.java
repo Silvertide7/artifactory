@@ -5,7 +5,6 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
-import net.silvertide.artifactory.config.codecs.AttunementRequirements;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 
 import java.util.*;
@@ -42,7 +41,7 @@ public final class DataPackUtil {
             for(int i = 0; i < itemAttunementData.attunementLevels().size(); i++) {
                 AttunementLevel attunementLevel = itemAttunementData.attunementLevels().get(i);
                 if(shouldSendAttunementLevelInformation(i, currentAttunementLevel)){
-                    stringBuilder.append(i).append("#").append(attunementLevel.getModifications());
+                    stringBuilder.append(i).append("#").append(attunementLevel.getModificationsStringList());
                     if (i != itemAttunementData.attunementLevels().size() - 1) stringBuilder.append("~");
                 }
             }

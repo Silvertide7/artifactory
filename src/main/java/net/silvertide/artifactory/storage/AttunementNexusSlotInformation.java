@@ -37,9 +37,9 @@ public record AttunementNexusSlotInformation(int slotsUsed, int xpConsumed, int 
                 // Get the next levels information.
                 AttunementLevel nextAttunementLevel = DataPackUtil.getAttunementLevel(stack, currentAttunementLevelOfPlayerToItem + 1);
                 if(nextAttunementLevel != null) {
-                    xpThreshold = nextAttunementLevel.requirements().xpLevelThreshold() >= 0 ? nextAttunementLevel.requirements().xpLevelThreshold() : Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
-                    xpConsumed = nextAttunementLevel.requirements().xpLevelsConsumed() >= 0 ? nextAttunementLevel.requirements().xpLevelsConsumed() : Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
-                    itemRequirements.addRequirements(nextAttunementLevel.requirements().items());
+                    xpThreshold = nextAttunementLevel.getRequirements().getXpLevelThreshold() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelThreshold() : Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
+                    xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
+                    itemRequirements.addRequirements(nextAttunementLevel.getRequirements().getItems());
                 }
             }
 

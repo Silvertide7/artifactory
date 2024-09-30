@@ -43,9 +43,12 @@ import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import oshi.util.tuples.Pair;
 
 import java.io.Reader;
 import java.util.*;
@@ -144,11 +147,12 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     @Override
     protected void apply(final Map<ResourceLocation, ItemAttunementData> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
+        Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
         Map<ResourceLocation, ItemAttunementData> filteredData = filterItems(processedData);
         sanitizeItemRequirements(filteredData);
 
-        // now that we're on the main thread, we can finalize the data
         this.data.putAll(filteredData);
+        Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Complete");
     }
 
     /**
@@ -163,7 +167,9 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         Map<ResourceLocation, ItemAttunementData> filteredData = new HashMap<>();
         for(ResourceLocation key : data.keySet()) {
             ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
-            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)) filteredData.put(key, data.get(key));
+            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
+                filteredData.put(key, data.get(key));
+            }
         }
         return filteredData;
     }
@@ -174,12 +180,25 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * @param data - The data to search for item requirements in
      */
     private void sanitizeItemRequirements(Map<ResourceLocation, ItemAttunementData> data) {
-        // TODO
-//        for(ItemAttunementData attunementData : data.values()) {
-//            for(String levelString : attunementData.attunementLevels().keySet()) {
-//
-//            }
-//        }
+        for(Map.Entry<ResourceLocation, ItemAttunementData> entry : data.entrySet()) {
+            for(AttunementLevel attunementLevel : entry.getValue().attunementLevels()) {
+                List<String> items = attunementLevel.getRequirements().getItems();
+                List<String> sanitizedItems = new ArrayList<>();
+                if(!items.isEmpty()) {
+                    for(int i = 0; i < items.size(); i++) {
+                        String item = items.get(i);
+                        Pair<String, Integer> parsedRequirements = ItemRequirements.parseItemRequirementInformation(item);
+                        if(parsedRequirements != null) {
+                            sanitizedItems.add(item);
+                        } else {
+                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + item + " removed.");
+
+                        }
+                    }
+                    attunementLevel.getRequirements().setItems(sanitizedItems);
+                }
+            }
+        }
     }
 
     /**

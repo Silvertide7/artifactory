@@ -5,19 +5,42 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.*;
 
-public record AttunementLevel(List<String> modifications, AttunementRequirements requirements) {
+public class AttunementLevel {
+    private AttunementRequirements requirements;
+    private List<String> modifications;
+
+    public AttunementLevel(List<String> modifications, AttunementRequirements requirements) {
+        this.requirements = requirements;
+        this.modifications = modifications;
+    }
     public static final Codec<AttunementLevel> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.list(Codec.STRING).fieldOf("modifications").forGetter(AttunementLevel::modifications),
-                    AttunementRequirements.CODEC.optionalFieldOf("requirements", AttunementRequirements.getDefault()).forGetter(AttunementLevel::requirements))
+                    Codec.list(Codec.STRING).fieldOf("modifications").forGetter(AttunementLevel::getModifications),
+                    AttunementRequirements.CODEC.optionalFieldOf("requirements", AttunementRequirements.getDefault()).forGetter(AttunementLevel::getRequirements))
             .apply(instance, AttunementLevel::new)
     );
 
-    public String getModifications() {
+    public List<String> getModifications() {
+        return this.modifications;
+    }
+
+    public void setRequirements(AttunementRequirements requirements) {
+        this.requirements = requirements;
+    }
+
+    public AttunementRequirements getRequirements() {
+        return this.requirements;
+    }
+
+    public void setModifications(List<String> modifications) {
+        this.modifications = modifications;
+    }
+
+    public String getModificationsStringList() {
         StringBuilder result = new StringBuilder();
 
         for(int i = 0; i < modifications.size(); i++){
             result.append(modifications.get(i));
-            if(i != modifications().size() - 1 ){
+            if(i != modifications.size() - 1 ){
                 result.append(',');
             }
         }
