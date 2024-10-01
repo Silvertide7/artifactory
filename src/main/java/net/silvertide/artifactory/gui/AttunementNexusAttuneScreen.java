@@ -261,6 +261,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void handleManageButtonPress() {
         if(this.minecraft != null && this.minecraft.gameMode != null) {
             this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
+            if(menu.getIsActive()) {
+                this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
+            }
         }
     }
 
