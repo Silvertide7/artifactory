@@ -147,6 +147,8 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     @Override
     protected void apply(final Map<ResourceLocation, ItemAttunementData> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
+        // Sanitation is setup to check all item resource location codes and make sure they are valid within minecraft.
+        // If they are not they are removed and warning is logged.
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
         Map<ResourceLocation, ItemAttunementData> filteredData = filterItems(processedData);
         sanitizeItemRequirements(filteredData);
@@ -169,6 +171,8 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
             ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
             if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
                 filteredData.put(key, data.get(key));
+            } else {
+                Artifactory.LOGGER.warn("Artifactory - " + key + " - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.");
             }
         }
         return filteredData;

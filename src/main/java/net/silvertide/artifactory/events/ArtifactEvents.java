@@ -103,7 +103,7 @@ public class ArtifactEvents {
                 AttunementService.clearBrokenAttunementIfExists(armorStack);
 
                 if(AttunementUtil.isValidAttunementItem(armorStack)) {
-                    if( AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
+                    if(AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
                         // TODO Apply positive effects here.
                     } else {
                         if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {

@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AttributeModification implements AttunementModification {
-    public static final String ATTRIBUTE_MODIFICATION_TYPE = "ATTRIBUTE";
+    public static final String ATTRIBUTE_MODIFICATION_TYPE = "attribute";
     public static final String ATTRIBUTE_UUID_KEY = "attribute_uuid";
     public static final String ATTIBUTE_KEY = "attribute";
     public static final String OPERATION_KEY = "operation";
