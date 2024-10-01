@@ -102,17 +102,7 @@ public class ArtifactEvents {
                 if(armorStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(armorStack);
 
-                if(AttunementUtil.isValidAttunementItem(armorStack)) {
-                    if(AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
-                        // TODO Apply positive effects here.
-                    } else {
-                        if(AttunementUtil.isAttunedToAnotherPlayer(player, armorStack)) {
-                            EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-                        } else if (!AttunementUtil.canUseWithoutAttunement(armorStack)) {
-                            EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
-                        }
-                    }
-                }
+                AttunementService.applyEffectsToPlayer(player, armorStack);
             }
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
@@ -120,18 +110,12 @@ public class ArtifactEvents {
                 if(handStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(handStack);
 
-                if(AttunementUtil.isValidAttunementItem(handStack)) {
-                    if(AttunementUtil.isItemAttunedToPlayer(player, handStack)) {
-                        // TODO Apply positive effects here.
-                    } else {
-                        if(!handStack.isEmpty() && AttunementUtil.isAttunedToAnotherPlayer(player, handStack)) {
-                            EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-                        }
-                    }
-                }
+                AttunementService.applyEffectsToPlayer(player, handStack);
             }
         }
     }
+
+
 
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent entityJoinLevelEvent) {

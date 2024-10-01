@@ -5,10 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.DataPackUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.*;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.event.CurioEquipEvent;
@@ -22,16 +19,25 @@ public class CuriosCompat {
         SlotContext slotContext = event.getSlotContext();
 
         if(!event.isCanceled() && slotContext.entity() instanceof Player) {
-            if(slotContext.entity() instanceof Player player && !player.level().isClientSide()){
+            if(slotContext.entity() instanceof Player player && !player.level().isClientSide()) {
                 ItemStack stack = event.getStack();
-                if(AttunementUtil.isValidAttunementItem(stack) && !DataPackUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false)) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
-                    event.setResult(Event.Result.DENY);
+                AttunementService.clearBrokenAttunementIfExists(stack);
+
+                if(AttunementUtil.isValidAttunementItem(stack)) {
+                    if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
+                        PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                        event.setResult(Event.Result.DENY);
+                        return;
+                    } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementUtil.canUseWithoutAttunement(stack)) {
+                        PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
+                        event.setResult(Event.Result.DENY);
+                        return;
+                    }
                 }
             }
-        } else {
-            event.setResult(Event.Result.DEFAULT);
         }
+
+        event.setResult(Event.Result.DEFAULT);
     }
 
     @SubscribeEvent

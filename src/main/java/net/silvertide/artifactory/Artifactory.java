@@ -21,9 +21,6 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
-// TODO: Limit it so only items and single stack items can be attuned in the datapack entry
-// TODO: Add effects modifications
-// TODO: Add enchantment modifications
 // TODO: Curios slots? At least test them to disallow equipping
 
 // GUI
@@ -34,13 +31,15 @@ import org.slf4j.Logger;
 // TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
 // TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
 
+// CLEANUP
+// TODO: Remove Curios Tests
+
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
     public static final String MOD_ID = "artifactory";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public Artifactory()
-    {
+    public Artifactory() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(this::commonSetup);

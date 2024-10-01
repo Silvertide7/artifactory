@@ -2,6 +2,7 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 
@@ -85,5 +86,15 @@ public final class AttunementService {
             return false;
         })).orElse(false);
 
+    }
+
+    public static void applyEffectsToPlayer(Player player, ItemStack stack) {
+        if(AttunementUtil.isValidAttunementItem(stack)) {
+            if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
+                EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+            } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementUtil.canUseWithoutAttunement(stack)) {
+                EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
+            }
+        }
     }
 }

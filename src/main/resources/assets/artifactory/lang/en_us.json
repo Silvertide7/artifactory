@@ -6,8 +6,9 @@
   "hovertext.artifactory.use_without_attunement": "Attunable",
   "hovertext.artifactory.use_with_attunement": "Attunable (Required)",
 
-  "playermessage.artifactory.item_not_usable": "Must attune to item to use",
-  "playermessage.artifactory.item_not_equippable": "Must attune to item to equip",
+  "playermessage.artifactory.item_not_usable": "Must attune to item to use.",
+  "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",
+  "playermessage.artifactory.owned_by_another_player": "This item is attuned to someone else.",
 
   "screen.button.artifactory.attune.attune_not_in_progress": "Attune",
   "screen.button.artifactory.attune.attune_in_progress": "Cancel",
@@ -31,5 +32,6 @@
   "screen.tooltip.artifactory.no_item_in_slot": "Place an item to be attuned or ascended.",
   "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
 
-  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots"
+  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots",
+  "curios.identifier.homebound_stone": "Test Slot"
 }
