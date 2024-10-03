@@ -41,7 +41,7 @@ public final class DataPackUtil {
             for(int i = 0; i < itemAttunementData.attunementLevels().size(); i++) {
                 AttunementLevel attunementLevel = itemAttunementData.attunementLevels().get(i);
                 if(shouldSendAttunementLevelInformation(i, currentAttunementLevel)){
-                    stringBuilder.append(i).append("#").append(attunementLevel.getModificationsStringList());
+                    stringBuilder.append(i+1).append("#").append(attunementLevel.getModificationsStringList());
                     if (i != itemAttunementData.attunementLevels().size() - 1) stringBuilder.append("~");
                 }
             }

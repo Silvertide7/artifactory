@@ -20,9 +20,6 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
-// FUNCTIONAL
-// TODO: Curios slots? At least test them to disallow equipping
-
 // GUI
 // TODO: Change color in GUIs to make it easier to parse
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement

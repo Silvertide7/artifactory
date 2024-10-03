@@ -1,12 +1,14 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -344,9 +346,16 @@ public class AttunementNexusManageScreen extends Screen {
                 guiGraphics.pose().translate(0F, 0F, 10000F);
 
                 List<Component> list = Lists.newArrayList();
-                for(String levelDescription : this.modificationDescPerLevel) {
-                    list.add(Component.literal(levelDescription));
+                for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
+                    MutableComponent modDesc = Component.literal(this.modificationDescPerLevel.get(i));
+                    if(i < this.attunedItem.attunementLevel()) {
+                        modDesc.withStyle(ChatFormatting.GREEN);
+                    } else {
+                        modDesc.withStyle(ChatFormatting.GRAY);
+                    }
+                    list.add(modDesc);
                 }
+
                 guiGraphics.renderComponentTooltip(this.manageScreen.font, list, (int) mouseX, (int) mouseY);
 
                 guiGraphics.pose().popPose();
@@ -354,8 +363,8 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
-            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            Component attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
