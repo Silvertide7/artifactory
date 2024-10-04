@@ -21,12 +21,12 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // GUI
-// TODO: Change color in GUIs to make it easier to parse
 // TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
 // TODO: Add current slots used / max slots to manage screen and attune screen.
-// TODO: Change the colors in the manage screen and highlight all levels obtained. Maybe red out levels not obtained?
 // TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
+// TODO: Redo block design
+// TODO: Redo attune screen gui design
 
 // CLEANUP
 // TODO: Remove Curios Tests

@@ -9,7 +9,9 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.*;
+import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
+import net.silvertide.artifactory.util.PlayerMessenger;
 
 import java.util.*;
 
@@ -66,10 +68,14 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
-        if(attunedItems.getOrDefault(playerUUID, new HashMap<>()).remove(attunedItemUUID) != null) {
+        AttunedItem removedItem = attunedItems.getOrDefault(playerUUID, new HashMap<>()).remove(attunedItemUUID);
+        if(removedItem != null) {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-            if(player != null) PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(attunedItemUUID));
+            if(player != null) {
+                PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.itemUUID()));
+                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", GUIUtil.prettifyName(removedItem.displayName()));
+            }
         }
     }
 

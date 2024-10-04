@@ -6,9 +6,6 @@ import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 
-import java.util.Optional;
-import java.util.UUID;
-
 public final class AttunementService {
     private AttunementService() {}
 
@@ -45,19 +42,17 @@ public final class AttunementService {
     }
 
     public static void removeAttunementFromPlayerAndItem(ItemStack stack) {
-        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
-        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
+        StackNBTUtil.getAttunedToUUID(stack).ifPresent(attunedToUUID -> {
+            StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemAttunementUUID -> {
+                ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
 
-        // Check if player attunement data contains the item and remove it if so.
-        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
+                if (ModificationUtil.hasModification(stack, "unbreakable")) {
+                    StackNBTUtil.removeUnbreakable(stack);
+                }
 
-            if (ModificationUtil.hasModification(stack, "unbreakable")) {
-                StackNBTUtil.removeUnbreakable(stack);
-            }
-
-            artifactorySavedData.removeAttunedItem(attunedToUUID.get(), itemAttunementUUID.get());
-        }
+                artifactorySavedData.removeAttunedItem(attunedToUUID, itemAttunementUUID);
+            });
+        });
 
         // Clear the attunement data off of the item itself.
         StackNBTUtil.removeArtifactoryTag(stack);
