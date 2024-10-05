@@ -24,7 +24,7 @@ public class NetworkUtil {
     }
 
     public static void updateAttunedItemModificationDescription(ServerPlayer player, AttunedItem attunedItem) {
-        String description = DataPackUtil.getAttunementLevelDescriptions(attunedItem.resourceLocation(), attunedItem.attunementLevel());
+        String description = DataPackUtil.getAttunementLevelDescriptions(attunedItem.getResourceLocation(), attunedItem.getAttunementLevel());
         PacketHandler.sendToClient(player, new CB_UpdateAttunedItemModifications(description));
     }
 

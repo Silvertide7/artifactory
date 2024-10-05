@@ -13,18 +13,72 @@ import net.silvertide.artifactory.util.ResourceLocationUtil;
 import java.util.Optional;
 import java.util.UUID;
 
-public record AttunedItem(UUID itemUUID, String resourceLocation, String displayName, int attunementLevel, int order) {
+public class AttunedItem {
+    private UUID itemUUID;
+    private String resourceLocation;
+    private String displayName;
+    private int attunementLevel;
+    private int order;
+
+    public AttunedItem(UUID itemUUID, String resourceLocation, String displayName, int attunementLevel, int order) {
+        this.itemUUID = itemUUID;
+        this.resourceLocation = resourceLocation;
+        this.displayName = displayName;
+        this.attunementLevel = attunementLevel;
+        this.order = order;
+    }
+
+    public UUID getItemUUID() {
+        return itemUUID;
+    }
+
+    public void setItemUUID(UUID itemUUID) {
+        this.itemUUID = itemUUID;
+    }
+
+    public String getResourceLocation() {
+        return resourceLocation;
+    }
+
+    public void setResourceLocation(String resourceLocation) {
+        this.resourceLocation = resourceLocation;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public int getAttunementLevel() {
+        return attunementLevel;
+    }
+
+    public void setAttunementLevel(int attunementLevel) {
+        this.attunementLevel = attunementLevel;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
     public static final Codec<AttunedItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            CodecTypes.UUID_CODEC.fieldOf("item_uuid").forGetter(AttunedItem::itemUUID),
-            Codec.STRING.fieldOf("resource_location").forGetter(AttunedItem::resourceLocation),
-            Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::displayName),
-            Codec.INT.fieldOf("attunement_level").forGetter(AttunedItem::attunementLevel),
-            Codec.INT.fieldOf("order").forGetter(AttunedItem::attunementLevel)
+            CodecTypes.UUID_CODEC.fieldOf("item_uuid").forGetter(AttunedItem::getItemUUID),
+            Codec.STRING.fieldOf("resource_location").forGetter(AttunedItem::getResourceLocation),
+            Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::getDisplayName),
+            Codec.INT.fieldOf("attunement_level").forGetter(AttunedItem::getAttunementLevel),
+            Codec.INT.fieldOf("order").forGetter(AttunedItem::getOrder)
     ).apply(instance, AttunedItem::new));
 
 
-    public AttunedItem getOneLevelHigherCopy() {
-        return new AttunedItem(itemUUID(), resourceLocation(), displayName(), attunementLevel() + 1, order());
+    public void incremenetAttunementLevel() {
+        setAttunementLevel(getAttunementLevel() + 1);
     }
 
     public static Optional<AttunedItem> buildAttunedItem(Player player, ItemStack stack) {
@@ -41,11 +95,11 @@ public record AttunedItem(UUID itemUUID, String resourceLocation, String display
     }
 
     public static void encode(FriendlyByteBuf buf, AttunedItem attunedItem) {
-        buf.writeUUID(attunedItem.itemUUID());
-        buf.writeUtf(attunedItem.resourceLocation());
-        buf.writeUtf(attunedItem.displayName());
-        buf.writeInt(attunedItem.attunementLevel());
-        buf.writeInt(attunedItem.order());
+        buf.writeUUID(attunedItem.getItemUUID());
+        buf.writeUtf(attunedItem.getResourceLocation());
+        buf.writeUtf(attunedItem.getDisplayName());
+        buf.writeInt(attunedItem.getAttunementLevel());
+        buf.writeInt(attunedItem.getOrder());
     }
 
     public static AttunedItem decode(FriendlyByteBuf buf) {

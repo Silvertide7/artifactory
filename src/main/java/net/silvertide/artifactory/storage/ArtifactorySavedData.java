@@ -38,14 +38,12 @@ public class ArtifactorySavedData extends SavedData {
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
-            AttunedItem higherLevelAttunedItem = attunedItem.getOneLevelHigherCopy();
-            playerAttunedItems.put(attunedItemId, higherLevelAttunedItem);
-
+            attunedItem.incremenetAttunementLevel();
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null){
-                PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(higherLevelAttunedItem));
-                NetworkUtil.updateAttunedItemModificationDescription(player, higherLevelAttunedItem);
+                PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
+                NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
             }
             return true;
         }
@@ -57,7 +55,7 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void setAttunedItem(UUID playerUUID, AttunedItem attunedItem) {
-        attunedItems.computeIfAbsent(playerUUID, i -> new HashMap<>()).put(attunedItem.itemUUID(), attunedItem);
+        attunedItems.computeIfAbsent(playerUUID, i -> new HashMap<>()).put(attunedItem.getItemUUID(), attunedItem);
 
         this.setDirty();
         ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
@@ -73,8 +71,8 @@ public class ArtifactorySavedData extends SavedData {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null) {
-                PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.itemUUID()));
-                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", GUIUtil.prettifyName(removedItem.displayName()));
+                PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.getItemUUID()));
+                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", GUIUtil.prettifyName(removedItem.getDisplayName()));
             }
         }
     }

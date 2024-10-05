@@ -12,7 +12,7 @@ public class ClientAttunedItems {
     private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
-        myAttunedItems.put(attunedItem.itemUUID(), attunedItem);
+        myAttunedItems.put(attunedItem.getItemUUID(), attunedItem);
     }
 
     public static void setModification(String resourceLocation, String description) {
@@ -31,11 +31,6 @@ public class ClientAttunedItems {
         ArrayList<String> results = new ArrayList<>();
         // "1#soulbound,invulnerable~2#unbreakable"
 
-        // Clear off ending ~ if exists
-        if(modificationSerialization.endsWith("~")) {
-            modificationSerialization = modificationSerialization.substring(0, modificationSerialization.length() - 1);
-        }
-
         // Break the encoding up by level
         String[] modificationLevelCodes = modificationSerialization.split("~");
         for (String modLevelCode : modificationLevelCodes) {
@@ -49,19 +44,25 @@ public class ClientAttunedItems {
             if(modLevelInformation.length == 2) {
                 StringBuilder levelDescription = new StringBuilder("Level ").append(modLevelInformation[0]).append(": ");
 
-                // Split it apart into individual modification codes
-                String[] modificationCodes = modLevelInformation[1].split(",");
-                for(int i = 0; i < modificationCodes.length; i++) {
-                    String modificationCode = modificationCodes[i];
+                // If this level doesn't have any modifications associated with it.
+                if("NONE".equals(modLevelInformation[1])) {
+                    levelDescription.append("None");
+                } else {
+                    // Split it apart into individual modification codes
+                    String[] modificationCodes = modLevelInformation[1].split(",");
+                    for(int i = 0; i < modificationCodes.length; i++) {
+                        String modificationCode = modificationCodes[i];
 
-                    // This code should successfully create a modification. We will then use that modifications toString
-                    // to get the relevant information.
-                    Optional<AttunementModification> modification = ModificationUtil.createAttunementModification(modificationCode);
-                    if(modification.isPresent()) {
-                        levelDescription.append(modification.get());
-                        if(i != modificationCodes.length - 1) levelDescription.append(", ");
+                        // This code should successfully create a modification. We will then use that modifications toString
+                        // to get the relevant information.
+                        Optional<AttunementModification> modification = ModificationUtil.createAttunementModification(modificationCode);
+                        if(modification.isPresent()) {
+                            levelDescription.append(modification.get());
+                            if(i != modificationCodes.length - 1) levelDescription.append(", ");
+                        }
                     }
                 }
+
                 results.add(levelDescription.toString());
             }
         }

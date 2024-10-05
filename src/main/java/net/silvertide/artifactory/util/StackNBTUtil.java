@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.modifications.AttributeModification;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -191,5 +192,26 @@ public class StackNBTUtil {
 
     public static boolean containsAttributeModifications(ItemStack stack) {
         return artifactoryTagExists(stack) && getOrCreateArtifactoryCompoundTag(stack).contains(ATTRIBUTE_MODIFICATION_NBT_KEY);
+    }
+
+    public static boolean attemptToAddToExistingAttributeUUID(ItemStack stack, AttributeModification attributeModification) {
+        if(!containsAttributeModifications(stack)) return false;
+
+        CompoundTag attributeModificationsTag = getOrCreateAttributeModificationTag(stack);
+        for(String attributeKey : attributeModificationsTag.getAllKeys()) {
+            CompoundTag attributeNBT = attributeModificationsTag.getCompound(attributeKey);
+            if(!attributeNBT.isEmpty()) {
+                boolean sameAttribute = attributeNBT.getString(AttributeModification.ATTIBUTE_KEY).equals(attributeModification.getAttribute());
+                boolean sameOperation = attributeNBT.contains(AttributeModification.OPERATION_KEY) && attributeNBT.getInt(AttributeModification.OPERATION_KEY) == attributeModification.getOperation();
+                boolean sameSlot = attributeNBT.getString(AttributeModification.EQUIPMENT_SLOT_KEY).equals(attributeModification.getEquipmentSlotName());
+                if(sameAttribute && sameOperation && sameSlot) {
+                    double currentValue = attributeNBT.getDouble(AttributeModification.VALUE_KEY);
+                    attributeNBT.putDouble(AttributeModification.VALUE_KEY, currentValue + attributeModification.getValue());
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -146,7 +146,6 @@ public class ArtifactEvents {
         }
     }
 
-    //TODO Make sure this works with curios
     @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers

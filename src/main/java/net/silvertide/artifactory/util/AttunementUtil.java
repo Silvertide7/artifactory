@@ -26,7 +26,7 @@ public final class AttunementUtil {
         Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
-            numAttunementSlotsUsed += DataPackUtil.getAttunementData(attunedItem.resourceLocation()).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
+            numAttunementSlotsUsed += DataPackUtil.getAttunementData(attunedItem.getResourceLocation()).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
         }
         return numAttunementSlotsUsed;
     }
@@ -58,7 +58,7 @@ public final class AttunementUtil {
     }
 
     public static int getLevelOfAttunementAchieved(UUID playerUUID, UUID itemAttunementUUID) {
-        return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::attunementLevel).orElse(0);
+        return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
     public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {

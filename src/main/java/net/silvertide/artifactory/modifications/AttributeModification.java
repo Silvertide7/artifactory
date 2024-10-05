@@ -11,6 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
+import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -43,6 +44,22 @@ public class AttributeModification implements AttunementModification {
     }
     public EquipmentSlot getEquipmentSlot() {
         return EquipmentSlot.byName(equipmentSlotName);
+    }
+
+    public String getAttribute() {
+        return this.attribute;
+    }
+
+    public int getOperation() {
+        return this.operation;
+    }
+
+    public String getEquipmentSlotName() {
+        return this.equipmentSlotName;
+    }
+
+    public double getValue() {
+        return this.value;
     }
 
     @Nullable
@@ -93,6 +110,14 @@ public class AttributeModification implements AttunementModification {
         }
     }
 
+    public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
+        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
+        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
+        if(attributeToModify != null) {
+            curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
+        }
+    }
+
     private AttributeModifier buildAttributeModifier() {
         return new AttributeModifier(attributeUUID, this.getName(), value, AttributeModifier.Operation.fromValue(operation));
     }
@@ -110,7 +135,10 @@ public class AttributeModification implements AttunementModification {
     public void applyModification(ItemStack stack) {
         Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(attribute));
         if(attributeToModify != null) {
-            StackNBTUtil.addAttributeModificaftionCompoundTag(stack, attributeUUID, createAttributeModificationTag());
+            boolean successfullyAddedToExistingAttr = StackNBTUtil.attemptToAddToExistingAttributeUUID(stack, this);
+            if(!successfullyAddedToExistingAttr) {
+                StackNBTUtil.addAttributeModificaftionCompoundTag(stack, attributeUUID, createAttributeModificationTag());
+            }
         }
     }
 

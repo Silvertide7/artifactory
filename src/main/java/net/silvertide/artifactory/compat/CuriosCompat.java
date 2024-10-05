@@ -1,13 +1,15 @@
 package net.silvertide.artifactory.compat;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
+import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 import top.theillusivec4.curios.api.event.CurioEquipEvent;
 import top.theillusivec4.curios.api.event.DropRulesEvent;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -45,6 +47,19 @@ public class CuriosCompat {
         if (event.getEntity() instanceof Player player) {
             if (!player.level().isClientSide()) {
                 changeSoulboundCuriosDropRule(player, event);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
+            for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
+                AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
+                    attributeModification.addCurioAttributeModifier(event);
+                });
             }
         }
     }

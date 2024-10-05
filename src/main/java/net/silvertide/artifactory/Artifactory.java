@@ -20,11 +20,18 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
+// FUNCTIONAL
+// TODO: If a player renames an item after it has been attuned then update the name.
+// TODO: After breaking attunement with an item it slows the player, it shouldn't.
+// TODO: Make sure attributes works with curios items, or not is fine
+// TODO: Change common config to a server config
+// TODO: Combine attributes into 1 uuid if exists
+
 // GUI
-// TODO: Text that says "You feel the bond between you and <item display name> fade." When breaking attunement
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
 // TODO: Add current slots used / max slots to manage screen and attune screen.
 // TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
+// TODO If consumed levels is greater than threshold then don't show threshold or show consumed amount
 // TODO: Redo block design
 // TODO: Redo attune screen gui design
 
@@ -40,15 +47,11 @@ public class Artifactory
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::commonSetup);
 
         AttributeRegistry.register(modEventBus);
         TabRegistry.register(modEventBus);
-
         ItemRegistry.register(modEventBus);
-
         BlockRegistry.register(modEventBus);
-
         MenuRegistry.register(modEventBus);
 
         if (ModList.get().isLoaded("curios")) {

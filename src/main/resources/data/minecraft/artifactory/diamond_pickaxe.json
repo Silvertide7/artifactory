@@ -18,6 +18,13 @@
       }
     },
     {
+      "requirements": {
+        "xpLevelsConsumed": 88,
+        "xpLevelThreshold": 20,
+        "items": ["minecraft:golden_pickaxe"]
+      }
+    },
+    {
       "modifications": ["invulnerable"],
       "requirements": {
         "xpLevelsConsumed": 6,
