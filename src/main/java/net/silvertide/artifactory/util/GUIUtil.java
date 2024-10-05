@@ -80,8 +80,8 @@ public class GUIUtil {
                 }
             }
             prettifiedLocation = result.toString();
-        } else {
-            prettifiedLocation = prettifiedLocation.substring(0,1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
+        } else if(!prettifiedLocation.contains(" ")) {
+            prettifiedLocation = prettifiedLocation.substring(0, 1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
         }
 
         return prettifiedLocation;

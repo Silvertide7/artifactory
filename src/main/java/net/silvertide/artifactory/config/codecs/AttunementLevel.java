@@ -14,7 +14,7 @@ public class AttunementLevel {
         this.modifications = modifications;
     }
     public static final Codec<AttunementLevel> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.list(Codec.STRING).fieldOf("modifications").forGetter(AttunementLevel::getModifications),
+                    Codec.list(Codec.STRING).optionalFieldOf("modifications", new ArrayList<>()).forGetter(AttunementLevel::getModifications),
                     AttunementRequirements.CODEC.optionalFieldOf("requirements", AttunementRequirements.getDefault()).forGetter(AttunementLevel::getRequirements))
             .apply(instance, AttunementLevel::new)
     );
@@ -37,6 +37,8 @@ public class AttunementLevel {
 
     public String getModificationsStringList() {
         StringBuilder result = new StringBuilder();
+
+        if(modifications.isEmpty()) return "NONE";
 
         for(int i = 0; i < modifications.size(); i++){
             result.append(modifications.get(i));

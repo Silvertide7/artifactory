@@ -17,6 +17,8 @@ public class ModificationUtil {
         DataPackUtil.getAttunementData(stack).ifPresent(attunementData -> {
             if (attunementData.attunementLevels().size() >= level - 1) {
                 AttunementLevel attunementLevel = attunementData.attunementLevels().get(level - 1);
+                if(attunementLevel.getModifications().isEmpty()) return;
+
                 for (String modification : attunementLevel.getModifications()) {
                     applyAttunementModification(stack, modification);
                 }

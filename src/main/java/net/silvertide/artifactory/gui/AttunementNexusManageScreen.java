@@ -65,10 +65,10 @@ public class AttunementNexusManageScreen extends Screen {
     public void createAttunementCards() {
         attunementCards.clear();
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
-        attunedItems.sort(Comparator.comparingInt(AttunedItem::order));
+        attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.resourceLocation());
+            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.getResourceLocation());
                 attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
         }
     }
@@ -269,8 +269,8 @@ public class AttunementNexusManageScreen extends Screen {
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;
             this.manageScreen = manageScreen;
-            this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.resourceLocation());
-            this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(attunedItem.resourceLocation());
+            this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.getResourceLocation());
+            this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(this.attunedItem.getResourceLocation());
         }
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
@@ -331,7 +331,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
-            Component displayName = Component.literal(GUIUtil.prettifyName(this.attunedItem.displayName()));
+            Component displayName = Component.literal(GUIUtil.prettifyName(this.attunedItem.getDisplayName()));
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.57F, manageScreen.font, displayName, getAttunementCardX() + 28, getAttunementCardY() + 3, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xC1EFEF);
         }
 
@@ -348,7 +348,7 @@ public class AttunementNexusManageScreen extends Screen {
                 List<Component> list = Lists.newArrayList();
                 for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
                     MutableComponent modDesc = Component.literal(this.modificationDescPerLevel.get(i));
-                    if(i < this.attunedItem.attunementLevel()) {
+                    if(i < this.attunedItem.getAttunementLevel()) {
                         modDesc.withStyle(ChatFormatting.GREEN);
                     } else {
                         modDesc.withStyle(ChatFormatting.GRAY);
@@ -363,7 +363,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
-            Component attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.attunementLevel());
+            Component attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.getAttunementLevel());
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 
