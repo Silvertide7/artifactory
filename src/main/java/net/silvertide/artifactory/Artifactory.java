@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 // TODO: Make sure attributes works with curios items, or not is fine
 // TODO: Change common config to a server config
 // TODO: Combine attributes into 1 uuid if exists
+// TODO: Next config is showing the next 2 not next 1
 
 // GUI
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out

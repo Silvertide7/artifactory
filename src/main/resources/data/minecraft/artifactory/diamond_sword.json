@@ -21,6 +21,13 @@
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 40
       }
+    },
+    {
+      "modifications": ["attribute/minecraft:generic.attack_damage/multiply_base/0.1/mainhand"],
+      "requirements": {
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 40
+      }
     }
   ],
   "use_without_attunement": false
