@@ -29,12 +29,12 @@ public class Config {
         BUILDER.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed at");
         BUILDER.comment("level 3 and poisoned at level 1 you would put \"minecraft:slowness/3;minecraft:poison/1\".");
-        WEAR_EFFECTS_WHEN_USE_RESTRICTED = BUILDER.define("Wear Use Restricted Effects", "minecraft:slowness/3");
+        WEAR_EFFECTS_WHEN_USE_RESTRICTED = BUILDER.define("Wear Use Restricted Effects", "minecraft:slowness/4");
 
         BUILDER.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed and poisoned");
         BUILDER.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
-        EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.define("Effect When Holding Other Player Item", "minecraft:slowness/3;minecraft:poison/1");
+        EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.define("Effect When Holding Other Player Item", "minecraft:slowness/4;minecraft:poison/1");
 
         BUILDER.comment("How much information is shown on the possible levels of attunement for an item after it has been bonded.");
         BUILDER.comment("This information can be found in the manage screen of the Attunement Nexus by hovering on the (i).");

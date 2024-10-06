@@ -25,7 +25,7 @@
       }
     },
     {
-      "modifications": ["invulnerable"],
+      "modifications": ["invulnerable", "attribute/minecraft:generic.movement_speed/addition/0.5/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 6,
         "xpLevelThreshold": 25,

@@ -22,11 +22,8 @@ import org.slf4j.Logger;
 
 // FUNCTIONAL
 // TODO: If a player renames an item after it has been attuned then update the name.
-// TODO: After breaking attunement with an item it slows the player, it shouldn't.
 // TODO: Make sure attributes works with curios items, or not is fine
 // TODO: Change common config to a server config
-// TODO: Combine attributes into 1 uuid if exists
-// TODO: Next config is showing the next 2 not next 1
 
 // GUI
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
@@ -38,6 +35,7 @@ import org.slf4j.Logger;
 
 // CLEANUP
 // TODO: Remove Curios Tests
+// TODO: Setup balanced datapack data
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
