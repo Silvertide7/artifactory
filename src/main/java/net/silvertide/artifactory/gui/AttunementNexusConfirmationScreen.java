@@ -69,7 +69,7 @@ public class AttunementNexusConfirmationScreen extends Screen {
     }
 
     private void renderDeleteText(GuiGraphics guiGraphics) {
-        Component deleteText = Component.translatable("screen.text.artifactory.confirmation.delete_text", GUIUtil.prettifyName(itemToDelete.getDisplayName()));
+        Component deleteText = Component.translatable("screen.text.artifactory.confirmation.delete_text", itemToDelete.getDisplayName());
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, TEXT_SCALE, this.font, deleteText, getScreenStartX() + SCREEN_WIDTH / 2, getScreenStartY() + 18, SCREEN_WIDTH * 8 / 10, 0xFFFFFF);
     }
 

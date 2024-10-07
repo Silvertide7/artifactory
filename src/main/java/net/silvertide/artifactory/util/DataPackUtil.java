@@ -53,7 +53,7 @@ public final class DataPackUtil {
         String currentInformationLevel = Config.ATTUNEMENT_INFORMATION_EXTENT.get();
         if("all".equals(currentInformationLevel)) return true;
         else {
-            if("next".equals(currentInformationLevel)) return level <= currentAttunementLevel + 1;
+            if("next".equals(currentInformationLevel)) return level < currentAttunementLevel + 1;
             if("current".equals(currentInformationLevel)) return level <= currentAttunementLevel;
         }
         return false;

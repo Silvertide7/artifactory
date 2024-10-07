@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 
 // FUNCTIONAL
 // TODO: If a player renames an item after it has been attuned then update the name.
-// TODO: Make sure attributes works with curios items, or not is fine
 // TODO: Change common config to a server config
+// TODO: Store the display name prettified and remove prettify calls
 
 // GUI
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
@@ -58,7 +58,7 @@ public class Artifactory
             MinecraftForge.EVENT_BUS.addListener(CuriosCompat::keepCurios);
         }
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
 
         MinecraftForge.EVENT_BUS.register(this);
     }

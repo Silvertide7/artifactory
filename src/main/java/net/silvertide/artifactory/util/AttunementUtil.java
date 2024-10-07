@@ -121,4 +121,8 @@ public final class AttunementUtil {
     public static boolean isValidAttunementItem(ItemStack stack) {
         return !stack.isEmpty() && DataPackUtil.getAttunementData(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
     }
+
+    public static String getAttunedItemDisplayName(ItemStack stack) {
+        return GUIUtil.prettifyName(StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString()));
+    }
 }

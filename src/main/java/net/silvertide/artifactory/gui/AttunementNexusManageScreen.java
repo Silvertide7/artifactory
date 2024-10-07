@@ -5,7 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -331,7 +330,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
-            Component displayName = Component.literal(GUIUtil.prettifyName(this.attunedItem.getDisplayName()));
+            Component displayName = Component.literal(this.attunedItem.getDisplayName());
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.57F, manageScreen.font, displayName, getAttunementCardX() + 28, getAttunementCardY() + 3, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xC1EFEF);
         }
 

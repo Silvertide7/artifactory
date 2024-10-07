@@ -165,8 +165,11 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                checkItemInAttunementSlotForBrokenAttunement();
-                AttunementNexusAttuneMenu.this.updateAttunementState();
+                if(!stack.isEmpty() && !player.level().isClientSide()) {
+                    checkItemInAttunementSlotForBrokenAttunement();
+                    ArtifactorySavedData.get().updateDisplayName(stack);
+                    AttunementNexusAttuneMenu.this.updateAttunementState();
+                }
             }
 
             @Override

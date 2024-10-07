@@ -1,7 +1,6 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.network.CB_UpdateAttunedItem;
 import net.silvertide.artifactory.network.CB_UpdateAttunedItemModifications;
 import net.silvertide.artifactory.network.CB_UpdateAttunementNexusSlotInformation;
@@ -21,6 +20,10 @@ public class NetworkUtil {
             PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
             updateAttunedItemModificationDescription(serverPlayer, attunedItem);
         }
+    }
+
+    public static void updateAttunedItem(ServerPlayer serverPlayer, AttunedItem attunedItem) {
+
     }
 
     public static void updateAttunedItemModificationDescription(ServerPlayer player, AttunedItem attunedItem) {

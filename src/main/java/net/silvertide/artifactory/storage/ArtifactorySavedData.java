@@ -4,14 +4,16 @@ import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.*;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.util.StackNBTUtil;
 
 import java.util.*;
 
@@ -39,7 +41,9 @@ public class ArtifactorySavedData extends SavedData {
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
             attunedItem.incremenetAttunementLevel();
+
             this.setDirty();
+
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null){
                 PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
@@ -72,7 +76,7 @@ public class ArtifactorySavedData extends SavedData {
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null) {
                 PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.getItemUUID()));
-                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", GUIUtil.prettifyName(removedItem.getDisplayName()));
+                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", removedItem.getDisplayName());
             }
         }
     }
@@ -84,7 +88,6 @@ public class ArtifactorySavedData extends SavedData {
             if (player != null) {
                 PacketHandler.sendToClient(player, new CB_ResetAttunedItems());
             }
-
         }
     }
 
@@ -107,5 +110,25 @@ public class ArtifactorySavedData extends SavedData {
             return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(ArtifactorySavedData::new, ArtifactorySavedData::new, NAME);
         else
             return new ArtifactorySavedData();
+    }
+
+    public void updateDisplayName(ItemStack stack) {
+        StackNBTUtil.getAttunedToUUID(stack).ifPresent(attunedToUUID -> {
+            StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemUUID -> {
+                this.getAttunedItem(attunedToUUID, itemUUID).ifPresent(attunedItem -> {
+                    String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
+                    if(!attunedItem.getDisplayName().equals(displayName)) {
+                        attunedItem.setDisplayName(displayName);
+
+                        this.setDirty();
+
+                        ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunedToUUID);
+                        if(player != null){
+                            PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
+                        }
+                    }
+                });
+            });
+        });
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
+import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
@@ -85,13 +86,9 @@ public class AttunedItem {
         return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
             int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
-            String itemDisplayName = getAttunedItemName(stack);
+            String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
             return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1));
         });
-    }
-
-    private static String getAttunedItemName(ItemStack stack) {
-        return StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString());
     }
 
     public static void encode(FriendlyByteBuf buf, AttunedItem attunedItem) {
