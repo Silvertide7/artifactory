@@ -237,7 +237,7 @@ public class AttunementNexusManageScreen extends Screen {
         return attuneScreen;
     }
 
-    private class AttunementCard{
+    private class AttunementCard {
         private static final int CARD_WINDOW_HEIGHT = 120;
         private static final int ATTUNEMENT_CARD_X = 23;
         private static final int ATTUNEMENT_CARD_Y = 23;
@@ -338,7 +338,6 @@ public class AttunementNexusManageScreen extends Screen {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX() + INFORMATION_ICON_X, this.getAttunementCardY() + INFORMATION_ICON_Y, 177, getInformationIconOffsetToRender(mouseX, mouseY), INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT);
         }
 
-
         private void renderInformationTooltip(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             if(isHoveringInformationIcon(mouseX, mouseY)) {
                 guiGraphics.pose().pushPose();
@@ -362,7 +361,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
-            Component attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.getAttunementLevel());
+            MutableComponent attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.getAttunementLevel());
+
+            if(this.attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
+                attunementLevel.append(" (Max)");
+            }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
         }
 

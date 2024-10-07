@@ -21,9 +21,6 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
-// TODO: If a player renames an item after it has been attuned then update the name.
-// TODO: Change common config to a server config
-// TODO: Store the display name prettified and remove prettify calls
 
 // GUI
 // TODO: Add (Max) next to attunement level in manage screen if its maxed out
