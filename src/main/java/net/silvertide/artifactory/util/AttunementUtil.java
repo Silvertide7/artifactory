@@ -61,7 +61,7 @@ public final class AttunementUtil {
         return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
-    public static boolean canPlayerAttuneItem(Player player, ItemAttunementData attunementData) {
+    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, ItemAttunementData attunementData) {
         int openSlots = getOpenAttunementSlots(player);
         int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
         return openSlots >= attunementSlotsRequired;
@@ -75,7 +75,7 @@ public final class AttunementUtil {
                 int maxLevel = DataPackUtil.getMaxLevelOfAttunementPossible(stack);
                 return levelAchieved < maxLevel;
             } else {
-                return isAvailableToAttune(stack) && canPlayerAttuneItem(player, attunementData);
+                return isAvailableToAttune(stack) && doesPlayerHaveSlotCapacityToAttuneItem(player, attunementData);
             }
         }).orElse(false);
     }
