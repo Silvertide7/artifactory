@@ -28,22 +28,20 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     protected final ContainerData data;
     private int progress = 0;
     private int isActive = 0;
-    private int itemAtMaxLevel = 0;
     private int ascensionCanStart = 0;
     private int playerHasAttunedItem = 0;
-    private int itemRequirementOneInfo = 0;
-    private int itemRequirementTwoInfo = 0;
-    private int itemRequirementThreeInfo = 0;
+    private int itemRequirementOneState = 0;
+    private int itemRequirementTwoState = 0;
+    private int itemRequirementThreeState = 0;
 
     // Data Slot Accessor Indices
     private final int PROGRESS_INDEX = 0;
     private final int IS_ACTIVE_INDEX = 1;
-    private final int ITEM_AT_MAX_LEVEL = 2;
-    private final int ASCENSION_CAN_START_INDEX = 3;
-    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 4;
-    private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 5;
-    private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 6;
-    private final int ITEM_REQUIREMENT_THREE_INFO_INDEX = 7;
+    private final int ASCENSION_CAN_START_INDEX = 2;
+    private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 3;
+    private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 4;
+    private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 5;
+    private final int ITEM_REQUIREMENT_THREE_INFO_INDEX = 6;
 
     // Slots
     private final Slot attunementInputSlot;
@@ -92,21 +90,19 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
     // Block Data Methods
     public int getProgress() { return this.data.get(PROGRESS_INDEX); }
-    public void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
+    private void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
     public boolean getIsActive() { return this.data.get(IS_ACTIVE_INDEX) > 0; }
-    public void setIsActive(boolean value) { this.data.set(IS_ACTIVE_INDEX, value ? 1 : 0); }
-    public boolean isItemAtMaxLevel() { return this.data.get(ITEM_AT_MAX_LEVEL) > 0; }
-    public void setItemAtMaxLevel(boolean value) { this.data.set(ITEM_AT_MAX_LEVEL, value ? 1 : 0); }
-    public boolean ascensionCanStart() { return this.data.get(ASCENSION_CAN_START_INDEX) > 0; }
-    public void setAscensionCanStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
-    public boolean playerHasAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
-    public void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
+    private void setIsActive(boolean value) { this.data.set(IS_ACTIVE_INDEX, value ? 1 : 0); }
+    public boolean canAscensionStart() { return this.data.get(ASCENSION_CAN_START_INDEX) > 0; }
+    private void setCanAscensionStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
+    public boolean playerHasAnAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
+    private void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
     public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
-    public void setItemRequirementOneState(int value) { this.data.set(ITEM_REQUIREMENT_ONE_INFO_INDEX, value); }
+    private void setItemRequirementOneState(int value) { this.data.set(ITEM_REQUIREMENT_ONE_INFO_INDEX, value); }
     public int getItemRequirementTwoState() { return this.data.get(ITEM_REQUIREMENT_TWO_INFO_INDEX); }
-    public void setItemRequirementTwoState(int value) { this.data.set(ITEM_REQUIREMENT_TWO_INFO_INDEX, value); }
+    private void setItemRequirementTwoState(int value) { this.data.set(ITEM_REQUIREMENT_TWO_INFO_INDEX, value); }
     public int getItemRequirementThreeState() { return this.data.get(ITEM_REQUIREMENT_THREE_INFO_INDEX); }
-    public void setItemRequirementThreeState(int value) { this.data.set(ITEM_REQUIREMENT_THREE_INFO_INDEX, value); }
+    private void setItemRequirementThreeState(int value) { this.data.set(ITEM_REQUIREMENT_THREE_INFO_INDEX, value); }
 
     private ContainerData getContainerData() {
         return new ContainerData() {
@@ -115,12 +111,11 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 return switch(index) {
                     case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress;
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive;
-                    case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeInfo;
+                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneState;
+                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoState;
+                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeState;
                     default -> PROGRESS_INDEX;
                 };
             }
@@ -130,18 +125,17 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 switch(index) {
                     case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress = value;
                     case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive = value;
-                    case ITEM_AT_MAX_LEVEL -> AttunementNexusAttuneMenu.this.itemAtMaxLevel = value;
                     case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart = value;
                     case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneInfo = value;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoInfo = value;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeInfo = value;
+                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneState = value;
+                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoState = value;
+                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeState = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 8;
+                return 7;
             }
         };
     }
@@ -287,7 +281,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             if(getProgress() < MAX_PROGRESS) {
                 setProgress(getProgress() + 1);
             } else {
-                if(this.ascensionCanStart()) {
+                if(this.canAscensionStart()) {
                     ItemStack stack = this.attunementInputSlot.getItem();
 
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
@@ -365,35 +359,32 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                     updateItemSlotRequirements(this.attunementNexusSlotInformation);
                 }
             }
-
-            setItemAtMaxLevel(!AttunementUtil.canIncreaseAttunementLevel(player, stack));
         }
-
         updateAscensionCanStart();
     }
 
     private void updateAscensionCanStart() {
-        boolean ascensionCanStart = this.attunementInputSlot.hasItem() && !isItemAtMaxLevel() &&
-                (player.getAbilities().instabuild || this.meetsRequirementsToAttune());
-        setAscensionCanStart(ascensionCanStart);
-
+        boolean ascensionCanStart = this.attunementInputSlot.hasItem()
+                && AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
+                && (player.getAbilities().instabuild || this.meetsRequirementsToAttune());
+        setCanAscensionStart(ascensionCanStart);
     }
 
     private void updateItemSlotRequirements(AttunementNexusSlotInformation attunementNexusSlotInformation) {
         if(attunementNexusSlotInformation.hasItemRequirement(0)) {
-            this.itemRequirementOneSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementOne(), attunementNexusSlotInformation.itemRequirementOneQuantity());
+            this.itemRequirementOneSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(0), attunementNexusSlotInformation.getItemRequirementQuantity(0));
         } else {
             this.itemRequirementOneSlot.clearItemRequired();
         }
 
         if(attunementNexusSlotInformation.hasItemRequirement(1)) {
-            this.itemRequirementTwoSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementTwo(), attunementNexusSlotInformation.itemRequirementTwoQuantity());
+            this.itemRequirementTwoSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(1), attunementNexusSlotInformation.getItemRequirementQuantity(1));
         } else {
             this.itemRequirementTwoSlot.clearItemRequired();
         }
 
         if(attunementNexusSlotInformation.hasItemRequirement(2)) {
-            this.itemRequirementThreeSlot.setItemRequired(attunementNexusSlotInformation.itemRequirementThree(), attunementNexusSlotInformation.itemRequirementThreeQuantity());
+            this.itemRequirementThreeSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(2), attunementNexusSlotInformation.getItemRequirementQuantity(2));
         } else {
             this.itemRequirementThreeSlot.clearItemRequired();
         }
@@ -410,8 +401,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
 
     public void clearItemDataSlotData() {
-        setItemAtMaxLevel(false);
-        setAscensionCanStart(false);
+        setCanAscensionStart(false);
 
         setItemRequirementOneState(ItemRequirementState.NOT_REQUIRED.getValue());
         setItemRequirementTwoState(ItemRequirementState.NOT_REQUIRED.getValue());

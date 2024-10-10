@@ -29,7 +29,7 @@ public final class DataPackUtil {
         return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().get(level - 1)).orElse(null);
     }
 
-    public static int getMaxLevelOfAttunementPossible(ItemStack stack) {
+    public static int getNumAttunementLevels(ItemStack stack) {
         return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
     }
 

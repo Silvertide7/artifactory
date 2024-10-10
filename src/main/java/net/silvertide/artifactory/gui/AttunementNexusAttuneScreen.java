@@ -1,18 +1,23 @@
 package net.silvertide.artifactory.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
@@ -36,10 +41,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private ItemRequirementSlotRenderer itemRequirementSlotOneRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
-
+    private LocalPlayer player;
     public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
         super(pMenu, playerInventory, pTitle);
         ClientAttunementNexusSlotInformation.registerListener(this);
+        this.player = Minecraft.getInstance().player;
     }
 
     @Override
@@ -125,15 +131,21 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private Component getAttuneButtonText() {
+
         if(getMenu().getProgress() > 0) {
             return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
-        } else if (!getMenu().isItemAtMaxLevel()) {
-            return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
-        } else if (getMenu().hasAttunableItemInSlot() && getMenu().isItemAtMaxLevel()) {
-            return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
-        } else {
-            return Component.literal("");
         }
+
+        if(getMenu().hasAttunableItemInSlot()) {
+            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+            if(slotInformation != null && slotInformation.isPlayerAtMaxAttuneLevel()) {
+                return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
+            } else {
+                return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
+            }
+        }
+
+        return Component.literal("");
     }
 
     private void renderTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -152,15 +164,21 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             List<Component> list = Lists.newArrayList();
-            if(getMenu().hasAttunableItemInSlot() && !getMenu().isItemAtMaxLevel() && ClientAttunementNexusSlotInformation.getSlotInformation() != null) {
+
+            if(getMenu().hasAttunableItemInSlot()) {
                 AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-                list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
-                list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-            } else if (getMenu().hasAttunableItemInSlot() && getMenu().isItemAtMaxLevel()) {
-                list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
+                if(slotInformation != null) {
+                    if(slotInformation.isPlayerAtMaxAttuneLevel()) {
+                        list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
+                    } else {
+                        list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
+                        list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
+                    }
+                }
             } else {
                 list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
             }
+
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }
     }
@@ -168,20 +186,55 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderAttunementInformation(GuiGraphics guiGraphics, int x, int y) {
         AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
         if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()){
-            Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchieved()));
-            guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
+            renderAttunementSlotRatio(guiGraphics, x, y, slotInformation);
+            renderCurrentAttunementLevel(guiGraphics, x, y, slotInformation);
 
-            if(!getMenu().isItemAtMaxLevel()) {
-                if (slotInformation.xpConsumed() > 0) {
-                    Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-                    guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
-                }
-
-                if (slotInformation.xpThreshold() > 0) {
-                    Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-                    guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
-                }
+            if(!slotInformation.isPlayerAtMaxAttuneLevel()) {
+                renderLevelCost(guiGraphics, x, y, slotInformation);
+                renderXpThreshold(guiGraphics, x, y, slotInformation);
             }
+        }
+    }
+
+    private void renderAttunementSlotRatio(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        int numAttunementSlotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
+        int totalAttunementSlots = AttunementUtil.getMaxAttunementSlots(this.player);
+        int levelAchievedByPlayer = slotInformation.levelAchievedByPlayer();
+
+        String attunementSlotNumerator = String.valueOf(numAttunementSlotsUsedByPlayer);
+        String attunementSlotDenominator = String.valueOf(totalAttunementSlots);
+        if(levelAchievedByPlayer == 0) {
+            attunementSlotNumerator = numAttunementSlotsUsedByPlayer + " + " + slotInformation.slotsUsed() + " (" + (numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) + ")";
+        }
+
+        MutableComponent numerator = Component.literal(attunementSlotNumerator);
+        if(levelAchievedByPlayer == 0 && numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed() > totalAttunementSlots) {
+            numerator.withStyle(ChatFormatting.RED);
+        }
+
+        Component denominator = Component.literal(attunementSlotDenominator);
+        guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 20, 100, BUTTON_TEXT_COLOR);
+        guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 30, 100, BUTTON_TEXT_COLOR);
+
+    }
+
+    private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchievedByPlayer()));
+        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
+
+    }
+
+    private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        if (slotInformation.xpConsumed() > 0) {
+            Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
+            guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
+        }
+    }
+
+    private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        if (slotInformation.xpThreshold() > 0) {
+            Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
+            guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
         }
     }
 
@@ -215,7 +268,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     // HELPERS
     private int getAttuneButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!getMenu().ascensionCanStart()) {
+        if(!getMenu().canAscensionStart()) {
             return 39;
         }
         else if(attuneButtonDown) {
@@ -230,7 +283,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private int getManageButtonOffsetToRender(int mouseX, int mouseY) {
-        if(!getMenu().playerHasAttunedItem()) {
+        if(!getMenu().playerHasAnAttunedItem()) {
             return 91;
         }
         else if(manageButtonDown) {
@@ -253,7 +306,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void handleAttuneButtonPress() {
-        if(this.minecraft != null && this.minecraft.gameMode != null && !getMenu().isItemAtMaxLevel() && getMenu().ascensionCanStart()) {
+        if(this.minecraft != null && this.minecraft.gameMode != null && getMenu().canAscensionStart()) {
             this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
         }
     }
@@ -308,7 +361,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(isHoveringAttuneButton(mouseX, mouseY)) {
             attuneButtonDown = true;
             return true;
-        } else if (isHoveringManageButton(mouseX, mouseY) && getMenu().playerHasAttunedItem()) {
+        } else if (isHoveringManageButton(mouseX, mouseY) && getMenu().playerHasAnAttunedItem()) {
             manageButtonDown = true;
             return true;
         }
@@ -417,10 +470,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
         private boolean isHoveringItemRequirementSlot(int mouseX, int mouseY) {
             return GUIUtil.isHovering(getBackgroundX(), getBackgroundY(), getItemRequirementSlotOffsetX(index), getItemRequirementSlotOffsetY(index), SLOT_WIDTH, SLOT_HEIGHT, mouseX, mouseY);
-        }
-
-        public void clearItem() {
-            this.itemToRender = null;
         }
     }
 }

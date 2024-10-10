@@ -100,11 +100,6 @@ public class AttunedItem {
     }
 
     public static AttunedItem decode(FriendlyByteBuf buf) {
-        UUID itemUUID = buf.readUUID();
-        String resourceLocation = buf.readUtf();
-        String displayName = buf.readUtf();
-        int attunementLevel = buf.readInt();
-        int order = buf.readInt();
-        return new AttunedItem(itemUUID, resourceLocation, displayName, attunementLevel, order);
+        return new AttunedItem(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
     }
 }

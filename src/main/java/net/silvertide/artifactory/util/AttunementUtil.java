@@ -72,7 +72,7 @@ public final class AttunementUtil {
         return DataPackUtil.getAttunementData(stack).map(attunementData -> {
             if(isItemAttunedToPlayer(player, stack)) {
                 int levelAchieved = getLevelOfAttunementAchieved(stack);
-                int maxLevel = DataPackUtil.getMaxLevelOfAttunementPossible(stack);
+                int maxLevel = DataPackUtil.getNumAttunementLevels(stack);
                 return levelAchieved < maxLevel;
             } else {
                 return isAvailableToAttune(stack) && doesPlayerHaveSlotCapacityToAttuneItem(player, attunementData);

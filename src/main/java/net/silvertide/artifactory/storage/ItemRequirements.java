@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.storage;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -53,16 +54,36 @@ public class ItemRequirements {
         return new Pair<>(pathResult, quantity);
     }
 
-    public String getRequirement(int index) {
+    public void addRequirement(ItemRequirement itemRequirement) {
+        this.requirements.add(itemRequirement);
+    }
+
+    public String getItemResourceLocation(int index) {
         if(index >= requirements.size()) return "";
         return requirements.get(index).description;
     }
 
-    public int getRequirementQuantity(int index) {
+    public int getItemQuantity(int index) {
         if(index >= requirements.size()) return 0;
         return requirements.get(index).quantity;
     }
 
-    private record ItemRequirement(String description, int quantity){};
+    public static void encode(FriendlyByteBuf buf, ItemRequirements itemRequirements) {
+        buf.writeUtf(itemRequirements.getItemResourceLocation(0));
+        buf.writeInt(itemRequirements.getItemQuantity(0));
+        buf.writeUtf(itemRequirements.getItemResourceLocation(1));
+        buf.writeInt(itemRequirements.getItemQuantity(1));
+        buf.writeUtf(itemRequirements.getItemResourceLocation(2));
+        buf.writeInt(itemRequirements.getItemQuantity(2));
+    }
 
+    public static ItemRequirements decode(FriendlyByteBuf buf) {
+        ItemRequirements itemRequirements = new ItemRequirements();
+        itemRequirements.addRequirement(new ItemRequirement(buf.readUtf(), buf.readInt()));
+        itemRequirements.addRequirement(new ItemRequirement(buf.readUtf(), buf.readInt()));
+        itemRequirements.addRequirement(new ItemRequirement(buf.readUtf(), buf.readInt()));
+        return itemRequirements;
+    }
+
+    public record ItemRequirement(String description, int quantity){};
 }
