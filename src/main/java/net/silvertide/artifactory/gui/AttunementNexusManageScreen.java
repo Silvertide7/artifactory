@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -17,6 +18,7 @@ import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformat
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -49,11 +51,14 @@ public class AttunementNexusManageScreen extends Screen {
     private boolean closeButtonDown = false;
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
+    private int numSlotsUsed = 0;
     private final List<AttunementCard> attunementCards = new ArrayList<>();
+    LocalPlayer player;
 
     protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
         super(Component.literal(""));
         this.attuneScreen = parent;
+        this.player = Minecraft.getInstance().player;
     }
 
     @Override
@@ -64,13 +69,15 @@ public class AttunementNexusManageScreen extends Screen {
 
     // Need to allow no attunement data
     public void createAttunementCards() {
+        numSlotsUsed = 0;
         attunementCards.clear();
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
             Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.getResourceLocation());
-                attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
+            attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
+            numSlotsUsed += attunementData.map(ItemAttunementData::attunementSlotsUsed).orElse(0);
         }
     }
 
@@ -98,9 +105,11 @@ public class AttunementNexusManageScreen extends Screen {
         renderScreenBackground(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics, mouseX, mouseY);
+        renderSlotInformation(guiGraphics);
 
         guiGraphics.pose().popPose();
     }
+
 
     private void renderScrollAreaBackground(GuiGraphics guiGraphics) {
         int scrollAreaX = attuneScreen.getScreenLeftPos() + 23;
@@ -144,6 +153,19 @@ public class AttunementNexusManageScreen extends Screen {
         int sliderY = attuneScreen.getScreenTopPos() + getCurrentSliderY();
 
         guiGraphics.blit(TEXTURE, sliderX, sliderY, 190, getSliderOffsetToRender(mouseX, mouseY), SLIDER_WIDTH, SLIDER_HEIGHT);
+    }
+
+
+    private void renderSlotInformation(GuiGraphics guiGraphics) {
+        int x = attuneScreen.getScreenLeftPos() + 10;
+        int y = attuneScreen.getScreenTopPos() + 12;
+
+        MutableComponent numerator = Component.literal(String.valueOf(numSlotsUsed));
+
+        Component denominator = Component.literal(String.valueOf(AttunementUtil.getMaxAttunementSlots(this.player)));
+
+        guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2, y - this.font.lineHeight/2 + 20, 100, 0xC1EFEF);
+        guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2, y - this.font.lineHeight/2 + 30, 100, 0xC1EFEF);
     }
 
     private int getSliderOffsetToRender(int mouseX, int mouseY) {

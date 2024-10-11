@@ -433,7 +433,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             };
         }
 
-
         private void updateItemToRender() {
             AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
             if(slotInformation != null && slotInformation.hasItemRequirement(index)) {
@@ -445,7 +444,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
                 }
             }
         }
-
 
         private void renderSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
             if(isHoveringItemRequirementSlot(mouseX, mouseY)) {
