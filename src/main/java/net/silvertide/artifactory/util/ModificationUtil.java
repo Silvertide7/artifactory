@@ -10,7 +10,7 @@ import net.silvertide.artifactory.modifications.BasicModificationType;
 
 import java.util.Optional;
 
-public class ModificationUtil {
+public final class ModificationUtil {
     private ModificationUtil() {}
 
     public static void updateItemWithAttunementModifications(ItemStack stack, int level) {

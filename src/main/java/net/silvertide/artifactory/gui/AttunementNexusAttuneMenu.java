@@ -1,7 +1,9 @@
 package net.silvertide.artifactory.gui;
 
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -277,15 +279,20 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        if(!player.level().isClientSide() && getIsActive()) {
+        if(player instanceof ServerPlayer serverPlayer && getIsActive()) {
             if(getProgress() < MAX_PROGRESS) {
+                if(getProgress() == 1) {
+                    playStartEffects(serverPlayer);
+                } else if(getProgress() % 3 == 0) {
+                    playProgressEffects(serverPlayer);
+                }
                 setProgress(getProgress() + 1);
             } else {
                 if(this.canAscensionStart()) {
                     ItemStack stack = this.attunementInputSlot.getItem();
-
                     if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
                         handleAttunement(stack);
+                        playAttuneEffects(serverPlayer);
                         MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
                     }
                 }
@@ -294,6 +301,20 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             }
         }
         super.broadcastChanges();
+    }
+
+    private void playStartEffects(ServerPlayer player) {
+        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_ACTIVATE);
+    }
+
+    private void playProgressEffects(ServerPlayer player) {
+        GUIUtil.spawnParticals(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 3);
+        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_AMBIENT);
+    }
+
+    private void playAttuneEffects(ServerPlayer player) {
+        GUIUtil.spawnParticals(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 2);
+        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_DEACTIVATE);
     }
 
     // Block Entity Data Methods

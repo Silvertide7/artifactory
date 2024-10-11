@@ -11,7 +11,7 @@ import net.silvertide.artifactory.modifications.AttributeModification;
 import java.util.Optional;
 import java.util.UUID;
 
-public class StackNBTUtil {
+public final class StackNBTUtil {
     private static final String ITEM_ATTUNEMENT_UUID_NBT_KEY = "attunement_uuid";
     private static final String ATTUNED_TO_UUID_NBT_KEY = "attuned_to_uuid";
     private static final String ATTUNED_TO_NAME_NBT_KEY = "attuned_to_name";

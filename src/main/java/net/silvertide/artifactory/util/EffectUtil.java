@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EffectUtil {
+public final class EffectUtil {
 
     private EffectUtil() {}
 

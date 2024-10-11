@@ -11,7 +11,7 @@ import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import java.util.Map;
 import java.util.UUID;
 
-public class NetworkUtil {
+public final class NetworkUtil {
     private NetworkUtil() {}
 
     public static void updateAllAttunedItems(ServerPlayer serverPlayer, Map<UUID, AttunedItem> attunedItems) {

@@ -2,9 +2,18 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-public class GUIUtil {
+import java.util.Random;
+
+public final class GUIUtil {
+    private static final Random SOUND_RNG = new Random();
     private GUIUtil() {}
     public static boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         return isHovering(0, 0, pX, pY, pWidth, pHeight, pMouseX, pMouseY);
@@ -85,5 +94,20 @@ public class GUIUtil {
         }
 
         return prettifiedLocation;
+    }
+
+    public static void spawnParticals(ServerLevel serverLevel, Player player, ParticleOptions particle, int numParticles){
+        Level level = player.level();
+        for(int i = 0; i < numParticles; i++){
+            serverLevel.sendParticles(particle, player.getX() + level.random.nextDouble() - 0.5, player.getY() + 1.0, player.getZ() + level.random.nextDouble() - 0.5, 1, 0.0D, 0.0D, 0.0D, 1.0D);
+        }
+    }
+
+    public static void playSound(Level level, double x, double y, double z, SoundEvent soundEvent){
+        level.playSound(null, x, y, z, soundEvent, SoundSource.PLAYERS, 20, 0.95f+SOUND_RNG.nextFloat()*0.1f);
+    }
+
+    public static void playSound(Level level, Player player, SoundEvent soundEvent){
+        playSound(level, player.getX(), player.getY(), player.getZ(), soundEvent);
     }
 }
