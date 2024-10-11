@@ -24,10 +24,6 @@ import org.slf4j.Logger;
 // TODO Add sounds and effects when attuning
 
 // GUI
-// TODO: Add current slots used / max slots to manage screen and attune screen.
-// TODO: Change Max on button to show disabled Not Enough Slots
-// TODO: Have different colored borders around item render on manage screen based on its attunement level compared to the max
-// TODO If consumed levels is greater than threshold then don't show threshold or show consumed amount
 // TODO: Redo block design
 // TODO: Redo attune screen gui design
 

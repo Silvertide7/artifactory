@@ -13,8 +13,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -326,7 +328,27 @@ public class AttunementNexusManageScreen extends Screen {
             guiGraphics.blit(TEXTURE, this.getAttunementCardX(), this.getAttunementCardY(), 0, 167, ATTUNEMENT_CARD_WIDTH, ATTUNEMENT_CARD_HEIGHT);
         }
         public void renderItemImage(GuiGraphics guiGraphics) {
+            renderItemBorder(guiGraphics);
             guiGraphics.renderItem(this.itemToRender, this.getAttunementCardX() + 3, this.getAttunementCardY() + 3);
+        }
+
+        private void renderItemBorder(GuiGraphics guiGraphics) {
+            guiGraphics.blit(TEXTURE, this.getAttunementCardX() + 2, this.getAttunementCardY() + 2, 116, getItemBorderOffset(), 18, 18);
+        }
+
+        private int getItemBorderOffset() {
+            double progress = (double) attunedItem.getAttunementLevel() / attunementData.attunementLevels().size();
+            if(progress >= 0.0 && progress < 0.33) {
+                return 169;
+            } else if (progress >= 0.33 && progress < 0.65) {
+                return 188;
+            } else if (progress >= 0.66 && progress < 1.00) {
+                return 207;
+            } else if (attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
+                return 226;
+            } else {
+                return 169;
+            }
         }
 
         private void renderDisplayName(GuiGraphics guiGraphics) {
