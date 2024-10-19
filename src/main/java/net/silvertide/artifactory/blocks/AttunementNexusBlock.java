@@ -24,10 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 
 public class AttunementNexusBlock extends Block {
-    public static final VoxelShape SHAPE = Block.box(0,0,0,16,14,16);
+    public static final VoxelShape SHAPE = Block.box(0,0,0,16,15,16);
 
     public AttunementNexusBlock(Properties properties) {
-        super(BlockBehaviour.Properties.of().strength(5.0F).sound(SoundType.AMETHYST).noOcclusion());
+        super(BlockBehaviour.Properties.of().strength(5.0F).sound(SoundType.ANCIENT_DEBRIS).noOcclusion().lightLevel(value -> 14));
     }
 
     @Nullable
