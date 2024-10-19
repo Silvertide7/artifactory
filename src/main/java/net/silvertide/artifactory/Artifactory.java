@@ -21,7 +21,8 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
-// TODO Add sounds and effects when attuning
+// TODO Tweak sounds and effects when attuning
+// TODO Add unique option
 
 // GUI
 // TODO: Redo block design
