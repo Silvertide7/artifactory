@@ -1,5 +1,5 @@
 {
-	"credit": "Made with Blockbench",
+	"credit": "Silvertide - Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
 		"1": "artifactory:block/attunement_nexus/bars",
@@ -3637,6 +3637,35 @@
 			}
 		}
 	],
+	"display": {
+		"thirdperson_righthand": {
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"thirdperson_lefthand": {
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"firstperson_righthand": {
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"ground": {
+			"translation": [0, 3.75, 0],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"gui": {
+			"rotation": [24, -35, 0],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"head": {
+			"translation": [0, 12, 0],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"fixed": {
+			"translation": [0, 0.75, 0]
+		}
+	},
 	"groups": [
 		{
 			"name": "top",
