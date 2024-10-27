@@ -1,5 +1,6 @@
 {
   "creativetab.artifactory_tab": "Artifactory",
+  "container.artifactory.attunement_nexus": "Attunement Nexus",
   "block.artifactory.attunement_nexus": "Attunement Nexus",
 
   "hovertext.artifactory.attuned_item": "Attuned",

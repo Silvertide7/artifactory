@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "artifactory:block/attunement_nexus"
+    },
+    "facing=south": {
+      "model": "artifactory:block/attunement_nexus",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "artifactory:block/attunement_nexus",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "artifactory:block/attunement_nexus",
+      "y": 90
+    }
+  }
+}

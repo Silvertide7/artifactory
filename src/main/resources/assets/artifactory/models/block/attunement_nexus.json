@@ -3294,9 +3294,11 @@
 			"scale": [0.7, 0.7, 0.7]
 		},
 		"firstperson_righthand": {
+			"rotation": [0, -59, 0],
 			"scale": [0.7, 0.7, 0.7]
 		},
 		"firstperson_lefthand": {
+			"rotation": [0, -59, 0],
 			"scale": [0.7, 0.7, 0.7]
 		},
 		"ground": {
