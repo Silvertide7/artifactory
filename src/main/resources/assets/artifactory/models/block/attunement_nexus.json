@@ -779,7 +779,7 @@
 			}
 		},
 		{
-			"name": "vine",
+			"name": "check",
 			"from": [11.3, 10.2, 5],
 			"to": [12.1, 10.5, 5.1],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 10, 3.7]},
