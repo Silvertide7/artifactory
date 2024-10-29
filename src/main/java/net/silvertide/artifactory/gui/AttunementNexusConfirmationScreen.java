@@ -59,13 +59,11 @@ public class AttunementNexusConfirmationScreen extends Screen {
     }
 
     private int getScreenStartX() {
-        AttunementNexusAttuneScreen attuneScreen = manageScreen.getAttuneScreen();
-        return attuneScreen.getScreenLeftPos() + (attuneScreen.getImageWidth() - SCREEN_WIDTH) / 2;
+        return (this.width - SCREEN_WIDTH) / 2;
     }
 
     private int getScreenStartY() {
-        AttunementNexusAttuneScreen attuneScreen = manageScreen.getAttuneScreen();
-        return attuneScreen.getScreenTopPos() + (attuneScreen.getImageHeight() - SCREEN_HEIGHT) / 2;
+        return (this.height - SCREEN_HEIGHT) / 2;
     }
 
     private void renderDeleteText(GuiGraphics guiGraphics) {

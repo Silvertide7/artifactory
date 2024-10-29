@@ -14,10 +14,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.utils.ClientAttunedItems;
-import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
@@ -31,6 +29,8 @@ import java.util.Optional;
 
 public class AttunementNexusManageScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
+    private static final int SCREEN_WIDTH = 176;
+    private static final int SCREEN_HEIGHT = 166;
 
     //CLOSE BUTTON CONSTANTS
     private static final int CLOSE_BUTTON_X = 141;
@@ -47,7 +47,6 @@ public class AttunementNexusManageScreen extends Screen {
 
 
     // Instance Variables
-    private AttunementNexusAttuneScreen attuneScreen;
     private boolean closeButtonDown = false;
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
@@ -55,9 +54,8 @@ public class AttunementNexusManageScreen extends Screen {
     private final List<AttunementCard> attunementCards = new ArrayList<>();
     LocalPlayer player;
 
-    protected AttunementNexusManageScreen(AttunementNexusAttuneScreen parent) {
+    public AttunementNexusManageScreen() {
         super(Component.literal(""));
-        this.attuneScreen = parent;
         this.player = Minecraft.getInstance().player;
     }
 
@@ -112,8 +110,8 @@ public class AttunementNexusManageScreen extends Screen {
 
 
     private void renderScrollAreaBackground(GuiGraphics guiGraphics) {
-        int scrollAreaX = attuneScreen.getScreenLeftPos() + 23;
-        int scrollAreaY = attuneScreen.getScreenTopPos() + 23;
+        int scrollAreaX = this.getScreenLeftPos() + 23;
+        int scrollAreaY = this.getScreenTopPos() + 23;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0F, 0F ,-2000F);
@@ -130,10 +128,10 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private void renderScreenBackground(GuiGraphics guiGraphics) {
-        int x = this.attuneScreen.getScreenLeftPos();
-        int y = this.attuneScreen.getScreenTopPos();
+        int x = this.getScreenLeftPos();
+        int y = this.getScreenTopPos();
 
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, this.attuneScreen.getImageWidth(), this.attuneScreen.getImageHeight());
+        guiGraphics.blit(TEXTURE, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -141,24 +139,24 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private void renderCloseButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int buttonX = attuneScreen.getScreenLeftPos() + CLOSE_BUTTON_X;
-        int buttonY = attuneScreen.getScreenTopPos() + CLOSE_BUTTON_Y;
+        int buttonX = this.getScreenLeftPos() + CLOSE_BUTTON_X;
+        int buttonY = this.getScreenTopPos() + CLOSE_BUTTON_Y;
 
         int buttonOffset = getCloseButtonOffsetToRender(mouseX, mouseY);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 177, buttonOffset, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
     }
 
     private void renderSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int sliderX = attuneScreen.getScreenLeftPos() + SLIDER_BASE_X;
-        int sliderY = attuneScreen.getScreenTopPos() + getCurrentSliderY();
+        int sliderX = this.getScreenLeftPos() + SLIDER_BASE_X;
+        int sliderY = this.getScreenTopPos() + getCurrentSliderY();
 
         guiGraphics.blit(TEXTURE, sliderX, sliderY, 190, getSliderOffsetToRender(mouseX, mouseY), SLIDER_WIDTH, SLIDER_HEIGHT);
     }
 
 
     private void renderSlotInformation(GuiGraphics guiGraphics) {
-        int x = attuneScreen.getScreenLeftPos() + 10;
-        int y = attuneScreen.getScreenTopPos() + 12;
+        int x = this.getScreenLeftPos() + 10;
+        int y = this.getScreenTopPos() + 12;
 
         MutableComponent numerator = Component.literal(String.valueOf(numSlotsUsed));
 
@@ -166,6 +164,14 @@ public class AttunementNexusManageScreen extends Screen {
 
         guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2, y - this.font.lineHeight/2 + 20, 100, 0xC1EFEF);
         guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2, y - this.font.lineHeight/2 + 30, 100, 0xC1EFEF);
+    }
+
+    private int getScreenLeftPos() {
+        return (this.width - SCREEN_WIDTH) / 2;
+    }
+
+    private int getScreenTopPos() {
+        return (this.height - SCREEN_HEIGHT) / 2;
     }
 
     private int getSliderOffsetToRender(int mouseX, int mouseY) {
@@ -210,7 +216,7 @@ public class AttunementNexusManageScreen extends Screen {
     }
 
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
-        return GUIUtil.isHovering(this.attuneScreen.getScreenLeftPos(), this.attuneScreen.getScreenTopPos(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
+        return GUIUtil.isHovering(this.getScreenLeftPos(), this.getScreenTopPos(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
     @Override
@@ -247,7 +253,7 @@ public class AttunementNexusManageScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (sliderButtonDown &&  this.canScroll()) {
-            int i = this.attuneScreen.getScreenTopPos() + 24 + (int) (SLIDER_HEIGHT*sliderProgress);
+            int i = this.getScreenTopPos() + 24 + (int) (SLIDER_HEIGHT*sliderProgress);
             int j = i + SLIDER_MAX_DISTANCE_Y;
             this.sliderProgress = ((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F);
             this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
@@ -255,10 +261,6 @@ public class AttunementNexusManageScreen extends Screen {
         } else {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         }
-    }
-
-    public AttunementNexusAttuneScreen getAttuneScreen() {
-        return attuneScreen;
     }
 
     private class AttunementCard {
@@ -460,11 +462,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         public int getAttunementCardX() {
-            return attuneScreen.getScreenLeftPos() + ATTUNEMENT_CARD_X;
+            return manageScreen.getScreenLeftPos() + ATTUNEMENT_CARD_X;
         }
 
         public int getAttunementCardY() {
-            return attuneScreen.getScreenTopPos() + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT;
+            return manageScreen.getScreenTopPos() + ATTUNEMENT_CARD_Y + index * ATTUNEMENT_CARD_HEIGHT;
         }
 
         public void mouseReleased(double mouseX, double mouseY) {
@@ -475,7 +477,7 @@ public class AttunementNexusManageScreen extends Screen {
         }
 
         private void handleDeleteButtonPress() {
-            Minecraft minecraft = this.manageScreen.getAttuneScreen().getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             if(minecraft.gameMode != null) {
                 minecraft.pushGuiLayer(new AttunementNexusConfirmationScreen(this.manageScreen, attunedItem));
             }

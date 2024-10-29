@@ -86,7 +86,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
-        Component buttonTextComp = Component.literal("Attune Gear");
+        Component buttonTextComp = Component.literal("Attune");
         guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, BUTTON_TEXT_COLOR);
     }
 
@@ -313,7 +313,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void handleManageButtonPress() {
         if(this.minecraft != null && this.minecraft.gameMode != null) {
-            this.minecraft.pushGuiLayer(new AttunementNexusManageScreen(this));
+            this.minecraft.pushGuiLayer(new AttunementNexusManageScreen());
             if(menu.getIsActive()) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
