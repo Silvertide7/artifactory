@@ -9,7 +9,6 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import net.silvertide.artifactory.Artifactory;
 
 public class PacketHandler {
-
     private static SimpleChannel INSTANCE;
     private static int packetId = 0;
     private static int id() {
@@ -38,6 +37,12 @@ public class PacketHandler {
                 .consumerMainThread(CB_UpdateAttunedItemModifications::handle)
                 .add();
 
+        net.messageBuilder(CB_OpenManageAttunementsScreen.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_OpenManageAttunementsScreen::new)
+                .encoder(CB_OpenManageAttunementsScreen::encode)
+                .consumerMainThread(CB_OpenManageAttunementsScreen::handle)
+                .add();
+
         net.messageBuilder(CB_UpdateAttunementNexusSlotInformation.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(CB_UpdateAttunementNexusSlotInformation::new)
                 .encoder(CB_UpdateAttunementNexusSlotInformation::encode)
@@ -61,6 +66,12 @@ public class PacketHandler {
                 .decoder(SB_RemoveAttunedItem::new)
                 .encoder(SB_RemoveAttunedItem::encode)
                 .consumerMainThread(SB_RemoveAttunedItem::handle)
+                .add();
+
+        net.messageBuilder(SB_ToggleManageAttunementsScreen.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SB_ToggleManageAttunementsScreen::new)
+                .encoder(SB_ToggleManageAttunementsScreen::encode)
+                .consumerMainThread(SB_ToggleManageAttunementsScreen::handle)
                 .add();
     }
 

@@ -174,4 +174,9 @@ public class AttunementNexusConfirmationScreen extends Screen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }

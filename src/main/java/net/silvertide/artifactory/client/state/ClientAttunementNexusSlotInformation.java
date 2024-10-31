@@ -1,9 +1,7 @@
-package net.silvertide.artifactory.client.utils;
+package net.silvertide.artifactory.client.state;
 
-import com.sun.jna.platform.win32.Winspool;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
-import org.apache.commons.io.input.ObservableInputStream;
 
 import java.util.ArrayList;
 import java.util.List;

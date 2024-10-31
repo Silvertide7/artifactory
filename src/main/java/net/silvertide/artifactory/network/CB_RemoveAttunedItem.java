@@ -3,7 +3,7 @@ package net.silvertide.artifactory.network;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.gui.AttunementNexusManageScreen;
 
 import java.util.UUID;

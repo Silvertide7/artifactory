@@ -3,7 +3,6 @@ package net.silvertide.artifactory.network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import net.silvertide.artifactory.client.utils.ClientAttunedItems;
 import net.silvertide.artifactory.gui.AttunementNexusAttuneMenu;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.AttunementService;
@@ -37,7 +36,7 @@ public class SB_RemoveAttunedItem {
         if(player != null) {
             ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), msg.itemUUIDToRemove);
             AttunementService.clearBrokenAttunements(player);
-            if(player.containerMenu instanceof AttunementNexusAttuneMenu attuneMenu) {
+            if(player.containerMenu instanceof AttunementNexusAttuneMenu attuneMenu && player.containerMenu.stillValid(player)) {
                 attuneMenu.checkItemInAttunementSlotForBrokenAttunement();
             }
         }

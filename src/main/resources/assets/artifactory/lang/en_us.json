@@ -11,6 +11,10 @@
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",
   "playermessage.artifactory.owned_by_another_player": "This item is attuned to someone else.",
   "playermessage.artifactory.bond_broken": "You feel the bond between you and %1$s break.",
+  "playermessage.artifactory.cant_use_manage_keybind": "This feature is turned off. Enable in server config.",
+
+  "key.artifactory.useOpenManageAttunementsKey": "Open Manage Attunements Screen",
+  "key.categories.artifactory": "Artifactory",
 
   "screen.button.artifactory.attune.attune_not_in_progress": "Attune",
   "screen.button.artifactory.attune.attune_in_progress": "Cancel",

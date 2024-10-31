@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.utils.ClientAttunedItems;
+import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
@@ -91,14 +91,14 @@ public class AttunementNexusManageScreen extends Screen {
         RenderSystem.setShaderTexture(0, TEXTURE);
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F, 1000F);
+        guiGraphics.pose().translate(0F, 0F, 100F);
 
         renderScrollAreaBackground(guiGraphics);
         renderAttunementCards(guiGraphics, mouseX, mouseY);
         guiGraphics.pose().popPose();
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F, 5000F);
+        guiGraphics.pose().translate(0F, 0F, 200F);
 
         renderScreenBackground(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
@@ -114,7 +114,7 @@ public class AttunementNexusManageScreen extends Screen {
         int scrollAreaY = this.getScreenTopPos() + 23;
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F ,-2000F);
+        guiGraphics.pose().translate(0F, 0F ,-200F);
 
         guiGraphics.blit(TEXTURE, scrollAreaX, scrollAreaY, 0, 190, 115, 60);
         guiGraphics.blit(TEXTURE, scrollAreaX, scrollAreaY + 60, 0, 190, 115, 60);
@@ -263,6 +263,11 @@ public class AttunementNexusManageScreen extends Screen {
         }
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     private class AttunementCard {
         private static final int CARD_WINDOW_HEIGHT = 120;
         private static final int ATTUNEMENT_CARD_X = 23;
@@ -300,7 +305,7 @@ public class AttunementNexusManageScreen extends Screen {
 
         public void render(GuiGraphics guiGraphics, double mouseX, double mouseY, float sliderProgress, int numCards) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0F, 0F, 2000F);
+            guiGraphics.pose().translate(0F, 0F, 100F);
 
             // If 6 or more cards then the window will be scrollable / have overlap.
             if(numCards >= 6) {
@@ -387,7 +392,7 @@ public class AttunementNexusManageScreen extends Screen {
         private void renderInformationTooltip(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             if(isHoveringInformationIcon(mouseX, mouseY)) {
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(0F, 0F, 10000F);
+                guiGraphics.pose().translate(0F, 0F, 500F);
 
                 List<Component> list = Lists.newArrayList();
                 for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
@@ -399,9 +404,7 @@ public class AttunementNexusManageScreen extends Screen {
                     }
                     list.add(modDesc);
                 }
-
                 guiGraphics.renderComponentTooltip(this.manageScreen.font, list, (int) mouseX, (int) mouseY);
-
                 guiGraphics.pose().popPose();
             }
         }

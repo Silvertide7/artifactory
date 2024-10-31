@@ -2,7 +2,7 @@ package net.silvertide.artifactory.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
+import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 
 import java.util.function.Supplier;

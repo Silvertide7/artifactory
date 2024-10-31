@@ -26,6 +26,7 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
     public static ForgeConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
     public static ForgeConfigSpec.ConfigValue<String> ATTUNEMENT_INFORMATION_EXTENT;
+    public static ForgeConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
 
     private static void buildBasics(ForgeConfigSpec.Builder builder) {
         builder.push("Artifactory Configs");
@@ -54,6 +55,13 @@ public class Config {
         builder.comment("current: show all levels up to the currently attuned levels information, but no further.");
         List<String> attunementInformationExtentAllowedValues = Arrays.asList("all", "next", "current");
         ATTUNEMENT_INFORMATION_EXTENT = builder.define("Extent of Attunement Information", "all", attunementInformationExtentAllowedValues::contains);
+
+        builder.comment("Keybinds");
+
+        builder.comment("If a player can open the manage attunements screen from a keybind.");
+        builder.comment("If true the player can assign a keybind to the manage attunements screen and open it.");
+        builder.comment("If false it will not open even when the keybind is assigned.");
+        CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN = builder.define("Can Open Manage Attunements Screen From Keybind", true);
 
         builder.pop();
     }

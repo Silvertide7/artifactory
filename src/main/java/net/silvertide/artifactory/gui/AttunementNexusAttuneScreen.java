@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.utils.ClientAttunementNexusSlotInformation;
+import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
@@ -318,22 +318,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
         }
-    }
-
-    public int getImageWidth() {
-        return this.imageWidth;
-    }
-
-    public int getImageHeight() {
-        return this.imageHeight;
-    }
-
-    public int getScreenLeftPos() {
-        return this.leftPos;
-    }
-
-    public int getScreenTopPos() {
-        return this.topPos;
     }
 
     public int getBackgroundX() {

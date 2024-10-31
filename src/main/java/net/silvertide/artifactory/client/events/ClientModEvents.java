@@ -4,18 +4,28 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.keybindings.Keybindings;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 import java.util.List;
-
-public class ClientEvents {
+@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public class ClientModEvents {
     private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
     private final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
+    @SubscribeEvent
+    public static void registerKeys(RegisterKeyMappingsEvent keyMappingsEvent) {
+        keyMappingsEvent.register(Keybindings.INSTANCE.useOpenManageAttunementsKey);
+    }
+
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();

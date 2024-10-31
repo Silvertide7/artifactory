@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.client.utils;
+package net.silvertide.artifactory.client.state;
 
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.storage.AttunedItem;
