@@ -197,6 +197,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()){
             renderAttunementSlotRatio(guiGraphics, x, y, slotInformation);
             renderCurrentAttunementLevel(guiGraphics, x, y, slotInformation);
+            renderUniqueInfo(guiGraphics, x, y, slotInformation);
 
             if(!slotInformation.isPlayerAtMaxAttuneLevel()) {
                 renderLevelCost(guiGraphics, x, y, slotInformation);
@@ -204,6 +205,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             }
         }
     }
+
 
     private void renderAttunementSlotRatio(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         int numAttunementSlotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
@@ -230,7 +232,13 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchievedByPlayer()));
         guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
+    }
 
+
+    private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+
+        Component attunementLevelComponent = Component.literal("Unique");
+        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
     }
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
