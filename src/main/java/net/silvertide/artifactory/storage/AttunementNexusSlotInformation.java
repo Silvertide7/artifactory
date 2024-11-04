@@ -8,8 +8,13 @@ import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
+
+import java.util.List;
+import java.util.UUID;
 
 public record AttunementNexusSlotInformation(int slotsUsed,
+                                             String uniqueOwner,
                                              int xpConsumed,
                                              int xpThreshold,
                                              int numAttunementLevels,
@@ -32,6 +37,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
             // Set default values. These are used if the player has maxed out the attunement to the item.
             int xpThreshold = -1;
             int xpConsumed = -1;
+            String uniqueOwner = "";
 
             // These are possible items required to attune to the item that are consumed.
             ItemRequirements itemRequirements = new ItemRequirements();
@@ -46,10 +52,25 @@ public record AttunementNexusSlotInformation(int slotsUsed,
                     xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
                     itemRequirements.addRequirements(nextAttunementLevel.getRequirements().getItems());
                 }
+
+                // If the player isn't attuned to the item we need to first check if its a unique item
+                // and the item type has no other attuned owners. If there is then it can't be attuned by
+                // the player.
+                if(itemAttunementData.unique() && levelOfAttunementAchievedByPlayer == 0) {
+                    List<UUID> ownerUUIDs = AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack));
+                    if(!ownerUUIDs.isEmpty()) {
+                        if(ownerUUIDs.contains(player.getUUID())) {
+                            uniqueOwner = "me";
+                        } else {
+                            uniqueOwner = ArtifactorySavedData.get().getPlayerName(ownerUUIDs.get(0)).orElse("someone");
+                        }
+                    }
+                }
             }
 
             return new AttunementNexusSlotInformation(
                     itemAttunementData.attunementSlotsUsed(),
+                    uniqueOwner,
                     xpConsumed,
                     xpThreshold,
                     numLevels,
@@ -85,6 +106,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
 
     public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
         buf.writeInt(slotInformation.slotsUsed());
+        buf.writeUtf(slotInformation.uniqueOwner());
         buf.writeInt(slotInformation.xpConsumed());
         buf.writeInt(slotInformation.xpThreshold());
         buf.writeInt(slotInformation.numAttunementLevels());
@@ -94,7 +116,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
     }
 
     public static AttunementNexusSlotInformation decode(FriendlyByteBuf buf) {
-        return new AttunementNexusSlotInformation(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
+        return new AttunementNexusSlotInformation(buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
     }
 
 }

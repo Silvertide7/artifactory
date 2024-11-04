@@ -1,36 +1,18 @@
 package net.silvertide.artifactory.client.events;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.keybindings.Keybindings;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.network.PacketHandler;
-import net.silvertide.artifactory.network.SB_ToggleManageAttunementsScreen;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 import java.util.List;
-
-@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class ClientForgeEvents {
-    @SubscribeEvent
-    public static void clientTick(TickEvent.ClientTickEvent clientTickEvent) {
-        if(Minecraft.getInstance().player == null) return;
-        if(Keybindings.INSTANCE.useOpenManageAttunementsKey.consumeClick()) {
-            PacketHandler.sendToServer(new SB_ToggleManageAttunementsScreen());
-        }
-    }
-
+public class ClientSetupEvents {
     private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
     private final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
 
@@ -41,6 +23,7 @@ public class ClientForgeEvents {
             DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
                 createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
                 addTraitTooltips(event.getToolTip(), stack);
+                addUniqueTooltip(event.getToolTip(), itemAttunementData);
             });
         }
     }
@@ -93,4 +76,11 @@ public class ClientForgeEvents {
             toolTips.add(Component.literal(traitText).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
     }
+
+    private void addUniqueTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
+        if(itemAttunementData.unique()) {
+            toolTips.add(Component.literal("Unique").withStyle(ChatFormatting.GOLD));
+        }
+    }
 }
+

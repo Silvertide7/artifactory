@@ -58,4 +58,12 @@ public final class DataPackUtil {
         }
         return false;
     }
+
+    public static boolean canUseWithoutAttunement(ItemStack stack) {
+        return getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false);
+    }
+
+    public static boolean isUniqueAttunement(ItemStack stack) {
+        return getAttunementData(stack).map(ItemAttunementData::unique).orElse(false);
+    }
 }

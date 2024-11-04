@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.util;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -8,9 +9,7 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /*
  * This class is used to get information about an attuned item or a player
@@ -91,10 +90,6 @@ public final class AttunementUtil {
         }).orElse(false);
     }
 
-    public static boolean canUseWithoutAttunement(ItemStack stack) {
-        return DataPackUtil.getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false);
-    }
-
     public static boolean isAttunedToAnotherPlayer(Player player, ItemStack stack) {
         return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> !player.getUUID().equals(attunedToUUID)).orElse(false);
     }
@@ -115,7 +110,7 @@ public final class AttunementUtil {
     }
 
     public static boolean isAvailableToAttune(ItemStack stack) {
-        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack);
+        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && DataPackUtil.isUniqueAttunement(stack);
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
@@ -124,5 +119,23 @@ public final class AttunementUtil {
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
         return GUIUtil.prettifyName(StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString()));
+    }
+
+    public static Optional<String> getSavedDataAttunedItemOwnerDisplayName(ItemStack stack) {
+        return StackNBTUtil.getAttunedToUUID(stack).flatMap(attunedToUUID -> ArtifactorySavedData.get().getPlayerName(attunedToUUID));
+    }
+
+    public static List<UUID> getPlayerUUIDsWithAttunementToItem(ResourceLocation resourceLocation) {
+        List<UUID> results = new ArrayList<>();
+        Map<UUID, Map<UUID, AttunedItem>> allAttunedItems = ArtifactorySavedData.get().getAttunedItemsMap();
+
+        for(Map.Entry<UUID, Map<UUID, AttunedItem>> entry : allAttunedItems.entrySet()) {
+            for(AttunedItem attunedItem : entry.getValue().values()) {
+                if(resourceLocation.toString().equals(attunedItem.getResourceLocation())) {
+                    results.add(entry.getKey());
+                }
+            }
+        }
+        return results;
     }
 }

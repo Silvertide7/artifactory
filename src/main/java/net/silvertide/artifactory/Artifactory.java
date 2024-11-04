@@ -13,6 +13,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.silvertide.artifactory.client.events.ClientSetupEvents;
 import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
@@ -24,12 +25,12 @@ import org.slf4j.Logger;
 // TODO Add unique option
 
 // GUI
-// TODO: Redo block design
 // TODO: Redo attune screen gui design
 
 // CLEANUP
 // TODO: Remove Curios Tests
 // TODO: Setup balanced datapack data
+// TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
@@ -63,6 +64,7 @@ public class Artifactory
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), AttunementNexusAttuneScreen::new);
+            MinecraftForge.EVENT_BUS.register(new ClientSetupEvents());
         }
     }
 }

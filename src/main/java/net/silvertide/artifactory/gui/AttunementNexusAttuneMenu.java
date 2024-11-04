@@ -356,13 +356,15 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private void handleAttunement(ItemStack stackToAttune) {
-        AttunementService.increaseLevelOfAttunement(player, stackToAttune);
-        if(!player.getAbilities().instabuild) this.payCostForAttunement();
-        this.access.execute((level, blockPos) -> {
-            this.clearContainer(player, this.itemRequirementOneContainer);
-            this.clearContainer(player, this.itemRequirementTwoContainer);
-            this.clearContainer(player, this.itemRequirementThreeContainer);
-        });
+        if(player instanceof ServerPlayer serverPlayer) {
+            AttunementService.increaseLevelOfAttunement(serverPlayer, stackToAttune);
+            if(!player.getAbilities().instabuild) this.payCostForAttunement();
+            this.access.execute((level, blockPos) -> {
+                this.clearContainer(player, this.itemRequirementOneContainer);
+                this.clearContainer(player, this.itemRequirementTwoContainer);
+                this.clearContainer(player, this.itemRequirementThreeContainer);
+            });
+        }
         updateAttunementState();
     }
 
@@ -385,9 +387,23 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     }
 
     private void updateAscensionCanStart() {
-        boolean ascensionCanStart = this.attunementInputSlot.hasItem()
-                && AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
-                && (player.getAbilities().instabuild || this.meetsRequirementsToAttune());
+        boolean ascensionCanStart = false;
+        if(this.attunementInputSlot.hasItem()) {
+            ItemStack stack = this.attunementInputSlot.getItem();
+
+            boolean meetsRequirementsToAttune = player.getAbilities().instabuild || this.meetsRequirementsToAttune();
+
+            boolean isClaimedUnique = false;
+
+            if(player instanceof ServerPlayer serverPlayer && AttunementUtil.getLevelOfAttunementAchievedByPlayer(serverPlayer, stack) == 0) {
+                isClaimedUnique = DataPackUtil.isUniqueAttunement(stack)
+                        && !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
+            }
+
+            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
+                    && meetsRequirementsToAttune
+                    && !isClaimedUnique;
+        }
         setCanAscensionStart(ascensionCanStart);
     }
 

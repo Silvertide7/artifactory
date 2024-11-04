@@ -22,9 +22,25 @@ public class ArtifactorySavedData extends SavedData {
             Codec.unboundedMap(CodecTypes.UUID_CODEC,
                     Codec.unboundedMap(CodecTypes.UUID_CODEC, AttunedItem.CODEC)
                             .xmap(HashMap::new, HashMap::new));
+
+    private static final Codec<Map<UUID, String>> ATTUNED_PLAYERS_CODEC =
+            Codec.unboundedMap(CodecTypes.UUID_CODEC, Codec.STRING);
     private static final String NAME = Artifactory.MOD_ID;
 
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
+    private Map<UUID, String> attunedPlayers = new HashMap<>();
+
+    public Map<UUID, Map<UUID, AttunedItem>> getAttunedItemsMap() {
+        return this.attunedItems;
+    }
+
+    public Optional<String> getPlayerName(UUID playerUUID) {
+        return Optional.ofNullable(attunedPlayers.get(playerUUID));
+    }
+
+    public void setPlayerName(UUID playerUUID, String playerName) {
+        attunedPlayers.put(playerUUID, playerName);
+    }
 
     public int getNumAttunedItems(UUID playerUUID) {
         return getAttunedItems(playerUUID).size();
@@ -58,15 +74,12 @@ public class ArtifactorySavedData extends SavedData {
         return attunedItems.getOrDefault(playerUUID, new HashMap<>());
     }
 
-    public void setAttunedItem(UUID playerUUID, AttunedItem attunedItem) {
-        attunedItems.computeIfAbsent(playerUUID, i -> new HashMap<>()).put(attunedItem.getItemUUID(), attunedItem);
-
+    public void setAttunedItem(ServerPlayer serverPlayer, AttunedItem attunedItem) {
+        attunedItems.computeIfAbsent(serverPlayer.getUUID(), i -> new HashMap<>()).put(attunedItem.getItemUUID(), attunedItem);
+        setPlayerName(attunedItem.getItemUUID(), serverPlayer.getDisplayName().toString());
         this.setDirty();
-        ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-        if(player != null){
-            PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
-            NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
-        }
+        PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
+        NetworkUtil.updateAttunedItemModificationDescription(serverPlayer, attunedItem);
     }
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
@@ -98,10 +111,12 @@ public class ArtifactorySavedData extends SavedData {
     public ArtifactorySavedData() {}
 
     private static final String ATTUNED_ITEMS_KEY = "attuned_items";
+    private static final String ATTUNED_PLAYERS_KEY = "attuned_players";
 
     @Override
     public CompoundTag save(CompoundTag nbt) {
         nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
+        nbt.put(ATTUNED_PLAYERS_KEY, ATTUNED_PLAYERS_CODEC.encodeStart(NbtOps.INSTANCE, attunedPlayers).result().orElse(new CompoundTag()));
         return nbt;
     }
 
@@ -130,5 +145,14 @@ public class ArtifactorySavedData extends SavedData {
                 });
             });
         });
+    }
+
+    public void updatePlayerDisplayName(ServerPlayer serverPlayer) {
+        if(attunedPlayers.containsKey(serverPlayer.getUUID())) {
+            if(attunedPlayers.get(serverPlayer.getUUID()).equals(serverPlayer.getDisplayName().getString()));
+        } else {
+            setPlayerName(serverPlayer.getUUID(), serverPlayer.getDisplayName().getString());
+            this.setDirty();
+        }
     }
 }

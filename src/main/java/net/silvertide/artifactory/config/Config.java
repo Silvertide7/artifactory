@@ -25,28 +25,42 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
     public static ForgeConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
     public static ForgeConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
+    public static ForgeConfigSpec.ConfigValue<Boolean> PLAYERS_CAN_ONLY_ATTUNE_ONE_UNIQUE;
     public static ForgeConfigSpec.ConfigValue<String> ATTUNEMENT_INFORMATION_EXTENT;
     public static ForgeConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
 
     private static void buildBasics(ForgeConfigSpec.Builder builder) {
         builder.push("Artifactory Configs");
-
         builder.comment("General");
+        builder.comment("");
         builder.comment("How many levels by default you need to have to start the attunement process.");
         XP_LEVELS_TO_ATTUNE_THRESHOLD = builder.defineInRange("Attune XP Levels Threshold", 35, 0, Integer.MAX_VALUE);
+
+        builder.comment("");
         builder.comment("How many levels by default are consumed to attune an item.");
         XP_LEVELS_TO_ATTUNE_CONSUMED = builder.defineInRange("Attune XP Levels Consumed", 20, 0, Integer.MAX_VALUE);
 
+        builder.comment("");
         builder.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         builder.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed at");
         builder.comment("level 3 and poisoned at level 1 you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         WEAR_EFFECTS_WHEN_USE_RESTRICTED = builder.define("Wear Use Restricted Effects", "minecraft:slowness/4");
 
+        builder.comment("");
         builder.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         builder.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed and poisoned");
         builder.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = builder.define("Effect When Holding Other Player Item", "minecraft:slowness/4;minecraft:poison/1");
 
+        builder.comment("");
+        builder.comment("A unique item can only be attuned by one player at a time. This sets the limitation that a player");
+        builder.comment("can only attune to one unique item at a time as well. This makes it so if they want to use another unique item");
+        builder.comment("they will have to first break the attunement to their current unique item, opening it up for other players.");
+        builder.comment("If true a player can only attune to one unique item at a time.");
+        builder.comment("If false a player can attune to as many unique items as they have slots for.");
+        PLAYERS_CAN_ONLY_ATTUNE_ONE_UNIQUE = builder.define("Can Players Only Attune One Unique", false);
+
+        builder.comment("");
         builder.comment("How much information is shown on the possible levels of attunement for an item after it has been bonded.");
         builder.comment("This information can be found in the manage screen of the Attunement Nexus by hovering on the (i).");
         builder.comment("These are the allowed values: all, next, current.");
@@ -56,8 +70,10 @@ public class Config {
         List<String> attunementInformationExtentAllowedValues = Arrays.asList("all", "next", "current");
         ATTUNEMENT_INFORMATION_EXTENT = builder.define("Extent of Attunement Information", "all", attunementInformationExtentAllowedValues::contains);
 
+        builder.comment("");
         builder.comment("Keybinds");
 
+        builder.comment("");
         builder.comment("If a player can open the manage attunements screen from a keybind.");
         builder.comment("If true the player can assign a keybind to the manage attunements screen and open it.");
         builder.comment("If false it will not open even when the keybind is assigned.");

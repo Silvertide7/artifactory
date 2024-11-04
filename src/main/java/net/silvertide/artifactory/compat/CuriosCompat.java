@@ -30,7 +30,7 @@ public class CuriosCompat {
                         PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
                         event.setResult(Event.Result.DENY);
                         return;
-                    } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementUtil.canUseWithoutAttunement(stack)) {
+                    } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
                         PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
                         event.setResult(Event.Result.DENY);
                         return;
@@ -38,7 +38,6 @@ public class CuriosCompat {
                 }
             }
         }
-
         event.setResult(Event.Result.DEFAULT);
     }
 

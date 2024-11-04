@@ -23,10 +23,11 @@ public class SystemEvents {
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
 
-        if (!player.level().isClientSide()) {
+        if (player instanceof ServerPlayer serverPlayer) {
             //===========UPDATE DATA MIRROR=======================
-            Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
-            NetworkUtil.updateAllAttunedItems((ServerPlayer) player, attunedItems);
+            Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
+            NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
+            ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
         }
     }
 

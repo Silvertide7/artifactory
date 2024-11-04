@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.util;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.Config;
@@ -10,7 +11,7 @@ public final class AttunementService {
     private AttunementService() {}
 
     // Atunement Actions
-    public static void increaseLevelOfAttunement(Player player, ItemStack stack) {
+    public static void increaseLevelOfAttunement(ServerPlayer player, ItemStack stack) {
         int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
         boolean successfulAttunementIncrease = false;
 
@@ -25,7 +26,7 @@ public final class AttunementService {
     }
 
     // Returns true if the item was successfully attuned, and false if not.
-    private static boolean attuneItemAndPlayer(Player player, ItemStack stack) {
+    private static boolean attuneItemAndPlayer(ServerPlayer player, ItemStack stack) {
         if (AttunementUtil.canIncreaseAttunementLevel(player, stack)) {
             StackNBTUtil.setupStackToAttune(stack);
             linkPlayerAndItem(player, stack);
@@ -34,9 +35,9 @@ public final class AttunementService {
         return false;
     }
 
-    private static void linkPlayerAndItem(Player player, ItemStack stack) {
+    private static void linkPlayerAndItem(ServerPlayer player, ItemStack stack) {
         AttunedItem.buildAttunedItem(player, stack).ifPresent(attunedItem -> {
-            ArtifactorySavedData.get().setAttunedItem(player.getUUID(), attunedItem);
+            ArtifactorySavedData.get().setAttunedItem(player, attunedItem);
             StackNBTUtil.putPlayerDataInArtifactoryTag(player, stack);
         });
     }
@@ -87,7 +88,7 @@ public final class AttunementService {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-            } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementUtil.canUseWithoutAttunement(stack)) {
+            } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
             }
         }
