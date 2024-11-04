@@ -170,7 +170,16 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
                 if(slotInformation != null) {
                     if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                         list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
-                    } else {
+                    } else if(!"".equals(slotInformation.uniqueOwner())) {
+                        if("someone".equals(slotInformation.uniqueOwner())) {
+                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.unknown"));
+                        } else if ("me".equals(slotInformation.uniqueOwner())) {
+                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
+                        } else {
+                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueOwner()));
+                        }
+                    }
+                    else {
                         list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                         list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
                     }

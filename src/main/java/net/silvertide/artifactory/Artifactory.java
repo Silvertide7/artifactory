@@ -21,16 +21,16 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
-// TODO Tweak sounds and effects when attuning
-// TODO Add unique option
 
 // GUI
 // TODO: Redo attune screen gui design
+// TODO: Add updatable graphic
 
 // CLEANUP
 // TODO: Remove Curios Tests
 // TODO: Setup balanced datapack data
 // TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
+// TODO: Increase time of attunement
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
