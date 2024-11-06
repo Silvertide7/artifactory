@@ -110,7 +110,11 @@ public final class AttunementUtil {
     }
 
     public static boolean isAvailableToAttune(ItemStack stack) {
-        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && DataPackUtil.isUniqueAttunement(stack);
+        boolean isClaimedUnique = false;
+        if(!StackNBTUtil.containsAttunedToUUID(stack)) {
+            isClaimedUnique = DataPackUtil.isUniqueAttunement(stack) && !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
+        }
+        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && !isClaimedUnique;
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {

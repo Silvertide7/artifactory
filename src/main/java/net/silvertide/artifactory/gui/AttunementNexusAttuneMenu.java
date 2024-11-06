@@ -145,7 +145,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     // Slots
 
     private Slot getAttunementInputSlot() {
-        return new Slot(attunementInputContainer, 0, 80, 23) {
+        return new Slot(attunementInputContainer, 0, 42, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 if(getIsActive()) return false;
@@ -389,20 +389,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private void updateAscensionCanStart() {
         boolean ascensionCanStart = false;
         if(this.attunementInputSlot.hasItem()) {
-            ItemStack stack = this.attunementInputSlot.getItem();
-
             boolean meetsRequirementsToAttune = player.getAbilities().instabuild || this.meetsRequirementsToAttune();
-
-            boolean isClaimedUnique = false;
-
-            if(player instanceof ServerPlayer serverPlayer && AttunementUtil.getLevelOfAttunementAchievedByPlayer(serverPlayer, stack) == 0) {
-                isClaimedUnique = DataPackUtil.isUniqueAttunement(stack)
-                        && !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
-            }
-
             ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
-                    && meetsRequirementsToAttune
-                    && !isClaimedUnique;
+                    && meetsRequirementsToAttune;
         }
         setCanAscensionStart(ascensionCanStart);
     }

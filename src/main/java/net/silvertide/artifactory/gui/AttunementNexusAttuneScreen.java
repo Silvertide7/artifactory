@@ -27,12 +27,12 @@ import java.util.List;
 public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
     private static float TEXT_SCALE = 0.85F;
     private static int BUTTON_TEXT_COLOR = 0xFFFFFF;
-    private static final int ATTUNE_BUTTON_X = 61;
-    private static final int ATTUNE_BUTTON_Y = 65;
+    private static final int ATTUNE_BUTTON_X = 99;
+    private static final int ATTUNE_BUTTON_Y = 62;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
-    private static final int MANAGE_BUTTON_X = 141;
-    private static final int MANAGE_BUTTON_Y = 8;
+    private static final int MANAGE_BUTTON_X = 10;
+    private static final int MANAGE_BUTTON_Y = 68;
     private static final int MANAGE_BUTTON_WIDTH = 12;
     private static final int MANAGE_BUTTON_HEIGHT = 12;
     private boolean attuneButtonDown = false;
@@ -64,7 +64,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
-
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -236,9 +235,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
 
     private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-
-        Component attunementLevelComponent = Component.literal("Unique");
-        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
+        if(slotInformation.uniqueOwner() != null && !"".equals(slotInformation.uniqueOwner())) {
+            Component attunementLevelComponent = Component.literal("Unique");
+            guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
+        }
     }
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
@@ -406,10 +406,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
 
         private int getBackgroundOffsetY() {
-            int itemRequirementState = getItemRequirementState();
-            if(itemRequirementState == ItemRequirementState.FULFILLED.getValue()) {
-                return 161;
-            } else if (itemRequirementState == ItemRequirementState.PARTIAL.getValue()) {
+            if(getItemRequirementState() == ItemRequirementState.FULFILLED.getValue()) {
                 return 142;
             } else {
                 return 123;
