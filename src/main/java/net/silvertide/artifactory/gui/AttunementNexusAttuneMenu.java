@@ -145,7 +145,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     // Slots
 
     private Slot getAttunementInputSlot() {
-        return new Slot(attunementInputContainer, 0, 42, 35) {
+        return new Slot(attunementInputContainer, 0, 41, 36) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 if(getIsActive()) return false;

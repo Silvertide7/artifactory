@@ -33,7 +33,7 @@ public class AttunementNexusManageScreen extends Screen {
     private static final int SCREEN_HEIGHT = 166;
 
     //CLOSE BUTTON CONSTANTS
-    private static final int CLOSE_BUTTON_X = 141;
+    private static final int CLOSE_BUTTON_X = 156;
     private static final int CLOSE_BUTTON_Y = 8;
     private static final int CLOSE_BUTTON_WIDTH = 12;
     private static final int CLOSE_BUTTON_HEIGHT = 12;

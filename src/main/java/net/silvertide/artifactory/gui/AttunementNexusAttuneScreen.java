@@ -22,19 +22,27 @@ import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
     private static float TEXT_SCALE = 0.85F;
     private static int BUTTON_TEXT_COLOR = 0xFFFFFF;
-    private static final int ATTUNE_BUTTON_X = 99;
-    private static final int ATTUNE_BUTTON_Y = 62;
+    private static final int ATTUNE_BUTTON_X = 22;
+    private static final int ATTUNE_BUTTON_Y = 64;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
     private static final int ATTUNE_BUTTON_HEIGHT = 12;
-    private static final int MANAGE_BUTTON_X = 10;
-    private static final int MANAGE_BUTTON_Y = 68;
+    private static final int MANAGE_BUTTON_X = 156;
+    private static final int MANAGE_BUTTON_Y = 8;
     private static final int MANAGE_BUTTON_WIDTH = 12;
     private static final int MANAGE_BUTTON_HEIGHT = 12;
+    private static final int INFORMATION_ICON_X = 9;
+    private static final int INFORMATION_ICON_Y = 65;
+    private static final int INFORMATION_ICON_WIDTH = 10;
+    private static final int INFORMATION_ICON_HEIGHT = 10;
+
+    private List<Component> requirementsList;
+
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
@@ -60,6 +68,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        updateRequirementsList();
+
         renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
@@ -79,16 +89,16 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         renderTitle(guiGraphics, backgroundX, backgroundY);
         renderItemRequirementSlots(guiGraphics, mouseX, mouseY);
         renderButtons(guiGraphics, mouseX, mouseY);
-        renderTooltips(guiGraphics, mouseX, mouseY);
-        renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
+        renderManageTooltip(guiGraphics, mouseX, mouseY);
+        renderInformationIcon(guiGraphics, mouseX, mouseY);
         renderAttunementInformation(guiGraphics, backgroundX, backgroundY);
+        renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
     }
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
         Component buttonTextComp = Component.literal("Attune");
         guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, BUTTON_TEXT_COLOR);
     }
-
 
     private void renderItemRequirementSlots(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(this.itemRequirementSlotOneRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
@@ -130,7 +140,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private Component getAttuneButtonText() {
-
         if(getMenu().getProgress() > 0) {
             return Component.translatable("screen.button.artifactory.attune.attune_in_progress");
         }
@@ -143,13 +152,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
                 return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
             }
         }
-
         return Component.literal("");
-    }
-
-    private void renderTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        renderCostTooltip(guiGraphics, mouseX, mouseY);
-        renderManageTooltip(guiGraphics, mouseX, mouseY);
     }
 
     private void renderManageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -160,34 +163,17 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
     }
 
-    private void renderCostTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(isHoveringAttuneButton(mouseX, mouseY)) {
-            List<Component> list = Lists.newArrayList();
+    private void renderInformationIcon(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if(requirementsList != null && !requirementsList.isEmpty()) {
+            int iconX = leftPos + INFORMATION_ICON_X;
+            int iconY = topPos + INFORMATION_ICON_Y;
 
-            if(getMenu().hasAttunableItemInSlot()) {
-                AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-                if(slotInformation != null) {
-                    if(slotInformation.isPlayerAtMaxAttuneLevel()) {
-                        list.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
-                    } else if(!"".equals(slotInformation.uniqueOwner())) {
-                        if("someone".equals(slotInformation.uniqueOwner())) {
-                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.unknown"));
-                        } else if ("me".equals(slotInformation.uniqueOwner())) {
-                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
-                        } else {
-                            list.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueOwner()));
-                        }
-                    }
-                    else {
-                        list.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
-                        list.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-                    }
-                }
-            } else {
-                list.add(Component.translatable("screen.tooltip.artifactory.no_item_in_slot"));
+            int buttonOffset = 52;
+            if(isHoveringInformationIcon(mouseX, mouseY)) {
+                buttonOffset = 63;
+                guiGraphics.renderComponentTooltip(this.font, requirementsList, iconX, iconY);
             }
-
-            guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
+            guiGraphics.blit(TEXTURE, iconX, iconY, 190, buttonOffset, INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT);
         }
     }
 
@@ -223,35 +209,35 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         }
 
         Component denominator = Component.literal(attunementSlotDenominator);
-        guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 20, 100, BUTTON_TEXT_COLOR);
-        guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 30, 100, BUTTON_TEXT_COLOR);
+        guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2 + 6 * this.imageWidth / 8, y - this.font.lineHeight/2 + 20, 100, BUTTON_TEXT_COLOR);
+        guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2 + 6 * this.imageWidth / 8, y - this.font.lineHeight/2 + 30, 100, BUTTON_TEXT_COLOR);
 
     }
 
     private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchievedByPlayer()));
-        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
+        guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + 6 * this.imageWidth / 8, y - this.font.lineHeight/2 + 40, 100, BUTTON_TEXT_COLOR);
     }
 
 
     private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if(slotInformation.uniqueOwner() != null && !"".equals(slotInformation.uniqueOwner())) {
             Component attunementLevelComponent = Component.literal("Unique");
-            guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
+            guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + 6 * this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpConsumed() > 0) {
             Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-            guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
+            guiGraphics.drawWordWrap(this.font, levelCostComponent, x - this.font.width(levelCostComponent) / 2 + 6 * this.imageWidth / 8, y - this.font.lineHeight / 2 + 50, 100, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpThreshold() > 0) {
             Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-            guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
+            guiGraphics.drawWordWrap(this.font, levelThresholdComponent, x - this.font.width(levelThresholdComponent) / 2 + 6 * this.imageWidth / 8, y - this.font.lineHeight / 2 + 60, 100, BUTTON_TEXT_COLOR);
         }
     }
 
@@ -259,6 +245,33 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         if(getMenu().getProgress() > 0) {
             guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, getMenu().getScaledProgress() / 2);
             guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * getMenu().getScaledProgress() / 2);
+        }
+    }
+
+    private void updateRequirementsList() {
+        if(requirementsList == null && getMenu().hasAttunableItemInSlot()) {
+            requirementsList = new ArrayList<>();
+
+            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+            if(slotInformation != null) {
+                if(slotInformation.isPlayerAtMaxAttuneLevel()) {
+                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
+                } else if(!"".equals(slotInformation.uniqueOwner())) {
+                    if("someone".equals(slotInformation.uniqueOwner())) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.unknown"));
+                    } else if ("me".equals(slotInformation.uniqueOwner())) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
+                    } else {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueOwner()));
+                    }
+                }
+                else {
+                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
+                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
+                }
+            }
+        } else if (!getMenu().hasAttunableItemInSlot() && requirementsList != null) {
+            requirementsList = null;
         }
     }
 
@@ -316,6 +329,10 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private boolean isHoveringAttuneButton(double mouseX, double mouseY) {
         return isHovering(ATTUNE_BUTTON_X, ATTUNE_BUTTON_Y, ATTUNE_BUTTON_WIDTH, ATTUNE_BUTTON_HEIGHT, mouseX, mouseY);
+    }
+
+    private boolean isHoveringInformationIcon(double mouseX, double mouseY) {
+        return isHovering(INFORMATION_ICON_X, INFORMATION_ICON_Y, INFORMATION_ICON_WIDTH, INFORMATION_ICON_HEIGHT, mouseX, mouseY);
     }
 
     private boolean isHoveringManageButton(double mouseX, double mouseY) {

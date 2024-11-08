@@ -21,6 +21,7 @@ import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
+// TODO: When in survival the unique modifier won't let you upgrade a weapon you are already attuned to.
 
 // GUI
 // TODO: Redo attune screen gui design
