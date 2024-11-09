@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -63,7 +64,8 @@ public final class AttunementUtil {
     public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, ItemAttunementData attunementData) {
         int openSlots = getOpenAttunementSlots(player);
         int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
-        return openSlots >= attunementSlotsRequired;
+        boolean uniqueRestrictionActive = attunementData.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
+        return openSlots >= attunementSlotsRequired && !uniqueRestrictionActive;
     }
 
     public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
@@ -110,11 +112,11 @@ public final class AttunementUtil {
     }
 
     public static boolean isAvailableToAttune(ItemStack stack) {
-        boolean isClaimedUnique = false;
-        if(!StackNBTUtil.containsAttunedToUUID(stack)) {
-            isClaimedUnique = DataPackUtil.isUniqueAttunement(stack) && !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
+        boolean uniqueRestrictionActive = false;
+        if(DataPackUtil.isUniqueAttunement(stack)) {
+            uniqueRestrictionActive = !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
         }
-        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && !isClaimedUnique;
+        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && !uniqueRestrictionActive;
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
@@ -127,6 +129,23 @@ public final class AttunementUtil {
 
     public static Optional<String> getSavedDataAttunedItemOwnerDisplayName(ItemStack stack) {
         return StackNBTUtil.getAttunedToUUID(stack).flatMap(attunedToUUID -> ArtifactorySavedData.get().getPlayerName(attunedToUUID));
+    }
+
+    public static boolean isPlayerAtUniqueAttunementLimit(UUID playerUUID) {
+        return getPlayersNumberOfUniqueAttunements(playerUUID) >= Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
+    }
+
+    public static int getPlayersNumberOfUniqueAttunements(UUID playerUUID) {
+        Collection<AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(playerUUID).values();
+        if(attunedItems.isEmpty()) return 0;
+
+        int numUniques = 0;
+        for(AttunedItem item : attunedItems) {
+            if(DataPackUtil.isUniqueAttunement(item.getResourceLocation())) {
+                numUniques++;
+            }
+        }
+        return numUniques;
     }
 
     public static List<UUID> getPlayerUUIDsWithAttunementToItem(ResourceLocation resourceLocation) {

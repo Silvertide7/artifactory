@@ -25,7 +25,7 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
     public static ForgeConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
     public static ForgeConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
-    public static ForgeConfigSpec.ConfigValue<Boolean> PLAYERS_CAN_ONLY_ATTUNE_ONE_UNIQUE;
+    public static ForgeConfigSpec.ConfigValue<Integer> NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER;
     public static ForgeConfigSpec.ConfigValue<String> ATTUNEMENT_INFORMATION_EXTENT;
     public static ForgeConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
 
@@ -53,12 +53,10 @@ public class Config {
         EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = builder.define("Effect When Holding Other Player Item", "minecraft:slowness/4;minecraft:poison/1");
 
         builder.comment("");
-        builder.comment("A unique item can only be attuned by one player at a time. This sets the limitation that a player");
-        builder.comment("can only attune to one unique item at a time as well. This makes it so if they want to use another unique item");
-        builder.comment("they will have to first break the attunement to their current unique item, opening it up for other players.");
-        builder.comment("If true a player can only attune to one unique item at a time.");
-        builder.comment("If false a player can attune to as many unique items as they have slots for.");
-        PLAYERS_CAN_ONLY_ATTUNE_ONE_UNIQUE = builder.define("Can Players Only Attune One Unique", false);
+        builder.comment("A unique item can only be attuned by one player at a time. This controls how many unique attunements");
+        builder.comment("each player can have at a time. This makes it so if they attune a number of unique items as specified here");
+        builder.comment("then they will have to first break the attunement to an existing unique item before attuning a new one.");
+        NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER = builder.defineInRange("Number Unique Attunements Allowed Per Player", 3, 0, Integer.MAX_VALUE);
 
         builder.comment("");
         builder.comment("How much information is shown on the possible levels of attunement for an item after it has been bonded.");
@@ -74,9 +72,9 @@ public class Config {
         builder.comment("Keybinds");
 
         builder.comment("");
-        builder.comment("If a player can open the manage attunements screen from a keybind.");
-        builder.comment("If true the player can assign a keybind to the manage attunements screen and open it.");
-        builder.comment("If false it will not open even when the keybind is assigned.");
+        builder.comment("Controls if a player can open the manage attunements screen from a keybind.");
+        builder.comment("If true the player can assign a keybind to the manage attunements screen and open it anywhere.");
+        builder.comment("If false it will not ope when the keybind is assigned and pressed.");
         CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN = builder.define("Can Open Manage Attunements Screen From Keybind", true);
 
         builder.pop();

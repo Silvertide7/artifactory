@@ -221,7 +221,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
 
     private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if(slotInformation.uniqueOwner() != null && !"".equals(slotInformation.uniqueOwner())) {
+        if(slotInformation.uniqueStatus() != null && !"".equals(slotInformation.uniqueStatus())) {
             Component attunementLevelComponent = Component.literal("Unique");
             guiGraphics.drawWordWrap(this.font, attunementLevelComponent, x - this.font.width(attunementLevelComponent)/2 + 6 * this.imageWidth / 8, y - this.font.lineHeight/2 + 70, 100, BUTTON_TEXT_COLOR);
         }
@@ -256,13 +256,13 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             if(slotInformation != null) {
                 if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
-                } else if(!"".equals(slotInformation.uniqueOwner())) {
-                    if("someone".equals(slotInformation.uniqueOwner())) {
+                } else if(!"".equals(slotInformation.uniqueStatus())) {
+                    if("someone".equals(slotInformation.uniqueStatus())) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.unknown"));
-                    } else if ("me".equals(slotInformation.uniqueOwner())) {
+                    } else if ("me".equals(slotInformation.uniqueStatus())) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
                     } else {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueOwner()));
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueStatus()));
                     }
                 }
                 else {

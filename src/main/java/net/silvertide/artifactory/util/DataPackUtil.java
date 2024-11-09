@@ -66,4 +66,8 @@ public final class DataPackUtil {
     public static boolean isUniqueAttunement(ItemStack stack) {
         return getAttunementData(stack).map(ItemAttunementData::unique).orElse(false);
     }
+
+    public static boolean isUniqueAttunement(String resourceLocation) {
+        return getAttunementData(resourceLocation).map(ItemAttunementData::unique).orElse(false);
+    }
 }

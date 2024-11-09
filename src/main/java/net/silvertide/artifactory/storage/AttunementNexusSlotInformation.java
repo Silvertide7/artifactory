@@ -5,16 +5,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
-import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.DataPackUtil;
-import net.silvertide.artifactory.util.GUIUtil;
-import net.silvertide.artifactory.util.ResourceLocationUtil;
+import net.silvertide.artifactory.util.*;
 
 import java.util.List;
 import java.util.UUID;
 
 public record AttunementNexusSlotInformation(int slotsUsed,
-                                             String uniqueOwner,
+                                             String uniqueStatus,
                                              int xpConsumed,
                                              int xpThreshold,
                                              int numAttunementLevels,
@@ -37,7 +34,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
             // Set default values. These are used if the player has maxed out the attunement to the item.
             int xpThreshold = -1;
             int xpConsumed = -1;
-            String uniqueOwner = "";
+            String uniqueStatus = "";
 
             // These are possible items required to attune to the item that are consumed.
             ItemRequirements itemRequirements = new ItemRequirements();
@@ -60,9 +57,13 @@ public record AttunementNexusSlotInformation(int slotsUsed,
                     List<UUID> ownerUUIDs = AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack));
                     if(!ownerUUIDs.isEmpty()) {
                         if(ownerUUIDs.contains(player.getUUID())) {
-                            uniqueOwner = "me";
+                            uniqueStatus = UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER;
                         } else {
-                            uniqueOwner = ArtifactorySavedData.get().getPlayerName(ownerUUIDs.get(0)).orElse("someone");
+                            uniqueStatus = ArtifactorySavedData.get().getPlayerName(ownerUUIDs.get(0)).orElse("someone");
+                        }
+                    } else {
+                        if (AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID())) {
+                            uniqueStatus = UniqueStatus.REACHED_UNIQUE_CAPACITY;
                         }
                     }
                 }
@@ -70,7 +71,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
 
             return new AttunementNexusSlotInformation(
                     itemAttunementData.attunementSlotsUsed(),
-                    uniqueOwner,
+                    uniqueStatus,
                     xpConsumed,
                     xpThreshold,
                     numLevels,
@@ -106,7 +107,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
 
     public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
         buf.writeInt(slotInformation.slotsUsed());
-        buf.writeUtf(slotInformation.uniqueOwner());
+        buf.writeUtf(slotInformation.uniqueStatus());
         buf.writeInt(slotInformation.xpConsumed());
         buf.writeInt(slotInformation.xpThreshold());
         buf.writeInt(slotInformation.numAttunementLevels());
