@@ -17,7 +17,7 @@ import net.silvertide.artifactory.client.events.ClientSetupEvents;
 import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
-import net.silvertide.artifactory.gui.AttunementNexusAttuneScreen;
+import net.silvertide.artifactory.gui.AttunementScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
@@ -65,7 +65,7 @@ public class Artifactory
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), AttunementNexusAttuneScreen::new);
+            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), AttunementScreen::new);
             MinecraftForge.EVENT_BUS.register(new ClientSetupEvents());
         }
     }

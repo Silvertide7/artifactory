@@ -24,8 +24,12 @@
   "screen.button.artifactory.confirmation.cancel": "Cancel",
 
   "screen.text.artifactory.confirmation.delete_text": "Are you sure you want to remove attunement to %1$s? This can't be undone.",
+  "screen.text.artifactory.manage.slots": "Slots",
+  "screen.text.artifactory.manage.unique_attunements": "Unique Attunements",
   "screen.text.artifactory.manage.slots_used": "Slots taken: %1$s",
+  "screen.text.artifactory.manage.slots_used_unique": " - §6Unique§r",
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
+  "screen.text.artifactory.manage.attunement_level_max": " §a(Max)§f",
   "screen.text.artifactory.manage.attunement_data_not_found": "No attunement data found.",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
@@ -33,6 +37,7 @@
   "screen.tooltip.artifactory.unique_owner.known": "This item is unique and already attuned by %1$. You cannot attune it until they break their attunement.",
   "screen.tooltip.artifactory.unique_owner.unknown": "This item is unique and already attuned by another player. You cannot attune it until they break their attunement.",
   "screen.tooltip.artifactory.unique_owner.self": "This item is unique and you are already attuned to another of it's kind.",
+  "screen.tooltip.artifactory.unique_owner.reached_unique_limit": "You have reached your maximum number of unique attunements.",
   "screen.tooltip.artifactory.attuned_to_other_player": "This is attuned to another player. Cannot attune.",
   "screen.tooltip.artifactory.able_to_attune": "Attune this item.",
   "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",

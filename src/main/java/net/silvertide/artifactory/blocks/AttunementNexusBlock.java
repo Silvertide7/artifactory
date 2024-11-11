@@ -20,7 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.silvertide.artifactory.gui.AttunementNexusAttuneMenu;
+import net.silvertide.artifactory.gui.AttunementMenu;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +44,7 @@ public class AttunementNexusBlock extends Block {
     @SuppressWarnings("deprecation")
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider((i, inventory, player) ->
-                new AttunementNexusAttuneMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+                new AttunementMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
     }
 
     @SuppressWarnings("deprecation")

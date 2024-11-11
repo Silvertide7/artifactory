@@ -56,7 +56,7 @@ public class Config {
         builder.comment("A unique item can only be attuned by one player at a time. This controls how many unique attunements");
         builder.comment("each player can have at a time. This makes it so if they attune a number of unique items as specified here");
         builder.comment("then they will have to first break the attunement to an existing unique item before attuning a new one.");
-        NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER = builder.defineInRange("Number Unique Attunements Allowed Per Player", 3, 0, Integer.MAX_VALUE);
+        NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER = builder.defineInRange("Number Unique Attunements Allowed Per Player", 0, 0, Integer.MAX_VALUE);
 
         builder.comment("");
         builder.comment("How much information is shown on the possible levels of attunement for an item after it has been bonded.");

@@ -11,8 +11,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.events.custom.PostAttuneEvent;
 import net.silvertide.artifactory.events.custom.PreAttuneEvent;
+import net.silvertide.artifactory.network.CB_OpenManageAttunementsScreen;
+import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -20,7 +23,7 @@ import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
-public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
+public class AttunementMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 60;
     private final ContainerLevelAccess access;
     private final Player player;
@@ -58,11 +61,11 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
     private final ItemRequirementSlot itemRequirementThreeSlot;
     protected final Container itemRequirementThreeContainer = new SimpleContainer(1);
 
-    public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
+    public AttunementMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public AttunementNexusAttuneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+    public AttunementMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), containerId);
         this.access = access;
         this.player = playerInventory.player;
@@ -111,13 +114,13 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public int get(int index) {
                 return switch(index) {
-                    case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress;
-                    case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive;
-                    case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart;
-                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneState;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoState;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeState;
+                    case PROGRESS_INDEX -> AttunementMenu.this.progress;
+                    case IS_ACTIVE_INDEX -> AttunementMenu.this.isActive;
+                    case ASCENSION_CAN_START_INDEX -> AttunementMenu.this.ascensionCanStart;
+                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementMenu.this.playerHasAttunedItem;
+                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementMenu.this.itemRequirementOneState;
+                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementMenu.this.itemRequirementTwoState;
+                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementMenu.this.itemRequirementThreeState;
                     default -> PROGRESS_INDEX;
                 };
             }
@@ -125,13 +128,13 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void set(int index, int value) {
                 switch(index) {
-                    case PROGRESS_INDEX -> AttunementNexusAttuneMenu.this.progress = value;
-                    case IS_ACTIVE_INDEX -> AttunementNexusAttuneMenu.this.isActive = value;
-                    case ASCENSION_CAN_START_INDEX -> AttunementNexusAttuneMenu.this.ascensionCanStart = value;
-                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementNexusAttuneMenu.this.playerHasAttunedItem = value;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementOneState = value;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementTwoState = value;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementNexusAttuneMenu.this.itemRequirementThreeState = value;
+                    case PROGRESS_INDEX -> AttunementMenu.this.progress = value;
+                    case IS_ACTIVE_INDEX -> AttunementMenu.this.isActive = value;
+                    case ASCENSION_CAN_START_INDEX -> AttunementMenu.this.ascensionCanStart = value;
+                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementMenu.this.playerHasAttunedItem = value;
+                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementMenu.this.itemRequirementOneState = value;
+                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementMenu.this.itemRequirementTwoState = value;
+                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementMenu.this.itemRequirementThreeState = value;
                 }
             }
 
@@ -164,13 +167,13 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
                 if(!stack.isEmpty() && !player.level().isClientSide()) {
                     checkItemInAttunementSlotForBrokenAttunement();
                     ArtifactorySavedData.get().updateDisplayName(stack);
-                    AttunementNexusAttuneMenu.this.updateAttunementState();
+                    AttunementMenu.this.updateAttunementState();
                 }
             }
 
             @Override
             public boolean mayPickup(Player player) {
-                if(AttunementNexusAttuneMenu.this.getIsActive()) return false;
+                if(AttunementMenu.this.getIsActive()) return false;
                 return super.mayPickup(player);
             }
         };
@@ -195,7 +198,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
             }
@@ -203,7 +206,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void setChanged() {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
             }
@@ -221,7 +224,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
             }
@@ -229,7 +232,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void setChanged() {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
             }
@@ -247,7 +250,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
             }
@@ -255,7 +258,7 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             @Override
             public void setChanged() {
                 if(!player.level().isClientSide()) {
-                    AttunementNexusAttuneMenu.this.updateItemRequirementDataSlots();
+                    AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
             }
@@ -272,6 +275,9 @@ public class AttunementNexusAttuneMenu extends AbstractContainerMenu {
             } else {
                 setIsActive(true);
             }
+        } else if (pId == 2 && player instanceof ServerPlayer serverPlayer && AttunementUtil.doesPlayerHaveAttunedItem(serverPlayer)) {
+            int numUnique = Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
+            PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
         }
         return super.clickMenuButton(player, pId);
     }

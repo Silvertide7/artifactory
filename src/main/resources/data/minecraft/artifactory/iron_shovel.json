@@ -12,5 +12,6 @@
       }
     }
   ],
-  "use_without_attunement": false
+  "use_without_attunement": false,
+  "unique": true
 }

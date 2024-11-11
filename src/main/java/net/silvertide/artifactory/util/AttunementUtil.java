@@ -111,6 +111,10 @@ public final class AttunementUtil {
                 .orElse(false);
     }
 
+    public static boolean doesPlayerHaveAttunedItem(Player player) {
+        return !ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty();
+    }
+
     public static boolean isAvailableToAttune(ItemStack stack) {
         boolean uniqueRestrictionActive = false;
         if(DataPackUtil.isUniqueAttunement(stack)) {

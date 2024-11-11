@@ -16,18 +16,20 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
+import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
+import net.silvertide.artifactory.util.UniqueStatus;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AttunementNexusAttuneScreen extends AbstractContainerScreen<AttunementNexusAttuneMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
-    private static float TEXT_SCALE = 0.85F;
-    private static int BUTTON_TEXT_COLOR = 0xFFFFFF;
+public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
+    private static final float TEXT_SCALE = 0.85F;
+    private static final int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final int ATTUNE_BUTTON_X = 22;
     private static final int ATTUNE_BUTTON_Y = 64;
     private static final int ATTUNE_BUTTON_WIDTH = 54;
@@ -49,8 +51,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     private ItemRequirementSlotRenderer itemRequirementSlotOneRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
-    private LocalPlayer player;
-    public AttunementNexusAttuneScreen(AttunementNexusAttuneMenu pMenu, Inventory playerInventory, Component pTitle) {
+    private final LocalPlayer player;
+    public AttunementScreen(AttunementMenu pMenu, Inventory playerInventory, Component pTitle) {
         super(pMenu, playerInventory, pTitle);
         ClientAttunementNexusSlotInformation.registerListener(this);
         this.player = Minecraft.getInstance().player;
@@ -96,8 +98,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
     }
 
     private void renderTitle(GuiGraphics guiGraphics, int x, int y) {
-        Component buttonTextComp = Component.literal("Attune");
-        guiGraphics.drawWordWrap(this.font, buttonTextComp, x - this.font.width(buttonTextComp)/2 + this.imageWidth / 2, y - this.font.lineHeight/2 + 13, 100, BUTTON_TEXT_COLOR);
+        Component titleComp = Component.literal("Attune");
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, titleComp, leftPos + 3 * imageWidth / 4, topPos + 13, 100, BUTTON_TEXT_COLOR);
     }
 
     private void renderItemRequirementSlots(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -243,8 +245,8 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
         if(getMenu().getProgress() > 0) {
-            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, getMenu().getScaledProgress() / 2);
-            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * getMenu().getScaledProgress() / 2);
+//            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, getMenu().getScaledProgress() / 2);
+//            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * getMenu().getScaledProgress() / 2);
         }
     }
 
@@ -256,11 +258,11 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
             if(slotInformation != null) {
                 if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
-                } else if(!"".equals(slotInformation.uniqueStatus())) {
-                    if("someone".equals(slotInformation.uniqueStatus())) {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.unknown"));
-                    } else if ("me".equals(slotInformation.uniqueStatus())) {
+                } else if(!slotInformation.uniqueStatus().isEmpty()) {
+                    if (UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER.equals(slotInformation.uniqueStatus())) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
+                    } else if (UniqueStatus.REACHED_UNIQUE_CAPACITY.equals(slotInformation.uniqueStatus())) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.reached_unique_limit"));
                     } else {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueStatus()));
                     }
@@ -347,7 +349,7 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
     private void handleManageButtonPress() {
         if(this.minecraft != null && this.minecraft.gameMode != null) {
-            this.minecraft.pushGuiLayer(new AttunementNexusManageScreen());
+            this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 2);
             if(menu.getIsActive()) {
                 this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
             }
@@ -386,7 +388,6 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-
     @Override
     public void onClose() {
         super.onClose();
@@ -424,9 +425,9 @@ public class AttunementNexusAttuneScreen extends AbstractContainerScreen<Attunem
 
         private int getBackgroundOffsetY() {
             if(getItemRequirementState() == ItemRequirementState.FULFILLED.getValue()) {
-                return 142;
-            } else {
                 return 123;
+            } else {
+                return 104;
             }
         }
 

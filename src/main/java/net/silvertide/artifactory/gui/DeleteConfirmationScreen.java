@@ -12,7 +12,7 @@ import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.GUIUtil;
 
-public class AttunementNexusConfirmationScreen extends Screen {
+public class DeleteConfirmationScreen extends Screen {
     private static final float TEXT_SCALE = 0.85F;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
     private static final int SCREEN_WIDTH = 146;
@@ -23,12 +23,12 @@ public class AttunementNexusConfirmationScreen extends Screen {
     private static final int BUTTON_HEIGHT = 12;
 
     // Instance Variables
-    private final AttunementNexusManageScreen manageScreen;
+    private final ManageAttunementsScreen manageScreen;
     private final AttunedItem itemToDelete;
     private boolean cancelButtonDown = false;
     private boolean confirmButtonDown = false;
 
-    protected AttunementNexusConfirmationScreen(AttunementNexusManageScreen manageScreen, AttunedItem itemToDelete) {
+    protected DeleteConfirmationScreen(ManageAttunementsScreen manageScreen, AttunedItem itemToDelete) {
         super(Component.literal(""));
         this.manageScreen = manageScreen;
         this.itemToDelete = itemToDelete;

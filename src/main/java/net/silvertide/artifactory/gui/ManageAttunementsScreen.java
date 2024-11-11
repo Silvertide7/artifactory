@@ -27,7 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class AttunementNexusManageScreen extends Screen {
+public class ManageAttunementsScreen extends Screen {
+    private static final int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
     private static final int SCREEN_WIDTH = 176;
     private static final int SCREEN_HEIGHT = 166;
@@ -51,12 +52,15 @@ public class AttunementNexusManageScreen extends Screen {
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
     private int numSlotsUsed = 0;
+    private final int numUniqueAttunementsAllowed;
+    private int numUniqueAttunements;
     private final List<AttunementCard> attunementCards = new ArrayList<>();
     LocalPlayer player;
 
-    public AttunementNexusManageScreen() {
+    public ManageAttunementsScreen(int numUniqueAttunementsAllowed) {
         super(Component.literal(""));
         this.player = Minecraft.getInstance().player;
+        this.numUniqueAttunementsAllowed = numUniqueAttunementsAllowed;
     }
 
     @Override
@@ -68,13 +72,18 @@ public class AttunementNexusManageScreen extends Screen {
     // Need to allow no attunement data
     public void createAttunementCards() {
         numSlotsUsed = 0;
+        numUniqueAttunements = 0;
         attunementCards.clear();
+
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
             Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.getResourceLocation());
+
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
+
+            if(attunementData.isPresent() && attunementData.get().unique()) numUniqueAttunements++;
             numSlotsUsed += attunementData.map(ItemAttunementData::attunementSlotsUsed).orElse(0);
         }
     }
@@ -101,13 +110,19 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.pose().translate(0F, 0F, 200F);
 
         renderScreenBackground(guiGraphics);
+        renderTitle(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics, mouseX, mouseY);
         renderSlotInformation(guiGraphics);
+        renderUniqueInformation(guiGraphics);
 
         guiGraphics.pose().popPose();
     }
 
+    private void renderTitle(GuiGraphics guiGraphics) {
+        Component buttonTextComp = Component.literal("Manage Attunements");
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.85F, this.font, buttonTextComp, this.getScreenLeftPos() + SCREEN_WIDTH / 2, this.getScreenTopPos() + 13, 100, BUTTON_TEXT_COLOR);
+    }
 
     private void renderScrollAreaBackground(GuiGraphics guiGraphics) {
         int scrollAreaX = this.getScreenLeftPos() + 23;
@@ -153,17 +168,22 @@ public class AttunementNexusManageScreen extends Screen {
         guiGraphics.blit(TEXTURE, sliderX, sliderY, 190, getSliderOffsetToRender(mouseX, mouseY), SLIDER_WIDTH, SLIDER_HEIGHT);
     }
 
-
     private void renderSlotInformation(GuiGraphics guiGraphics) {
-        int x = this.getScreenLeftPos() + 10;
-        int y = this.getScreenTopPos() + 12;
+        Component slotText = Component.translatable("screen.text.artifactory.manage.slots");
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, slotText, this.getScreenLeftPos() + SCREEN_WIDTH / 3, this.getScreenTopPos() + 149, 40, 0xE7E7E7);
 
-        MutableComponent numerator = Component.literal(String.valueOf(numSlotsUsed));
+        Component SlotInformation = Component.literal(numSlotsUsed + " / " + AttunementUtil.getMaxAttunementSlots(this.player));
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, SlotInformation, this.getScreenLeftPos() + SCREEN_WIDTH / 3, this.getScreenTopPos() + 156, 40, 0xE7E7E7);
+    }
 
-        Component denominator = Component.literal(String.valueOf(AttunementUtil.getMaxAttunementSlots(this.player)));
+    private void renderUniqueInformation(GuiGraphics guiGraphics) {
+        if(numUniqueAttunementsAllowed > 0) {
+            Component uniqueText = Component.translatable("screen.text.artifactory.manage.unique_attunements");
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, uniqueText, this.getScreenLeftPos() + 2 * SCREEN_WIDTH / 3, this.getScreenTopPos() + 149, 100, 0xF8C81E);
 
-        guiGraphics.drawWordWrap(this.font, numerator, x - this.font.width(numerator)/2, y - this.font.lineHeight/2 + 20, 100, 0xC1EFEF);
-        guiGraphics.drawWordWrap(this.font, denominator, x - this.font.width(denominator)/2, y - this.font.lineHeight/2 + 30, 100, 0xC1EFEF);
+            Component SlotInformation = Component.literal(numUniqueAttunements + " / " + numUniqueAttunementsAllowed);
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, SlotInformation, this.getScreenLeftPos() + 2 * SCREEN_WIDTH / 3, this.getScreenTopPos() + 156, 40, 0xF8C81E);
+        }
     }
 
     private int getScreenLeftPos() {
@@ -190,7 +210,6 @@ public class AttunementNexusManageScreen extends Screen {
         if(!this.canScroll()) return SLIDER_BASE_Y;
         return SLIDER_BASE_Y + (int) (sliderProgress * SLIDER_MAX_DISTANCE_Y);
     }
-
 
     private int getCloseButtonOffsetToRender(int mouseX, int mouseY) {
         if(closeButtonDown) {
@@ -292,9 +311,9 @@ public class AttunementNexusManageScreen extends Screen {
         private boolean isDeleteButtonDisabled = false;
         private float distanceScrolledY = 0;
         private boolean isOffScreen = false;
-        AttunementNexusManageScreen manageScreen;
+        ManageAttunementsScreen manageScreen;
 
-        private AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, AttunementNexusManageScreen manageScreen) {
+        private AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, ManageAttunementsScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;
@@ -413,17 +432,20 @@ public class AttunementNexusManageScreen extends Screen {
             MutableComponent attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.getAttunementLevel());
 
             if(this.attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
-                attunementLevel.append(" (Max)");
+                attunementLevel.append(Component.translatable("screen.text.artifactory.manage.attunement_level_max"));
             }
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
-            Component slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_data_not_found");
+            MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_data_not_found");
             if(attunementData != null) {
                 slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+                if(attunementData.unique()) {
+                    slotsUsed.append(Component.translatable("screen.text.artifactory.manage.slots_used_unique"));
+                }
             }
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0x949094);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -482,7 +504,7 @@ public class AttunementNexusManageScreen extends Screen {
         private void handleDeleteButtonPress() {
             Minecraft minecraft = Minecraft.getInstance();
             if(minecraft.gameMode != null) {
-                minecraft.pushGuiLayer(new AttunementNexusConfirmationScreen(this.manageScreen, attunedItem));
+                minecraft.pushGuiLayer(new DeleteConfirmationScreen(this.manageScreen, attunedItem));
             }
         }
 

@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.gui.AttunementNexusManageScreen;
+import net.silvertide.artifactory.gui.ManageAttunementsScreen;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -29,8 +29,8 @@ public class CB_RemoveAttunedItem {
 
             // Update screen of minecraft player if open
             Minecraft minecraft = Minecraft.getInstance();
-            if(minecraft.screen instanceof AttunementNexusManageScreen attunementNexusManageScreen) {
-                attunementNexusManageScreen.createAttunementCards();
+            if(minecraft.screen instanceof ManageAttunementsScreen manageAttunementsScreen) {
+                manageAttunementsScreen.createAttunementCards();
             }
         });
         context.setPacketHandled(true);
