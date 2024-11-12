@@ -46,6 +46,13 @@ public class ManageAttunementsScreen extends Screen {
     private static final int SLIDER_WIDTH = 12;
     private static final int SLIDER_HEIGHT = 15;
 
+    // SLOT INFO CONSTANTS
+    private static final int SLOT_INFO_X = 6;
+    private static final int SLOT_INFO_Y = 22;
+    private static final int UNIQUE_INFO_X = 6;
+    private static final int UNIQUE_INFO_Y = 47;
+    private static final int SLOT_INFO_WIDTH = 15;
+    private static final int SLOT_INFO_HEIGHT = 23;
 
     // Instance Variables
     private boolean closeButtonDown = false;
@@ -113,8 +120,8 @@ public class ManageAttunementsScreen extends Screen {
         renderTitle(guiGraphics);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics, mouseX, mouseY);
-        renderSlotInformation(guiGraphics);
-        renderUniqueInformation(guiGraphics);
+        renderSlotInformation(guiGraphics, mouseX, mouseY);
+        renderUniqueInformation(guiGraphics, mouseX, mouseY);
 
         guiGraphics.pose().popPose();
     }
@@ -168,21 +175,49 @@ public class ManageAttunementsScreen extends Screen {
         guiGraphics.blit(TEXTURE, sliderX, sliderY, 190, getSliderOffsetToRender(mouseX, mouseY), SLIDER_WIDTH, SLIDER_HEIGHT);
     }
 
-    private void renderSlotInformation(GuiGraphics guiGraphics) {
-        Component slotText = Component.translatable("screen.text.artifactory.manage.slots");
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, slotText, this.getScreenLeftPos() + SCREEN_WIDTH / 3, this.getScreenTopPos() + 149, 40, 0xE7E7E7);
+    private void renderSlotInformation(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int infoPanelX = getScreenLeftPos() + SLOT_INFO_X;
+        int infoPanelY = getScreenTopPos() + SLOT_INFO_Y;
 
-        Component SlotInformation = Component.literal(numSlotsUsed + " / " + AttunementUtil.getMaxAttunementSlots(this.player));
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, SlotInformation, this.getScreenLeftPos() + SCREEN_WIDTH / 3, this.getScreenTopPos() + 156, 40, 0xE7E7E7);
+        guiGraphics.blit(TEXTURE, infoPanelX, infoPanelY, 190, 64, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT);
+        guiGraphics.blit(TEXTURE, infoPanelX + 2, infoPanelY + 11, 190, 88, 11, 1);
+
+        Component numerator = Component.literal(String.valueOf(numSlotsUsed));
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, infoPanelX + 8, infoPanelY + 7, 40, 0xD6FFFE);
+
+        Component denominator = Component.literal(String.valueOf(AttunementUtil.getMaxAttunementSlots(this.player)));
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, infoPanelX + 8, infoPanelY + 15, 40, 0xD6FFFE);
+
+        if(isHovering(SLOT_INFO_X, SLOT_INFO_Y, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT, mouseX, mouseY)) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0F, 0F, 500F);
+
+            guiGraphics.renderComponentTooltip(this.font, List.of(Component.translatable("screen.text.artifactory.manage.slots")), mouseX, mouseY);
+            guiGraphics.pose().popPose();
+        }
     }
 
-    private void renderUniqueInformation(GuiGraphics guiGraphics) {
+    private void renderUniqueInformation(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(numUniqueAttunementsAllowed > 0) {
-            Component uniqueText = Component.translatable("screen.text.artifactory.manage.unique_attunements");
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, uniqueText, this.getScreenLeftPos() + 2 * SCREEN_WIDTH / 3, this.getScreenTopPos() + 149, 100, 0xF8C81E);
+            int infoPanelX = getScreenLeftPos() + UNIQUE_INFO_X;
+            int infoPanelY = getScreenTopPos() + UNIQUE_INFO_Y;
 
-            Component SlotInformation = Component.literal(numUniqueAttunements + " / " + numUniqueAttunementsAllowed);
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.65F, this.font, SlotInformation, this.getScreenLeftPos() + 2 * SCREEN_WIDTH / 3, this.getScreenTopPos() + 156, 40, 0xF8C81E);
+            guiGraphics.blit(TEXTURE, infoPanelX, infoPanelY, 190, 64, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT);
+            guiGraphics.blit(TEXTURE, infoPanelX + 2, infoPanelY + 11, 190, 90, 11, 1);
+
+            Component numerator = Component.literal(String.valueOf(numUniqueAttunements));
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, infoPanelX + 8, infoPanelY + 7, 40, 0xFFAA00);
+
+            Component denominator = Component.literal(String.valueOf(numUniqueAttunementsAllowed));
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, infoPanelX + 8, infoPanelY + 15, 40, 0xFFAA00);
+
+            if(isHovering(UNIQUE_INFO_X, UNIQUE_INFO_Y, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT, mouseX, mouseY)) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0F, 0F, 500F);
+
+                guiGraphics.renderComponentTooltip(this.font, List.of(Component.translatable("screen.text.artifactory.manage.unique_attunements")), mouseX, mouseY);
+                guiGraphics.pose().popPose();
+            }
         }
     }
 
