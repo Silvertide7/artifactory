@@ -10,14 +10,7 @@ import net.silvertide.artifactory.util.*;
 import java.util.List;
 import java.util.UUID;
 
-public record AttunementNexusSlotInformation(int slotsUsed,
-                                             String uniqueStatus,
-                                             int xpConsumed,
-                                             int xpThreshold,
-                                             int numAttunementLevels,
-                                             int levelAchievedByPlayer,
-                                             int numSlotsUsedByPlayer,
-                                             ItemRequirements itemRequirements) {
+public record AttunementNexusSlotInformation(String itemName, int slotsUsed, String uniqueStatus, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
 
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!AttunementUtil.isValidAttunementItem(stack)) return null;
@@ -70,6 +63,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
             }
 
             return new AttunementNexusSlotInformation(
+                    AttunementUtil.getAttunedItemDisplayName(stack),
                     itemAttunementData.attunementSlotsUsed(),
                     uniqueStatus,
                     xpConsumed,
@@ -106,6 +100,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
     }
 
     public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
+        buf.writeUtf(slotInformation.itemName());
         buf.writeInt(slotInformation.slotsUsed());
         buf.writeUtf(slotInformation.uniqueStatus());
         buf.writeInt(slotInformation.xpConsumed());
@@ -117,7 +112,7 @@ public record AttunementNexusSlotInformation(int slotsUsed,
     }
 
     public static AttunementNexusSlotInformation decode(FriendlyByteBuf buf) {
-        return new AttunementNexusSlotInformation(buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
+        return new AttunementNexusSlotInformation(buf.readUtf(), buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
     }
 
 }

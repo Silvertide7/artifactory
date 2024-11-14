@@ -24,6 +24,11 @@
   "screen.button.artifactory.confirmation.cancel": "Cancel",
 
   "screen.text.artifactory.confirmation.delete_text": "Are you sure you want to remove attunement to %1$s? This can't be undone.",
+
+  "screen.text.artifactory.attunement.title": "Attune Items",
+  "screen.text.artifactory.attunement.slots": "Attunement Slots",
+  "screen.text.artifactory.attunement.unique": "Unique",
+
   "screen.text.artifactory.manage.slots": "Attunement Slots",
   "screen.text.artifactory.manage.unique_attunements": "Unique Attunements",
   "screen.text.artifactory.manage.slots_used": "Slots taken: %1$s",

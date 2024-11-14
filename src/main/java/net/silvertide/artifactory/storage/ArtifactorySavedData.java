@@ -129,20 +129,17 @@ public class ArtifactorySavedData extends SavedData {
 
     public void updateDisplayName(ItemStack stack) {
         StackNBTUtil.getAttunedToUUID(stack).ifPresent(attunedToUUID -> {
-            StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemUUID -> {
-                this.getAttunedItem(attunedToUUID, itemUUID).ifPresent(attunedItem -> {
-                    String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
-                    if(!attunedItem.getDisplayName().equals(displayName)) {
-                        attunedItem.setDisplayName(displayName);
+            StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> this.getAttunedItem(attunedToUUID, itemUUID)).ifPresent(attunedItem -> {
+                String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
+                if (!attunedItem.getDisplayName().equals(displayName)) {
+                    attunedItem.setDisplayName(displayName);
+                    this.setDirty();
 
-                        this.setDirty();
-
-                        ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunedToUUID);
-                        if(player != null){
-                            PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
-                        }
+                    ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunedToUUID);
+                    if (player != null) {
+                        PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
                     }
-                });
+                }
             });
         });
     }
