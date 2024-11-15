@@ -22,6 +22,7 @@ import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import net.silvertide.artifactory.util.UniqueStatus;
 import org.apache.commons.compress.utils.Lists;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         renderButtons(guiGraphics, mouseX, mouseY);
         renderManageTooltip(guiGraphics, mouseX, mouseY);
         renderInformationIcon(guiGraphics, mouseX, mouseY);
-        renderAttunementInformation(guiGraphics, backgroundX, backgroundY);
+        renderAttunementInformation(guiGraphics, backgroundX, backgroundY, mouseX, mouseY);
         renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
     }
 
@@ -178,10 +179,10 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
     }
 
-    private void renderAttunementInformation(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
+    private void renderAttunementInformation(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY) {
         AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
         if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()){
-            renderItemName(guiGraphics, backgroundX, backgroundY, slotInformation);
+            renderItemName(guiGraphics, backgroundX, backgroundY, mouseX, mouseY, slotInformation);
 //            renderAttunementSlotRatio(guiGraphics, backgroundX, backgroundY, slotInformation);
 //            renderCurrentAttunementLevel(guiGraphics, backgroundX, backgroundY, slotInformation);
 //            renderUniqueInfo(guiGraphics, backgroundX, backgroundY, slotInformation);
@@ -193,8 +194,16 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
     }
 
-    private void renderItemName(GuiGraphics guiGraphics, int backgroundX, int backgroundY, AttunementNexusSlotInformation slotInformation) {
-        GUIUtil.drawScaledWordWrap(guiGraphics, 0.7F, this.font, Component.literal(slotInformation.itemName()), backgroundX + 86, backgroundY + 22, 85, BUTTON_TEXT_COLOR);
+    private void renderItemName(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY, AttunementNexusSlotInformation slotInformation) {
+        int textOffsetX = 86;
+        int textOffsetY = 22;
+
+        String trimmedText = GUIUtil.trimTextToWidth(slotInformation.itemName(), this.font, 132);
+        GUIUtil.drawScaledString(guiGraphics, 0.7F, this.font, trimmedText, backgroundX + textOffsetX, backgroundY + textOffsetY, BUTTON_TEXT_COLOR);
+
+        if(!trimmedText.equals(slotInformation.itemName()) && isHovering(textOffsetX, textOffsetY, this.font.width(trimmedText), this.font.lineHeight, mouseX, mouseY)) {
+            guiGraphics.renderComponentTooltip(this.font, List.of(Component.literal(slotInformation.itemName())), backgroundX + textOffsetX, backgroundY + textOffsetY);
+        }
     }
 
 
@@ -215,9 +224,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         Component denominator = Component.literal(attunementSlotDenominator);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, Component.translatable("screen.text.artifactory.attunement.slots"), backgroundX + 6 * this.imageWidth / 8, backgroundY + 20, 75, BUTTON_TEXT_COLOR);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, numerator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 25, 75, BUTTON_TEXT_COLOR);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, denominator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 35, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, Component.translatable("screen.text.artifactory.attunement.slots"), backgroundX + 6 * this.imageWidth / 8, backgroundY + 20, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 25, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 35, 75, BUTTON_TEXT_COLOR);
     }
 
     private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {

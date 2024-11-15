@@ -24,6 +24,30 @@ public final class GUIUtil {
         return pMouseX >= (double)(pX - 1) && pMouseX < (double)(pX + pWidth + 1) && pMouseY >= (double)(pY - 1) && pMouseY < (double)(pY + pHeight + 1);
     }
 
+    public static void drawScaledString(GuiGraphics guiGraphics, float textScale, Font font, String text, int textX, int textY, int color) {
+        if(text == null || textScale == 0.0F || "".equals(text)) return;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(textScale, textScale, textScale);
+
+        int scaledTextX = (int) (textX / textScale);
+        int scaledTextY = (int) (textY / textScale);
+        guiGraphics.drawString(font, text, scaledTextX, scaledTextY, color);
+
+        guiGraphics.pose().popPose();
+    }
+
+    public static String trimTextToWidth(String text, Font font, int width) {
+        String result = text;
+        while(font.width(result) > width) {
+            float ratio = (float) width / font.width(result);
+            int stringLength = (int) (result.length() * ratio);
+            result = result.substring(0, stringLength - 3);
+            result += "...";
+        }
+        return result;
+    }
+
     public static void drawScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
         if("".equals(buttonTextComp.getString())) return;
 
