@@ -195,13 +195,14 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     }
 
     private void renderItemName(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY, AttunementNexusSlotInformation slotInformation) {
-        int textOffsetX = 86;
+        int textOffsetX = 87;
         int textOffsetY = 22;
+        float textScale = 0.6F;
 
-        String trimmedText = GUIUtil.trimTextToWidth(slotInformation.itemName(), this.font, 132);
-        GUIUtil.drawScaledString(guiGraphics, 0.7F, this.font, trimmedText, backgroundX + textOffsetX, backgroundY + textOffsetY, BUTTON_TEXT_COLOR);
+        String trimmedText = GUIUtil.trimTextToWidth(slotInformation.itemName(), this.font, 149);
+        GUIUtil.drawScaledString(guiGraphics, textScale, this.font, trimmedText, backgroundX + textOffsetX, backgroundY + textOffsetY, BUTTON_TEXT_COLOR);
 
-        if(!trimmedText.equals(slotInformation.itemName()) && isHovering(textOffsetX, textOffsetY, this.font.width(trimmedText), this.font.lineHeight, mouseX, mouseY)) {
+        if(!trimmedText.equals(slotInformation.itemName()) && isHovering(textOffsetX, textOffsetY, (int) (this.font.width(trimmedText) * textScale), (int) (this.font.lineHeight * textScale), mouseX, mouseY)) {
             guiGraphics.renderComponentTooltip(this.font, List.of(Component.literal(slotInformation.itemName())), backgroundX + textOffsetX, backgroundY + textOffsetY);
         }
     }

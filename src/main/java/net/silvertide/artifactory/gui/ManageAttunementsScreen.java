@@ -114,7 +114,7 @@ public class ManageAttunementsScreen extends Screen {
         guiGraphics.pose().popPose();
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F, 200F);
+        guiGraphics.pose().translate(0F, 0F, 500F);
 
         renderScreenBackground(guiGraphics);
         renderTitle(guiGraphics);
@@ -341,9 +341,8 @@ public class ManageAttunementsScreen extends Screen {
         private final AttunedItem attunedItem;
         private final ItemAttunementData attunementData;
         private final ItemStack itemToRender;
-        private List<String> modificationDescPerLevel;
+        private final List<String> modificationDescPerLevel;
         private boolean isDeleteButtonDown = false;
-        private boolean isDeleteButtonDisabled = false;
         private float distanceScrolledY = 0;
         private boolean isOffScreen = false;
         ManageAttunementsScreen manageScreen;
@@ -381,7 +380,7 @@ public class ManageAttunementsScreen extends Screen {
 
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
-            renderDisplayName(guiGraphics);
+            renderDisplayName(guiGraphics, (int) mouseX, (int) mouseY);
             renderAttunementLevel(guiGraphics);
             renderSlotsUsed(guiGraphics);
             renderInformationIcon(guiGraphics, mouseX, mouseY);
@@ -434,9 +433,17 @@ public class ManageAttunementsScreen extends Screen {
             }
         }
 
-        private void renderDisplayName(GuiGraphics guiGraphics) {
-            Component displayName = Component.literal(this.attunedItem.getDisplayName());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.57F, manageScreen.font, displayName, getAttunementCardX() + 28, getAttunementCardY() + 3, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xC1EFEF);
+        private void renderDisplayName(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+            int textOffsetX = 28;
+            int textOffsetY = 3;
+            float textScale = 0.65F;
+
+            String trimmedText = GUIUtil.trimTextToWidth(this.attunedItem.getDisplayName(), manageScreen.font, 135);
+            GUIUtil.drawScaledString(guiGraphics, textScale, manageScreen.font, trimmedText, getAttunementCardX() + textOffsetX, getAttunementCardY() + textOffsetY, 0xC1EFEF);
+
+            if(!trimmedText.equals(this.attunedItem.getDisplayName()) && isHovering(textOffsetX, textOffsetY, (int) (manageScreen.font.width(trimmedText) * textScale), (int) (manageScreen.font.lineHeight * textScale), mouseX, mouseY)) {
+                guiGraphics.renderComponentTooltip(manageScreen.font, List.of(Component.literal(this.attunedItem.getDisplayName())), getAttunementCardX() + textOffsetX, getAttunementCardY() + textOffsetY);
+            }
         }
 
         private void renderInformationIcon(GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -490,9 +497,7 @@ public class ManageAttunementsScreen extends Screen {
         }
 
         private int getDeleteButtonOffsetToRender(double mouseX, double mouseY) {
-            if(isDeleteButtonDisabled) {
-                return 101;
-            } else if(isDeleteButtonDown) {
+            if(isDeleteButtonDown) {
                 return 91;
             } else if(isHoveringDeleteButton(mouseX, mouseY)) {
                 return 81;
