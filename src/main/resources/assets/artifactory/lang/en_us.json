@@ -6,6 +6,7 @@
   "hovertext.artifactory.attuned_item": "Attuned",
   "hovertext.artifactory.use_without_attunement": "Attunable",
   "hovertext.artifactory.use_with_attunement": "Attunable (Required)",
+  "hovertext.artifactory.unique": "Unique",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use.",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",
@@ -27,7 +28,10 @@
 
   "screen.text.artifactory.attunement.title": "Attune Items",
   "screen.text.artifactory.attunement.slots": "Attunement Slots",
-  "screen.text.artifactory.attunement.unique": "Unique",
+  "screen.text.artifactory.attunement.attuned_to_other": "This item is attuned to %1$s",
+  "screen.text.artifactory.attunement.not_attuned": "Not yet attuned",
+  "screen.text.artifactory.attunement.current_level": "Attunement Level: %1$s",
+  "screen.text.artifactory.attunement.unique": "UNIQUE",
 
   "screen.text.artifactory.manage.slots": "Attunement Slots",
   "screen.text.artifactory.manage.unique_attunements": "Unique Attunements",
@@ -36,6 +40,8 @@
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
   "screen.text.artifactory.manage.attunement_level_max": " §a(Max)§f",
   "screen.text.artifactory.manage.attunement_data_not_found": "No attunement data found.",
+  "screen.text.artifactory.manage.requirement_cost": "Levels Consumed:",
+  "screen.text.artifactory.manage.requirement_threshold": "Level Threshold:",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",
@@ -48,7 +54,7 @@
   "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",
   "screen.tooltip.artifactory.max_attunement_reached": "You have reached the maximum attunement level with this item.",
   "screen.tooltip.artifactory.manage_button": "Manage Attunements",
-
+  "screen.tooltip.artifactory.attuned_by_another_player": "This item is already attuned by %1$s.",
   "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
 
   "attribute.artifactory.max_attunement_slots": "Max Attunement Slots",

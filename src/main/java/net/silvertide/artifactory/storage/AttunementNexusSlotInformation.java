@@ -10,16 +10,12 @@ import net.silvertide.artifactory.util.*;
 import java.util.List;
 import java.util.UUID;
 
-public record AttunementNexusSlotInformation(String itemName, int slotsUsed, String uniqueStatus, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
+public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, String uniqueStatus, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
 
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!AttunementUtil.isValidAttunementItem(stack)) return null;
 
         return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
-            // First check if it's already attuned to a player and make sure that is the player requesting this information.
-            if (AttunementUtil.isItemAttunedToAPlayer(stack) && !AttunementUtil.isItemAttunedToPlayer(player, stack))
-                return null;
-
             // Get the level of attunement achieved by the player.
             int levelOfAttunementAchievedByPlayer = AttunementUtil.getLevelOfAttunementAchievedByPlayer(player, stack);
             int numLevels = DataPackUtil.getNumAttunementLevels(stack);
@@ -42,28 +38,30 @@ public record AttunementNexusSlotInformation(String itemName, int slotsUsed, Str
                     xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
                     itemRequirements.addRequirements(nextAttunementLevel.getRequirements().getItems());
                 }
+            }
 
-                // If the player isn't attuned to the item we need to first check if its a unique item
-                // and the item type has no other attuned owners. If there is then it can't be attuned by
-                // the player.
-                if(itemAttunementData.unique() && levelOfAttunementAchievedByPlayer == 0) {
-                    List<UUID> ownerUUIDs = AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack));
-                    if(!ownerUUIDs.isEmpty()) {
-                        if(ownerUUIDs.contains(player.getUUID())) {
-                            uniqueStatus = UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER;
-                        } else {
-                            uniqueStatus = ArtifactorySavedData.get().getPlayerName(ownerUUIDs.get(0)).orElse("someone");
-                        }
+            // If the player isn't attuned to the item we need to first check if its a unique item
+            // and the item type has no other attuned owners. If there is then it can't be attuned by
+            // the player.
+            if(itemAttunementData.unique() && levelOfAttunementAchievedByPlayer == 0) {
+                List<UUID> ownerUUIDs = AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack));
+                if(!ownerUUIDs.isEmpty()) {
+                    if(ownerUUIDs.contains(player.getUUID())) {
+                        uniqueStatus = UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER;
                     } else {
-                        if (AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID())) {
-                            uniqueStatus = UniqueStatus.REACHED_UNIQUE_CAPACITY;
-                        }
+                        uniqueStatus = UniqueStatus.ATTUNED_BY_ANOTHER_PLAYER;
+                    }
+                } else {
+                    if (AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID())) {
+                        uniqueStatus = UniqueStatus.REACHED_UNIQUE_CAPACITY;
                     }
                 }
             }
 
             return new AttunementNexusSlotInformation(
                     AttunementUtil.getAttunedItemDisplayName(stack),
+                    StackNBTUtil.getAttunedToName(stack).orElse(""),
+                    AttunementUtil.isAttunedToAnotherPlayer(player, stack),
                     itemAttunementData.attunementSlotsUsed(),
                     uniqueStatus,
                     xpConsumed,
@@ -101,6 +99,8 @@ public record AttunementNexusSlotInformation(String itemName, int slotsUsed, Str
 
     public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
         buf.writeUtf(slotInformation.itemName());
+        buf.writeUtf(slotInformation.attunedToName());
+        buf.writeBoolean(slotInformation.attunedByAnotherPlayer);
         buf.writeInt(slotInformation.slotsUsed());
         buf.writeUtf(slotInformation.uniqueStatus());
         buf.writeInt(slotInformation.xpConsumed());
@@ -112,7 +112,7 @@ public record AttunementNexusSlotInformation(String itemName, int slotsUsed, Str
     }
 
     public static AttunementNexusSlotInformation decode(FriendlyByteBuf buf) {
-        return new AttunementNexusSlotInformation(buf.readUtf(), buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
+        return new AttunementNexusSlotInformation(buf.readUtf(), buf.readUtf(), buf.readBoolean(), buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
     }
 
 }

@@ -79,7 +79,7 @@ public class ClientSetupEvents {
 
     private void addUniqueTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
         if(itemAttunementData.unique()) {
-            toolTips.add(Component.literal("Unique").withStyle(ChatFormatting.GOLD));
+            toolTips.add(Component.translatable("hovertext.artifactory.unique").withStyle(ChatFormatting.GOLD));
         }
     }
 }

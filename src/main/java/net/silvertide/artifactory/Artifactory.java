@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 
 // GUI
 // TODO: Redo attune screen gui design
-// TODO: Add updatable graphic
+// TODO: Add progress graphic
 // TODO: Update confirmation screen text to be simpler with the item name a different color, etc
 
 // CLEANUP

@@ -22,7 +22,6 @@ import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import net.silvertide.artifactory.util.UniqueStatus;
 import org.apache.commons.compress.utils.Lists;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -181,15 +180,15 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY) {
         AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-        if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()){
+        if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()) {
             renderItemName(guiGraphics, backgroundX, backgroundY, mouseX, mouseY, slotInformation);
+            renderCurrentAttunementLevel(guiGraphics, backgroundX, backgroundY, slotInformation);
+            renderUniqueInfo(guiGraphics, backgroundX, backgroundY, slotInformation);
 //            renderAttunementSlotRatio(guiGraphics, backgroundX, backgroundY, slotInformation);
-//            renderCurrentAttunementLevel(guiGraphics, backgroundX, backgroundY, slotInformation);
-//            renderUniqueInfo(guiGraphics, backgroundX, backgroundY, slotInformation);
 
-            if(!slotInformation.isPlayerAtMaxAttuneLevel()) {
-//                renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation);
-//                renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation);
+            if(!slotInformation.attunedByAnotherPlayer() && !slotInformation.isPlayerAtMaxAttuneLevel()) {
+                renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation);
+                renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation);
             }
         }
     }
@@ -200,13 +199,32 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         float textScale = 0.6F;
 
         String trimmedText = GUIUtil.trimTextToWidth(slotInformation.itemName(), this.font, 149);
-        GUIUtil.drawScaledString(guiGraphics, textScale, this.font, trimmedText, backgroundX + textOffsetX, backgroundY + textOffsetY, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledString(guiGraphics, textScale, this.font, trimmedText, backgroundX + textOffsetX, backgroundY + textOffsetY, 0xC1EFEF);
 
         if(!trimmedText.equals(slotInformation.itemName()) && isHovering(textOffsetX, textOffsetY, (int) (this.font.width(trimmedText) * textScale), (int) (this.font.lineHeight * textScale), mouseX, mouseY)) {
             guiGraphics.renderComponentTooltip(this.font, List.of(Component.literal(slotInformation.itemName())), backgroundX + textOffsetX, backgroundY + textOffsetY);
         }
     }
 
+    private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        MutableComponent attunementLevel;
+        if(slotInformation.levelAchievedByPlayer() == 0 && !"".equals(slotInformation.attunedToName())) {
+            attunementLevel = Component.translatable("screen.text.artifactory.attunement.attuned_to_other", slotInformation.attunedToName());
+        } else if(slotInformation.levelAchievedByPlayer() == 0){
+            attunementLevel = Component.translatable("screen.text.artifactory.attunement.not_attuned");
+        } else {
+            attunementLevel = Component.translatable("screen.text.artifactory.attunement.current_level", String.valueOf(slotInformation.levelAchievedByPlayer()));
+        }
+        GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevel, x + 89, y + 30, 75, BUTTON_TEXT_COLOR);
+    }
+
+
+    private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        if(slotInformation.uniqueStatus() != null && !"".equals(slotInformation.uniqueStatus())) {
+            Component attunementLevelComponent = Component.translatable("screen.text.artifactory.attunement.unique");
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevelComponent, x + 89, y + 38, 75, 0xFFAA00);
+        }
+    }
 
     private void renderAttunementSlotRatio(GuiGraphics guiGraphics, int backgroundX, int backgroundY, AttunementNexusSlotInformation slotInformation) {
         int numAttunementSlotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
@@ -225,42 +243,32 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         Component denominator = Component.literal(attunementSlotDenominator);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, Component.translatable("screen.text.artifactory.attunement.slots"), backgroundX + 6 * this.imageWidth / 8, backgroundY + 20, 75, BUTTON_TEXT_COLOR);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 25, 75, BUTTON_TEXT_COLOR);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, backgroundX + 6 * this.imageWidth / 8, backgroundY + 35, 75, BUTTON_TEXT_COLOR);
-    }
-
-    private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        Component attunementLevelComponent = Component.literal(String.valueOf(slotInformation.levelAchievedByPlayer()));
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, attunementLevelComponent, x + 6 * this.imageWidth / 8, y + 45, 75, BUTTON_TEXT_COLOR);
-    }
-
-
-    private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if(slotInformation.uniqueStatus() != null && !"".equals(slotInformation.uniqueStatus())) {
-            Component attunementLevelComponent = Component.translatable("screen.text.artifactory.attunement.unique");
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, attunementLevelComponent, x + 6 * this.imageWidth / 8, y + 70, 75, BUTTON_TEXT_COLOR);
-        }
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, Component.translatable("screen.text.artifactory.attunement.slots"), backgroundX + 126, backgroundY + 34, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, backgroundX + 126, backgroundY + 42, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, backgroundX + 125, backgroundY + 50, 75, BUTTON_TEXT_COLOR);
     }
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpConsumed() > 0) {
+            Component experienceCost = Component.translatable("screen.text.artifactory.manage.requirement_cost");
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 95 - this.font.width(experienceCost), y + 50, 75, BUTTON_TEXT_COLOR);
+
             Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, levelCostComponent, x + 6 * this.imageWidth / 8, y + 50, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 96, y + 50, 75, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if (slotInformation.xpThreshold() > 0) {
+        if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
             Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, levelThresholdComponent, x + 6 * this.imageWidth / 8, y + 60, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 6 * this.imageWidth / 8, y + 60, 75, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
         if(getMenu().getProgress() > 0) {
-//            guiGraphics.blit(TEXTURE, x + 79, y + 22, 177, 104, 18, getMenu().getScaledProgress() / 2);
-//            guiGraphics.blit(TEXTURE, x + 97, y + 40, 195, 122, -18, -1 * getMenu().getScaledProgress() / 2);
+            double ratio = (double) getMenu().getScaledProgress() / getMenu().MAX_PROGRESS;
+            guiGraphics.blit(TEXTURE, x + 41, y + 36, 201, 52, 34, (int) ratio);
         }
     }
 
@@ -270,15 +278,17 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
             AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
             if(slotInformation != null) {
-                if(slotInformation.isPlayerAtMaxAttuneLevel()) {
+                if(slotInformation.attunedByAnotherPlayer()) {
+                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.attuned_by_another_player", slotInformation.attunedToName()));
+                } else if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
                 } else if(!slotInformation.uniqueStatus().isEmpty()) {
                     if (UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER.equals(slotInformation.uniqueStatus())) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
-                    } else if (UniqueStatus.REACHED_UNIQUE_CAPACITY.equals(slotInformation.uniqueStatus())) {
+                    } else if (UniqueStatus.ATTUNED_BY_ANOTHER_PLAYER.equals(slotInformation.uniqueStatus())) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.attunedToName()));
+                    } else if(UniqueStatus.REACHED_UNIQUE_CAPACITY.equals(slotInformation.uniqueStatus())){
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.reached_unique_limit"));
-                    } else {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.uniqueStatus()));
                     }
                 }
                 else {
