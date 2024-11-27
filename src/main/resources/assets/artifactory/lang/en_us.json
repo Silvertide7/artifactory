@@ -59,7 +59,7 @@
   "screen.tooltip.artifactory.manage_button": "Manage Attunements",
   "screen.tooltip.artifactory.attuned_by_another_player": "This item is already attuned by %1$s.",
   "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
-
+  "screen.tooltip.artifactory.provide_items": "Provide required items.",
   "attribute.artifactory.max_attunement_slots": "Max Attunement Slots",
   "curios.identifier.homebound_stone": "Test Slot"
 }

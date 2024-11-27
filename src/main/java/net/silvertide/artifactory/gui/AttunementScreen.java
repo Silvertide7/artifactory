@@ -246,20 +246,20 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpConsumed() > 0) {
             Component experienceCost = Component.translatable("screen.text.artifactory.manage.requirement_cost");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 130, y + 52, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 136, y + 52, 75, BUTTON_TEXT_COLOR);
 
             Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 132, y + 52, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 138, y + 52, 75, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
             Component experienceThreshold = Component.translatable("screen.text.artifactory.manage.requirement_threshold");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceThreshold, x + 130, y + 58, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceThreshold, x + 136, y + 58, 75, BUTTON_TEXT_COLOR);
 
             Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 132, y + 58, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 138, y + 58, 75, BUTTON_TEXT_COLOR);
         }
     }
 
@@ -280,8 +280,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         int textX = 126;
-        int numeratorY = 69;
-        int denominatorY = 75;
+        int numeratorY = 66;
+        int denominatorY = 74;
         float textScale = 0.5F;
 
 //        guiGraphics.blit(TEXTURE, backgroundX + 126, backgroundY + 27, 0, 167, 83, 1);
@@ -327,6 +327,12 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
                 else {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
+                    if(menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
+                            menu.getItemRequirementTwoState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
+                            menu.getItemRequirementThreeState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));
+
+                    }
                 }
             }
         } else if (!getMenu().hasAttunableItemInSlot() && requirementsList != null) {
