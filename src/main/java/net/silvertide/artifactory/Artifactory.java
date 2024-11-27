@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 // TODO: Redo attune screen gui design
 // TODO: Add progress graphic
 // TODO: Update confirmation screen text to be simpler with the item name a different color, etc
+// TODO: Manage screen scroll has overlap on hover text
 
 // CLEANUP
 // TODO: Remove Curios Tests

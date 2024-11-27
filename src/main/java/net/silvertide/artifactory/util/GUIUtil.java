@@ -61,12 +61,6 @@ public final class GUIUtil {
         guiGraphics.pose().popPose();
     }
 
-    public static void drawCenteredWordWrap(GuiGraphics guiGraphics, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
-        int fontWidth = font.width(buttonTextComp);
-        int fontHeight = font.lineHeight;
-        guiGraphics.drawWordWrap(font, buttonTextComp, textX - fontWidth / 2, textY - fontHeight / 2, lineWidth, color);
-    }
-
     public static void drawScaledCenteredWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
         if("".equals(buttonTextComp.getString())) return;
 
@@ -80,6 +74,22 @@ public final class GUIUtil {
 
         int scaledTextX = (int) ((textX - xOffset / 2) / textScale);
         int scaledTextY = (int) ((textY - fontHeight / 3) / textScale);
+        guiGraphics.drawWordWrap(font, buttonTextComp, scaledTextX, scaledTextY, (int) (lineWidth / textScale), color);
+
+        guiGraphics.pose().popPose();
+    }
+
+
+    public static void drawLeftAlignedScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
+        if("".equals(buttonTextComp.getString())) return;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(textScale, textScale, textScale);
+
+        float fontWidth = font.width(buttonTextComp) * textScale;
+
+        int scaledTextX = (int) ((textX - fontWidth) / textScale);
+        int scaledTextY = (int) ((textY) / textScale);
         guiGraphics.drawWordWrap(font, buttonTextComp, scaledTextX, scaledTextY, (int) (lineWidth / textScale), color);
 
         guiGraphics.pose().popPose();
@@ -134,4 +144,5 @@ public final class GUIUtil {
     public static void playSound(Level level, Player player, SoundEvent soundEvent){
         playSound(level, player.getX(), player.getY(), player.getZ(), soundEvent);
     }
+
 }

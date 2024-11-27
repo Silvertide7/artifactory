@@ -32,6 +32,8 @@
   "screen.text.artifactory.attunement.not_attuned": "Not yet attuned",
   "screen.text.artifactory.attunement.current_level": "Attunement Level: %1$s",
   "screen.text.artifactory.attunement.unique": "UNIQUE",
+  "screen.text.artifactory.attunement.slots_required": "Slots Used: %1$s",
+  "screen.text.artifactory.attunement.requirement_text": "Attunement Requirements",
 
   "screen.text.artifactory.manage.slots": "Attunement Slots",
   "screen.text.artifactory.manage.unique_attunements": "Unique Attunements",
@@ -40,6 +42,7 @@
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
   "screen.text.artifactory.manage.attunement_level_max": " §a(Max)§f",
   "screen.text.artifactory.manage.attunement_data_not_found": "No attunement data found.",
+  "screen.text.artifactory.manage.requirement_text": "Requirements",
   "screen.text.artifactory.manage.requirement_cost": "Levels Consumed:",
   "screen.text.artifactory.manage.requirement_threshold": "Level Threshold:",
 
