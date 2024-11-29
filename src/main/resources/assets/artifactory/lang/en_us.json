@@ -45,6 +45,7 @@
   "screen.text.artifactory.manage.requirement_text": "Requirements",
   "screen.text.artifactory.manage.requirement_cost": "Levels Consumed:",
   "screen.text.artifactory.manage.requirement_threshold": "Level Threshold:",
+  "screen.text.artifactory.attunement.slot_text": "Slots",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",
@@ -60,6 +61,15 @@
   "screen.tooltip.artifactory.attuned_by_another_player": "This item is already attuned by %1$s.",
   "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
   "screen.tooltip.artifactory.provide_items": "Provide required items.",
-  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots",
+  "screen.tooltip.artifactory.max_slots": "Slots",
+
+  "attribute.artifactory.attunement.one_item_slot_required": "This item requires 1 slot to attune.",
+  "attribute.artifactory.attunement.item_slots_required": "This item requires %1$s slots to attune.",
+  "attribute.artifactory.attunement.slots_available": "You have %1$s slots available.",
+  "attribute.artifactory.attunement.one_slot_available": "You have 1 slot available.",
+  "attribute.artifactory.attunement.slots_ratio": "You are currently using %1$s of your %2$s slots.",
+  "attribute.artifactory.attunement.not_enough_slots": "You don't have enough slots available to attune this item.",
+
+  "screen.tooltip.artifactory.not_enough_slots_available": "Not enough attunement slots available to attune this item.",
   "curios.identifier.homebound_stone": "Test Slot"
 }

@@ -284,16 +284,40 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         int denominatorY = 74;
         float textScale = 0.5F;
 
-//        guiGraphics.blit(TEXTURE, backgroundX + 126, backgroundY + 27, 0, 167, 83, 1);
-
         Component denominator = Component.literal(attunementSlotDenominator);
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, numerator, backgroundX + textX, backgroundY + numeratorY, 75, BUTTON_TEXT_COLOR);
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, denominator, backgroundX + textX, backgroundY + denominatorY, 75, BUTTON_TEXT_COLOR);
 
-        int xBound = (int) (Math.max(this.font.width(numerator), this.font.width(denominator)) * textScale);
+        // Draw title
+        Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
+        GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 70 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
+
+        // Draw dividing line
+        guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 70, 0, 169, 34, 1);
+
         int yBound = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
-        if(isHovering(textX - xBound / 2, numeratorY, xBound, yBound, mouseX, mouseY)) {
-            guiGraphics.renderComponentTooltip(this.font, requirementsList, mouseX, mouseY);
+        if(isHovering(109, numeratorY, 34, yBound, mouseX, mouseY)) {
+            List<Component> slotTooltips = new ArrayList<>();
+            int slotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
+            int maxSlots = AttunementUtil.getMaxAttunementSlots(this.player);
+            int slotsAvailable = Math.max(maxSlots - slotsUsedByPlayer, 0);
+            if(slotsAvailable < slotInformation.slotsUsed()) {
+                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.not_enough_slots"));
+
+            }
+            if(slotInformation.slotsUsed() == 1) {
+                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.one_item_slot_required"));
+            } else if (slotInformation.slotsUsed() > 0) {
+                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.item_slots_required", slotInformation.slotsUsed()));
+            }
+            if(slotsAvailable == 1) {
+                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.one_slot_available"));
+            } else {
+                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.slots_available", slotsAvailable));
+            }
+            slotTooltips.add(Component.translatable("attribute.artifactory.attunement.slots_ratio", slotsUsedByPlayer, maxSlots));
+
+            guiGraphics.renderComponentTooltip(this.font, slotTooltips, mouseX, mouseY);
         }
 
     }
@@ -325,13 +349,17 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
                     }
                 }
                 else {
-                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
-                    requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-                    if(menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
-                            menu.getItemRequirementTwoState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
-                            menu.getItemRequirementThreeState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));
+                    if(slotInformation.levelAchievedByPlayer() == 0 && slotInformation.numSlotsUsedByPlayer() + slotInformation.slotsUsed() > AttunementUtil.getMaxAttunementSlots(this.player)) {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.not_enough_slots_available"));
 
+                    } else {
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
+                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
+                        if(menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
+                                menu.getItemRequirementTwoState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
+                                menu.getItemRequirementThreeState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+                            requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));
+                        }
                     }
                 }
             }
