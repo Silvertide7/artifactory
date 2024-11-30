@@ -24,7 +24,7 @@ import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
 public class AttunementMenu extends AbstractContainerMenu {
-    public final int MAX_PROGRESS = 60;
+    public final int MAX_PROGRESS = 120;
     private final ContainerLevelAccess access;
     private final Player player;
     private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
@@ -321,14 +321,6 @@ public class AttunementMenu extends AbstractContainerMenu {
     private void playAttuneEffects(ServerPlayer player) {
         GUIUtil.spawnParticals(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 2);
         GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_DEACTIVATE);
-    }
-
-    // Block Entity Data Methods
-    public int getScaledProgress() {
-        int progress = getProgress();
-        int progressArrowSize = 18;
-
-        return progress != 0 ? progress * progressArrowSize / MAX_PROGRESS : 0;
     }
 
     private boolean meetsRequirementsToAttune() {

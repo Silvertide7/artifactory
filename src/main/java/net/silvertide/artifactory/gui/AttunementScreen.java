@@ -303,7 +303,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
             int slotsAvailable = Math.max(maxSlots - slotsUsedByPlayer, 0);
             if(slotsAvailable < slotInformation.slotsUsed()) {
                 slotTooltips.add(Component.translatable("attribute.artifactory.attunement.not_enough_slots"));
-
             }
             if(slotInformation.slotsUsed() == 1) {
                 slotTooltips.add(Component.translatable("attribute.artifactory.attunement.one_item_slot_required"));
@@ -323,10 +322,31 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     }
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
-        if(getMenu().getProgress() > 0) {
-            double ratio = (double) getMenu().getScaledProgress() / getMenu().MAX_PROGRESS;
-            guiGraphics.blit(TEXTURE, x + 41, y + 36, 201, 52, 34, (int) ratio);
+        int progress = getMenu().getProgress();
+        if(progress > 0) {
+            double ratio = (double) progress / getMenu().MAX_PROGRESS;
+
+            if(progress > 40 && progress <= 80) {
+                // Phase 2
+                renderPhaseOne(guiGraphics, x, y, 1D);
+            } else if (progress > 80) {
+                // Phase 3
+                renderPhaseOne(guiGraphics, x, y, 1D);
+            } else {
+                // Phase 1
+                renderPhaseOne(guiGraphics, x, y, ratio / 0.33);
+            }
         }
+    }
+
+    private void renderPhaseOne(GuiGraphics guiGraphics, int x, int y, double ratio) {
+        int verticalDraw = (int) (ratio * 34);
+        guiGraphics.blit(TEXTURE, x + 32, y + 27, 201, 52, 34, verticalDraw);
+    }
+
+    private void renderPhaseTwo(GuiGraphics guiGraphics, int x, int y, double ratio) {
+        int verticalDraw = (int) (ratio * 34);
+        guiGraphics.blit(TEXTURE, x + 32, y + 27, 201, 52, 34, verticalDraw);
     }
 
     private void updateRequirementsList() {
