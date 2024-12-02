@@ -324,17 +324,19 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
         int progress = getMenu().getProgress();
         if(progress > 0) {
-            double ratio = (double) progress / getMenu().MAX_PROGRESS;
-
-            if(progress > 40 && progress <= 80) {
+            double ratio = (double) progress / getMenu().MAX_PROGRESS % 0.33 / 0.33;
+            if(progress >= 40 && progress < 80) {
                 // Phase 2
                 renderPhaseOne(guiGraphics, x, y, 1D);
-            } else if (progress > 80) {
+                renderPhaseTwo(guiGraphics, x, y, ratio);
+            } else if (progress >= 80) {
                 // Phase 3
                 renderPhaseOne(guiGraphics, x, y, 1D);
+                renderPhaseTwo(guiGraphics, x, y, 1D);
+                renderPhaseThree(guiGraphics, x, y, ratio);
             } else {
                 // Phase 1
-                renderPhaseOne(guiGraphics, x, y, ratio / 0.33);
+                renderPhaseOne(guiGraphics, x, y, ratio);
             }
         }
     }
@@ -345,8 +347,29 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     }
 
     private void renderPhaseTwo(GuiGraphics guiGraphics, int x, int y, double ratio) {
-        int verticalDraw = (int) (ratio * 34);
-        guiGraphics.blit(TEXTURE, x + 32, y + 27, 201, 52, 34, verticalDraw);
+        renderPhaseTwoNorth(guiGraphics, x, y, (int) (ratio * 7));
+        renderPhaseTwoEast(guiGraphics, x, y, (int) (ratio * 7));
+        renderPhaseTwoSouth(guiGraphics, x, y, (int) (ratio * 7));
+        renderPhaseTwoWest(guiGraphics, x, y, (int) (ratio * 7));
+    }
+
+    private void renderPhaseTwoNorth(GuiGraphics guiGraphics, int x, int y, int draw) {
+        guiGraphics.blit(TEXTURE, x + 47, y + 28, 190, 74, 4, draw);
+    }
+
+    private void renderPhaseTwoEast(GuiGraphics guiGraphics, int x, int y, int draw) {
+        guiGraphics.blit(TEXTURE, x + 65, y + 46, 197, 94, -1 * draw, -4);
+    }
+
+    private void renderPhaseTwoSouth(GuiGraphics guiGraphics, int x, int y, int draw) {
+        guiGraphics.blit(TEXTURE, x + 51, y + 60, 194, 89, -4, -1 * draw);
+    }
+
+    private void renderPhaseTwoWest(GuiGraphics guiGraphics, int x, int y, int draw) {
+        guiGraphics.blit(TEXTURE, x + 33, y + 42, 190, 95, draw, 4);
+    }
+
+    private void renderPhaseThree(GuiGraphics guiGraphics, int x, int y, double ratio) {
     }
 
     private void updateRequirementsList() {
