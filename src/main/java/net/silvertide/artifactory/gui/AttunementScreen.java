@@ -329,17 +329,21 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
                 // Phase 2
                 renderPhaseOne(guiGraphics, x, y, 1D);
                 renderPhaseTwo(guiGraphics, x, y, ratio);
-            } else if (progress >= 80) {
+            } else if (progress >= 80 && progress < 119) {
                 // Phase 3
                 renderPhaseOne(guiGraphics, x, y, 1D);
                 renderPhaseTwo(guiGraphics, x, y, 1D);
                 renderPhaseThree(guiGraphics, x, y, ratio);
+            } else if(progress >= 119) {
+                // Phase 4
+                renderPhaseFour(guiGraphics, x, y);
             } else {
                 // Phase 1
                 renderPhaseOne(guiGraphics, x, y, ratio);
             }
         }
     }
+
 
     private void renderPhaseOne(GuiGraphics guiGraphics, int x, int y, double ratio) {
         int verticalDraw = (int) (ratio * 34);
@@ -373,11 +377,33 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private void renderPhaseThree(GuiGraphics guiGraphics, int x, int y, double ratio) {
         int drawDistance = (int) (ratio * 8);
         renderPhaseThreeNorth(guiGraphics, x, y, drawDistance);
+        renderPhaseThreeEast(guiGraphics, x, y, drawDistance);
+        renderPhaseThreeSouth(guiGraphics, x, y, drawDistance);
+        renderPhaseThreeWest(guiGraphics, x, y, drawDistance);
     }
 
     private void renderPhaseThreeNorth(GuiGraphics guiGraphics, int x, int y, int drawDistance) {
         guiGraphics.blit(TEXTURE, x + 51, y + 34, 189, 142, drawDistance, 1);
         guiGraphics.blit(TEXTURE, x + 47, y + 35, 185, 143, -drawDistance, -1);
+    }
+
+    private void renderPhaseThreeEast(GuiGraphics guiGraphics, int x, int y, int drawDistance) {
+        guiGraphics.blit(TEXTURE, x + 58, y + 46, 196, 154, 1, drawDistance);
+        guiGraphics.blit(TEXTURE, x + 59, y + 42, 197, 150, -1, -drawDistance);
+    }
+
+    private void renderPhaseThreeSouth(GuiGraphics guiGraphics, int x, int y, int drawDistance) {
+        guiGraphics.blit(TEXTURE, x + 51, y + 53, 189, 161, drawDistance, 1);
+        guiGraphics.blit(TEXTURE, x + 47, y + 54, 185, 162, -drawDistance, -1);
+    }
+
+    private void renderPhaseThreeWest(GuiGraphics guiGraphics, int x, int y, int drawDistance) {
+        guiGraphics.blit(TEXTURE, x + 39, y + 46, 177, 154, 1, drawDistance);
+        guiGraphics.blit(TEXTURE, x + 40, y + 42, 178, 150, -1, -drawDistance);
+    }
+
+    private void renderPhaseFour(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(TEXTURE, x + 40, y + 35, 198, 142, 18, 18);
     }
 
     private void updateRequirementsList() {
