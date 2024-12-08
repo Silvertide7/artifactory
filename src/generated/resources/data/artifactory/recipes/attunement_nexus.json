@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:anvil"
+    },
+    "B": {
+      "item": "minecraft:beacon"
+    },
+    "C": {
+      "item": "minecraft:conduit"
+    },
+    "S": {
+      "item": "minecraft:blackstone"
+    },
+    "W": {
+      "item": "minecraft:dark_oak_wood"
+    }
+  },
+  "pattern": [
+    "WAW",
+    "SBS",
+    "SCS"
+  ],
+  "result": {
+    "item": "artifactory:attunement_nexus"
+  },
+  "show_notification": true
+}
