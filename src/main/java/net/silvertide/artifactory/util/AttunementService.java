@@ -84,11 +84,11 @@ public final class AttunementService {
 
     }
 
-    public static void applyEffectsToPlayer(Player player, ItemStack stack) {
+    public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-            } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
+            } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
             }
         }

@@ -106,7 +106,7 @@ public class ArtifactEvents {
                 if(armorStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(armorStack);
 
-                AttunementService.applyEffectsToPlayer(player, armorStack);
+                AttunementService.applyEffectsToPlayer(player, armorStack, true);
             }
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
@@ -114,7 +114,7 @@ public class ArtifactEvents {
                 if(handStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(handStack);
 
-                AttunementService.applyEffectsToPlayer(player, handStack);
+                AttunementService.applyEffectsToPlayer(player, handStack, false);
             }
         }
     }

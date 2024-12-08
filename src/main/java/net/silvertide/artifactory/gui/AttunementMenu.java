@@ -30,23 +30,16 @@ public class AttunementMenu extends AbstractContainerMenu {
     private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
 
     // Data Slot Fields
-    protected final ContainerData data;
-    private int progress = 0;
-    private int isActive = 0;
-    private int ascensionCanStart = 0;
-    private int playerHasAttunedItem = 0;
-    private int itemRequirementOneState = 0;
-    private int itemRequirementTwoState = 0;
-    private int itemRequirementThreeState = 0;
+    protected final SimpleContainerData data;
 
     // Data Slot Accessor Indices
     private final int PROGRESS_INDEX = 0;
     private final int IS_ACTIVE_INDEX = 1;
     private final int ASCENSION_CAN_START_INDEX = 2;
     private final int PLAYER_HAS_ATTUNED_ITEM_INDEX = 3;
-    private final int ITEM_REQUIREMENT_ONE_INFO_INDEX = 4;
-    private final int ITEM_REQUIREMENT_TWO_INFO_INDEX = 5;
-    private final int ITEM_REQUIREMENT_THREE_INFO_INDEX = 6;
+    private final int ITEM_REQUIREMENT_ONE_STATE_INDEX = 4;
+    private final int ITEM_REQUIREMENT_TWO_STATE_INDEX = 5;
+    private final int ITEM_REQUIREMENT_THREE_STATE_INDEX = 6;
 
     // Slots
     private final Slot attunementInputSlot;
@@ -61,10 +54,12 @@ public class AttunementMenu extends AbstractContainerMenu {
     private final ItemRequirementSlot itemRequirementThreeSlot;
     protected final Container itemRequirementThreeContainer = new SimpleContainer(1);
 
+    // Client Constructor
     public AttunementMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
+    // Server Constructor
     public AttunementMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), containerId);
         this.access = access;
@@ -75,7 +70,7 @@ public class AttunementMenu extends AbstractContainerMenu {
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
 
-        this.data = getContainerData();
+        this.data = new SimpleContainerData(8);
         this.addDataSlots(this.data);
 
         this.attunementInputSlot = getAttunementInputSlot();
@@ -90,10 +85,17 @@ public class AttunementMenu extends AbstractContainerMenu {
         this.itemRequirementThreeSlot = getItemRequirementThreeSlot();
         this.addSlot(itemRequirementThreeSlot);
 
+        // Setup initial container data
+        setProgress(0);
+        setIsActive(false);
+        setCanAscensionStart(false);
         setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty());
+        setItemRequirementOneState(0);
+        setItemRequirementTwoState(0);
+        setItemRequirementThreeState(0);
     }
 
-    // Block Data Methods
+    // Container Data Getters / Setters
     public int getProgress() { return this.data.get(PROGRESS_INDEX); }
     private void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
     public boolean getIsActive() { return this.data.get(IS_ACTIVE_INDEX) > 0; }
@@ -102,51 +104,14 @@ public class AttunementMenu extends AbstractContainerMenu {
     private void setCanAscensionStart(boolean value) { this.data.set(ASCENSION_CAN_START_INDEX, value ? 1 : 0); }
     public boolean playerHasAnAttunedItem() { return this.data.get(PLAYER_HAS_ATTUNED_ITEM_INDEX) > 0; }
     private void setPlayerHasAttunedItem(boolean hasAttunedItem) { this.data.set(PLAYER_HAS_ATTUNED_ITEM_INDEX, hasAttunedItem ? 1 : 0); }
-    public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_INFO_INDEX); }
-    private void setItemRequirementOneState(int value) { this.data.set(ITEM_REQUIREMENT_ONE_INFO_INDEX, value); }
-    public int getItemRequirementTwoState() { return this.data.get(ITEM_REQUIREMENT_TWO_INFO_INDEX); }
-    private void setItemRequirementTwoState(int value) { this.data.set(ITEM_REQUIREMENT_TWO_INFO_INDEX, value); }
-    public int getItemRequirementThreeState() { return this.data.get(ITEM_REQUIREMENT_THREE_INFO_INDEX); }
-    private void setItemRequirementThreeState(int value) { this.data.set(ITEM_REQUIREMENT_THREE_INFO_INDEX, value); }
-
-    private ContainerData getContainerData() {
-        return new ContainerData() {
-            @Override
-            public int get(int index) {
-                return switch(index) {
-                    case PROGRESS_INDEX -> AttunementMenu.this.progress;
-                    case IS_ACTIVE_INDEX -> AttunementMenu.this.isActive;
-                    case ASCENSION_CAN_START_INDEX -> AttunementMenu.this.ascensionCanStart;
-                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementMenu.this.playerHasAttunedItem;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementMenu.this.itemRequirementOneState;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementMenu.this.itemRequirementTwoState;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementMenu.this.itemRequirementThreeState;
-                    default -> PROGRESS_INDEX;
-                };
-            }
-
-            @Override
-            public void set(int index, int value) {
-                switch(index) {
-                    case PROGRESS_INDEX -> AttunementMenu.this.progress = value;
-                    case IS_ACTIVE_INDEX -> AttunementMenu.this.isActive = value;
-                    case ASCENSION_CAN_START_INDEX -> AttunementMenu.this.ascensionCanStart = value;
-                    case PLAYER_HAS_ATTUNED_ITEM_INDEX -> AttunementMenu.this.playerHasAttunedItem = value;
-                    case ITEM_REQUIREMENT_ONE_INFO_INDEX -> AttunementMenu.this.itemRequirementOneState = value;
-                    case ITEM_REQUIREMENT_TWO_INFO_INDEX -> AttunementMenu.this.itemRequirementTwoState = value;
-                    case ITEM_REQUIREMENT_THREE_INFO_INDEX -> AttunementMenu.this.itemRequirementThreeState = value;
-                }
-            }
-
-            @Override
-            public int getCount() {
-                return 7;
-            }
-        };
-    }
+    public int getItemRequirementOneState() { return this.data.get(ITEM_REQUIREMENT_ONE_STATE_INDEX); }
+    private void setItemRequirementOneState(int value) { this.data.set(ITEM_REQUIREMENT_ONE_STATE_INDEX, value); }
+    public int getItemRequirementTwoState() { return this.data.get(ITEM_REQUIREMENT_TWO_STATE_INDEX); }
+    private void setItemRequirementTwoState(int value) { this.data.set(ITEM_REQUIREMENT_TWO_STATE_INDEX, value); }
+    public int getItemRequirementThreeState() { return this.data.get(ITEM_REQUIREMENT_THREE_STATE_INDEX); }
+    private void setItemRequirementThreeState(int value) { this.data.set(ITEM_REQUIREMENT_THREE_STATE_INDEX, value); }
 
     // Slots
-
     private Slot getAttunementInputSlot() {
         return new Slot(attunementInputContainer, 0, 41, 36) {
             @Override
@@ -269,13 +234,15 @@ public class AttunementMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(@NotNull Player player, int pId) {
         if(pId == 1 && attunementInputSlot.hasItem()) {
-            if(progress > 0) {
+            if(getProgress() > 0) {
                 setProgress(0);
                 setIsActive(false);
             } else {
                 setIsActive(true);
             }
         } else if (pId == 2 && player instanceof ServerPlayer serverPlayer && AttunementUtil.doesPlayerHaveAttunedItem(serverPlayer)) {
+            clearAllContainers();
+            clearItemDataSlotData();
             int numUnique = Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
             PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
         }
@@ -344,6 +311,13 @@ public class AttunementMenu extends AbstractContainerMenu {
         return true;
     }
 
+    private void clearAllContainers() {
+        this.clearContainer(player, this.attunementInputContainer);
+        this.clearContainer(player, this.itemRequirementOneContainer);
+        this.clearContainer(player, this.itemRequirementTwoContainer);
+        this.clearContainer(player, this.itemRequirementThreeContainer);
+    }
+
     private void payCostForAttunement() {
         int cost = this.attunementNexusSlotInformation.xpConsumed();
         if(cost > 0) player.giveExperienceLevels(-cost);
@@ -376,8 +350,8 @@ public class AttunementMenu extends AbstractContainerMenu {
             if(this.player instanceof ServerPlayer serverPlayer) {
                 this.attunementNexusSlotInformation = AttunementNexusSlotInformation.createAttunementNexusSlotInformation(serverPlayer, stack);
                 if(this.attunementNexusSlotInformation != null) {
-                    NetworkUtil.updateAttunementNexusSlotInformation(serverPlayer, this.attunementNexusSlotInformation);
                     updateItemSlotRequirements(this.attunementNexusSlotInformation);
+                    NetworkUtil.syncClientAttunementNexusSlotInformation(serverPlayer, this.attunementNexusSlotInformation);
                 }
             }
         }
@@ -434,6 +408,8 @@ public class AttunementMenu extends AbstractContainerMenu {
         this.attunementNexusSlotInformation = null;
 
         this.itemRequirementOneSlot.clearItemRequired();
+        this.itemRequirementTwoSlot.clearItemRequired();
+        this.itemRequirementThreeSlot.clearItemRequired();
     }
 
     public boolean hasAttunableItemInSlot() {
@@ -471,10 +447,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
         super.removed(player);
         this.access.execute((level, blockPos) -> {
-            this.clearContainer(player, this.attunementInputContainer);
-            this.clearContainer(player, this.itemRequirementOneContainer);
-            this.clearContainer(player, this.itemRequirementTwoContainer);
-            this.clearContainer(player, this.itemRequirementThreeContainer);
+            clearAllContainers();
         });
     }
 

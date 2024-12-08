@@ -21,20 +21,14 @@ import net.silvertide.artifactory.gui.AttunementScreen;
 import org.slf4j.Logger;
 
 // FUNCTIONAL
-// TODO: When in survival the unique modifier won't let you upgrade a weapon you are already attuned to.
 // TODO: When a player breaks an attunement on manage screen the slotinforamtion needs to be updated in case slots or unique slots opened up.
-
-// GUI
-// TODO: Redo attune screen gui design
-// TODO: Add progress graphic
-// TODO: Update confirmation screen text to be simpler with the item name a different color, etc
-// TODO: Manage screen scroll has overlap on hover text
+// TODO: Rebuild requirement information on attune screen after attunement happens
 
 // CLEANUP
 // TODO: Remove Curios Tests
 // TODO: Setup balanced datapack data
 // TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
-// TODO: Increase time of attunement
+// TODO: Remove unecessary loggin
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory

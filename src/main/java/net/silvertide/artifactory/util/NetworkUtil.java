@@ -27,8 +27,7 @@ public final class NetworkUtil {
         PacketHandler.sendToClient(player, new CB_UpdateAttunedItemModifications(description));
     }
 
-    public static void updateAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
+    public static void syncClientAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
         PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(attunementNexusSlotInformation));
-
     }
 }

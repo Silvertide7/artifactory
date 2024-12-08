@@ -51,6 +51,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
     private final LocalPlayer player;
+
     public AttunementScreen(AttunementMenu pMenu, Inventory playerInventory, Component pTitle) {
         super(pMenu, playerInventory, pTitle);
         ClientAttunementNexusSlotInformation.registerListener(this);
@@ -60,7 +61,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     @Override
     protected void init() {
         super.init();
-        // Move the label to get rid of it
         this.titleLabelX = 10000;
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
@@ -70,7 +70,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         updateRequirementsList();
-
         renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
@@ -87,7 +86,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
         guiGraphics.blit(TEXTURE, backgroundX, backgroundY, 0, 0, imageWidth, imageHeight);
 
-        renderTitle(guiGraphics, backgroundX, backgroundY);
+        renderTitle(guiGraphics);
         renderItemRequirementSlots(guiGraphics, mouseX, mouseY);
         renderButtons(guiGraphics, mouseX, mouseY);
         renderManageTooltip(guiGraphics, mouseX, mouseY);
@@ -96,19 +95,19 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
     }
 
-    private void renderTitle(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
+    private void renderTitle(GuiGraphics guiGraphics) {
         Component titleComp = Component.translatable("screen.text.artifactory.attunement.title");
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.7F, this.font, titleComp, leftPos + 119, topPos + 13, 100, BUTTON_TEXT_COLOR);
     }
 
     private void renderItemRequirementSlots(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(this.itemRequirementSlotOneRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+        if(this.itemRequirementSlotOneRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
             this.itemRequirementSlotOneRenderer.render(guiGraphics, mouseX, mouseY);
         }
-        if(this.itemRequirementSlotTwoRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+        if(this.itemRequirementSlotTwoRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
             this.itemRequirementSlotTwoRenderer.render(guiGraphics, mouseX, mouseY);
         }
-        if(this.itemRequirementSlotThreeRenderer != null && menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+        if(this.itemRequirementSlotThreeRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
             this.itemRequirementSlotThreeRenderer.render(guiGraphics, mouseX, mouseY);
         }
     }
@@ -147,11 +146,17 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
         if(getMenu().hasAttunableItemInSlot()) {
             AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-            if(slotInformation != null && slotInformation.isPlayerAtMaxAttuneLevel()) {
-                return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
-            } else {
-                return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
+            if(slotInformation != null) {
+                if(slotInformation.isPlayerAtMaxAttuneLevel()) {
+                    return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
+                } else if(slotInformation.levelAchievedByPlayer() > 0){
+                    return Component.translatable("screen.button.artifactory.attune.ascend_not_in_progress");
+                } else {
+                    return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
+                }
             }
+            return Component.translatable("screen.button.artifactory.attune.slot_information_not_available");
+
         }
         return Component.literal("");
     }
@@ -220,7 +225,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         } else {
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.current_level", String.valueOf(slotInformation.levelAchievedByPlayer()));
         }
-        GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevel, x + 92, y + 32, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevel, x + 92, y + 32, 75, 0x9dbef2);
     }
 
 
@@ -234,7 +239,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private void renderAttunementSlotInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if(slotInformation.slotsUsed() > 0) {
             Component slotsRequired = Component.translatable("screen.text.artifactory.attunement.slots_required", slotInformation.slotsUsed());
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, slotsRequired, x + 92, y + 38, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, slotsRequired, x + 92, y + 38, 75, 0x9dbef2);
         }
     }
 
@@ -301,20 +306,34 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
             int slotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
             int maxSlots = AttunementUtil.getMaxAttunementSlots(this.player);
             int slotsAvailable = Math.max(maxSlots - slotsUsedByPlayer, 0);
-            if(slotsAvailable < slotInformation.slotsUsed()) {
-                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.not_enough_slots"));
-            }
-            if(slotInformation.slotsUsed() == 1) {
-                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.one_item_slot_required"));
-            } else if (slotInformation.slotsUsed() > 0) {
-                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.item_slots_required", slotInformation.slotsUsed()));
-            }
-            if(slotsAvailable == 1) {
-                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.one_slot_available"));
+
+            if(!slotInformation.attunedByAnotherPlayer()) {
+                if(slotInformation.levelAchievedByPlayer() == 0) {
+                    if(slotsAvailable < slotInformation.slotsUsed()) {
+                        slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.not_enough_slots"));
+                    }
+                    if(slotInformation.slotsUsed() == 1) {
+                        slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.one_item_slot_required"));
+                    } else if (slotInformation.slotsUsed() > 0) {
+                        slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.item_slots_required", slotInformation.slotsUsed()));
+                    }
+                } else {
+                    if(slotInformation.slotsUsed() == 1) {
+                        slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.one_item_slot_reserved"));
+                    } else if (slotInformation.slotsUsed() > 0) {
+                        slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.item_slots_reserved", slotInformation.slotsUsed()));
+                    }
+                }
             } else {
-                slotTooltips.add(Component.translatable("attribute.artifactory.attunement.slots_available", slotsAvailable));
+                slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attuned_to_other_player"));
             }
-            slotTooltips.add(Component.translatable("attribute.artifactory.attunement.slots_ratio", slotsUsedByPlayer, maxSlots));
+
+            if(slotsAvailable == 1) {
+                slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.one_slot_available"));
+            } else {
+                slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.slots_available", slotsAvailable));
+            }
+            slotTooltips.add(Component.translatable("screen.tooltip.artifactory.attunement.slots_ratio", slotsUsedByPlayer, maxSlots));
 
             guiGraphics.renderComponentTooltip(this.font, slotTooltips, mouseX, mouseY);
         }
@@ -407,7 +426,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     }
 
     private void updateRequirementsList() {
-        if(requirementsList == null && getMenu().hasAttunableItemInSlot()) {
+        if(requirementsList != null) requirementsList = null;
+
+        if(getMenu().hasAttunableItemInSlot()) {
             requirementsList = new ArrayList<>();
 
             AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
@@ -430,18 +451,22 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.not_enough_slots_available"));
 
                     } else {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
-                        if(menu.getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
-                                menu.getItemRequirementTwoState() != ItemRequirementState.NOT_REQUIRED.getValue() ||
-                                menu.getItemRequirementThreeState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
+                        if(this.player.experienceLevel < slotInformation.xpConsumed()) {
+                            requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_levels_consumed", slotInformation.xpConsumed()));
+                        }
+                        if(slotInformation.xpThreshold() > slotInformation.xpConsumed() && this.player.experienceLevel < slotInformation.xpThreshold()){
+                            requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
+                        }
+                        boolean itemOneSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemTwoSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemThreeSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
+
+                        if(itemOneSlotNeedsItems || itemTwoSlotNeedsItems || itemThreeSlotNeedsItems) {
                             requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));
                         }
                     }
                 }
             }
-        } else if (!getMenu().hasAttunableItemInSlot() && requirementsList != null) {
-            requirementsList = null;
         }
     }
 
@@ -511,15 +536,15 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     private void handleAttuneButtonPress() {
         if(this.minecraft != null && this.minecraft.gameMode != null && getMenu().canAscensionStart()) {
-            this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
+            this.minecraft.gameMode.handleInventoryButtonClick((getMenu()).containerId, 1);
         }
     }
 
     private void handleManageButtonPress() {
         if(this.minecraft != null && this.minecraft.gameMode != null) {
-            this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 2);
-            if(menu.getIsActive()) {
-                this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, 1);
+            this.minecraft.gameMode.handleInventoryButtonClick((getMenu()).containerId, 2);
+            if(getMenu().getIsActive()) {
+                this.minecraft.gameMode.handleInventoryButtonClick((getMenu()).containerId, 1);
             }
         }
     }
@@ -560,6 +585,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     public void onClose() {
         super.onClose();
         ClientAttunementNexusSlotInformation.removeListener(this);
+        ClientAttunementNexusSlotInformation.clearSlotInformation();
     }
 
     private class ItemRequirementSlotRenderer {

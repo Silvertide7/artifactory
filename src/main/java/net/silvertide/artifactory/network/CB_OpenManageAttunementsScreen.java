@@ -3,6 +3,7 @@ package net.silvertide.artifactory.network;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.gui.AttunementScreen;
 import net.silvertide.artifactory.gui.ManageAttunementsScreen;
 
@@ -23,6 +24,7 @@ public class CB_OpenManageAttunementsScreen {
             Minecraft minecraft = Minecraft.getInstance();
 
             if(minecraft.screen instanceof AttunementScreen) {
+                ClientAttunementNexusSlotInformation.clearSlotInformation();
                 minecraft.pushGuiLayer(new ManageAttunementsScreen(msg.numUniqueAttunementsAllowed));
             }else if(!(minecraft.screen instanceof ManageAttunementsScreen)) {
                 minecraft.setScreen(new ManageAttunementsScreen(msg.numUniqueAttunementsAllowed));

@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 public abstract class ItemRequirementSlot extends Slot {
-
     private ItemStack stackRequired = ItemStack.EMPTY;
     public ItemRequirementSlot(Container pContainer, int pSlot, int pX, int pY) {
         super(pContainer, pSlot, pX, pY);
