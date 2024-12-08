@@ -20,12 +20,8 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.gui.AttunementScreen;
 import org.slf4j.Logger;
 
-// FUNCTIONAL
-// TODO: When a player breaks an attunement on manage screen the slotinforamtion needs to be updated in case slots or unique slots opened up.
-// TODO: Rebuild requirement information on attune screen after attunement happens
 
 // CLEANUP
-// TODO: Remove Curios Tests
 // TODO: Setup balanced datapack data
 // TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
 // TODO: Remove unecessary loggin

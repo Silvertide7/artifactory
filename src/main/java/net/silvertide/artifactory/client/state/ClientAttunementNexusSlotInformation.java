@@ -14,7 +14,6 @@ public class ClientAttunementNexusSlotInformation {
     public static void setSlotInformation(AttunementNexusSlotInformation attunedNexusSlotInformation) {
         slotInformation = attunedNexusSlotInformation;
         notifyListeners();
-        Artifactory.LOGGER.info("Client side slot information updated! \n" + slotInformation.toString());
     }
 
     public static AttunementNexusSlotInformation getSlotInformation() {

@@ -80,10 +80,6 @@ public class ArtifactEvents {
         Player player = itemPickupEvent.getEntity();
         if(player.level().isClientSide() || itemPickupEvent.isCanceled()) return;
         AttunementService.clearBrokenAttunementIfExists(itemPickupEvent.getStack());
-
-        DataPackUtil.getAttunementData(itemPickupEvent.getStack()).ifPresent(itemAttunementData -> {
-            Artifactory.LOGGER.info(itemAttunementData.toString());
-        });
     }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
