@@ -378,13 +378,19 @@ public class ManageAttunementsScreen extends Screen {
                 this.isOffScreen = false;
             }
 
+
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics, (int) mouseX, (int) mouseY);
-            renderAttunementLevel(guiGraphics);
-            renderSlotsUsed(guiGraphics);
-            renderInformationIcon(guiGraphics, mouseX, mouseY);
-            renderInformationTooltip(guiGraphics, mouseX, mouseY);
+            if(attunementData != null) {
+                renderAttunementLevel(guiGraphics);
+                renderSlotsUsed(guiGraphics);
+                renderInformationIcon(guiGraphics, mouseX, mouseY);
+                renderInformationTooltip(guiGraphics, mouseX, mouseY);
+            } else {
+                renderNoAttunementDataWarning(guiGraphics);
+            }
+
             renderDeleteButton(guiGraphics, mouseX, mouseY);
 
             guiGraphics.pose().popPose();
@@ -419,15 +425,19 @@ public class ManageAttunementsScreen extends Screen {
         }
 
         private int getItemBorderOffset() {
-            double progress = (double) attunedItem.getAttunementLevel() / attunementData.attunementLevels().size();
-            if(progress >= 0.0 && progress < 0.33) {
-                return 169;
-            } else if (progress >= 0.33 && progress < 0.65) {
-                return 188;
-            } else if (progress >= 0.66 && progress < 1.00) {
-                return 207;
-            } else if (attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
-                return 226;
+            if(attunementData != null) {
+                double progress = (double) attunedItem.getAttunementLevel() / attunementData.attunementLevels().size();
+                if(progress >= 0.0 && progress < 0.33) {
+                    return 169;
+                } else if (progress >= 0.33 && progress < 0.65) {
+                    return 188;
+                } else if (progress >= 0.66 && progress < 1.00) {
+                    return 207;
+                } else if (attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
+                    return 226;
+                } else {
+                    return 169;
+                }
             } else {
                 return 169;
             }
@@ -480,14 +490,17 @@ public class ManageAttunementsScreen extends Screen {
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
-            MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.attunement_data_not_found");
-            if(attunementData != null) {
-                slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
+            MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
                 if(attunementData.unique()) {
                     slotsUsed.append(Component.translatable("screen.text.artifactory.manage.slots_used_unique"));
                 }
-            }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
+        }
+
+        private void renderNoAttunementDataWarning(GuiGraphics guiGraphics) {
+            MutableComponent noAttunementData = Component.translatable("screen.text.artifactory.manage.attunement_data_not_found");
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, noAttunementData, getAttunementCardX() + 28, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xAD2626);
+
         }
 
         private void renderDeleteButton(GuiGraphics guiGraphics, double mouseX, double mouseY) {
