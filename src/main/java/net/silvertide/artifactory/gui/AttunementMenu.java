@@ -123,6 +123,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 clearItemDataSlotData();
+                clearAllContainers();
                 super.onTake(player, stack);
             }
 
