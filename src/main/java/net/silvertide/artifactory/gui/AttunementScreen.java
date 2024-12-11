@@ -245,26 +245,26 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     private void renderRequirementText(GuiGraphics guiGraphics, int x, int y) {
         Component requirementText = Component.translatable("screen.text.artifactory.attunement.requirement_text");
-        GUIUtil.drawScaledWordWrap(guiGraphics, 0.55F, this.font, requirementText, x + 90, y + 46, 75, 0xF8B3B0);
+        GUIUtil.drawScaledWordWrap(guiGraphics, 0.55F, this.font, requirementText, x + 90, y + 60, 75, 0xF8B3B0);
     }
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpConsumed() > 0) {
             Component experienceCost = Component.translatable("screen.text.artifactory.manage.requirement_cost");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 136, y + 52, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 136, y + 66, 75, BUTTON_TEXT_COLOR);
 
             Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 138, y + 52, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 138, y + 66, 75, BUTTON_TEXT_COLOR);
         }
     }
 
     private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
             Component experienceThreshold = Component.translatable("screen.text.artifactory.manage.requirement_threshold");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceThreshold, x + 136, y + 58, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceThreshold, x + 136, y + 72, 75, BUTTON_TEXT_COLOR);
 
             Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 138, y + 58, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 138, y + 72, 75, BUTTON_TEXT_COLOR);
         }
     }
 
@@ -285,8 +285,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         int textX = 126;
-        int numeratorY = 66;
-        int denominatorY = 74;
+        int numeratorY = 46;
+        int denominatorY = 54;
         float textScale = 0.5F;
 
         Component denominator = Component.literal(attunementSlotDenominator);
@@ -295,10 +295,10 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
         // Draw title
         Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
-        GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 70 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
+        GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 50 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
 
         // Draw dividing line
-        guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 70, 0, 169, 34, 1);
+        guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 50, 0, 169, 34, 1);
 
         int yBound = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
         if(isHovering(109, numeratorY, 34, yBound, mouseX, mouseY)) {
