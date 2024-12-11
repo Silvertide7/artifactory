@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 
 
 // CLEANUP
+// Make item drop to ground if player crashes or logs out
+// Make progress stop and reset if manage button pressed
 // TODO: Setup balanced datapack data
 // TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
 // TODO: Remove unecessary loggin
