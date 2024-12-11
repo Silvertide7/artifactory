@@ -92,6 +92,10 @@ public final class StackNBTUtil {
         return stackArtifactoryTagContainsTag(stack, ATTUNED_TO_UUID_NBT_KEY);
     }
 
+    public static boolean containsItemAttunementUUID(ItemStack stack) {
+        return stackArtifactoryTagContainsTag(stack, ITEM_ATTUNEMENT_UUID_NBT_KEY);
+    }
+
     public static Optional<UUID> getAttunedToUUID(ItemStack stack) {
         if(containsAttunedToUUID(stack)) {
             return Optional.of(getArtifactoryUUID(stack, ATTUNED_TO_UUID_NBT_KEY));

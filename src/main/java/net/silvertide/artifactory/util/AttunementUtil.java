@@ -82,7 +82,7 @@ public final class AttunementUtil {
     }
 
     public static boolean isItemAttunedToAPlayer(ItemStack stack) {
-        return !stack.isEmpty() && StackNBTUtil.containsAttunedToUUID(stack);
+        return !stack.isEmpty() && StackNBTUtil.containsItemAttunementUUID(stack) && StackNBTUtil.containsAttunedToUUID(stack);
     }
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
