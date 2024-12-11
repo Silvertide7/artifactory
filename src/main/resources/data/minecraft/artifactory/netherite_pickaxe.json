@@ -1,0 +1,29 @@
+{
+  "slots_used": 3,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable"],
+      "requirements": {
+        "xpLevelsConsumed": 20,
+        "xpLevelThreshold": 30,
+        "items": ["minecraft:iron_block"]
+      }
+    },
+    {
+      "modifications": ["unbreakable"],
+      "requirements": {
+        "xpLevelsConsumed": 30,
+        "xpLevelThreshold": 40,
+        "items": ["minecraft:netherite_scrap#3", "minecraft:emerald#16"]
+      }
+    },
+    {
+      "modifications": ["soulbound", "attribute/minecraft:generic.movement_speed/multiply_base/.5/mainhand"],
+      "requirements": {
+        "xpLevelsConsumed": 40,
+        "xpLevelThreshold": 50,
+        "items": ["minecraft:netherite_block", "minecraft:ender_pearl#16", "minecraft:diamond#10"]
+      }
+    }
+  ]
+}

@@ -5,7 +5,7 @@
       "modifications": ["unbreakable", "invulnerable"]
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2.0/chest"]
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/1.0/feet"]
     }
   ]
 }

@@ -3,7 +3,9 @@
   "attunement_levels": [
     {
       "modifications": ["unbreakable", "invulnerable"]
+    },
+    {
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/1.0/head"]
     }
-  ],
-  "use_without_attunement": false
+  ]
 }
