@@ -17,6 +17,7 @@ public final class StackNBTUtil {
     private static final String ATTUNED_TO_NAME_NBT_KEY = "attuned_to_name";
     private static final String MODIFICATION_SOULBOUND_NBT_KEY = "soulbound";
     private static final String MODIFICATION_INVULNERABLE_NBT_KEY = "invulnerable";
+    private static final String MODIFICATION_UNBREAKABLE_NBT_KEY = "unbreakable";
     private static final String ATTRIBUTE_MODIFICATION_NBT_KEY = "attribute_modifications";
 
     public static void setupStackToAttune(ItemStack stack) {
@@ -59,6 +60,11 @@ public final class StackNBTUtil {
     public static void setUnbreakable(ItemStack stack) {
         stack.setDamageValue(0);
         setBoolean(stack, "Unbreakable", true);
+        setArtifactoryBoolean(stack, MODIFICATION_UNBREAKABLE_NBT_KEY, true);
+    }
+
+    public static boolean isUnbreakableFromArtifactory(ItemStack stack){
+        return stackArtifactoryTagContainsTag(stack, MODIFICATION_UNBREAKABLE_NBT_KEY) && getArtifactoryBoolean(stack, MODIFICATION_UNBREAKABLE_NBT_KEY);
     }
     public static void removeUnbreakable(ItemStack stack) {
         CompoundTag stackNBT = stack.getOrCreateTag();

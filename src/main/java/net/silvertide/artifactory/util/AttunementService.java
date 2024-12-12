@@ -47,7 +47,7 @@ public final class AttunementService {
             StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemAttunementUUID -> {
                 ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
 
-                if (ModificationUtil.hasModification(stack, "unbreakable")) {
+                if (StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
                     StackNBTUtil.removeUnbreakable(stack);
                 }
 
@@ -73,7 +73,7 @@ public final class AttunementService {
 
         return StackNBTUtil.getAttunedToUUID(stack).flatMap(playerUUID -> StackNBTUtil.getItemAttunementUUID(stack).map(itemAttunementUUID -> {
             if(ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).isEmpty()) {
-                if (ModificationUtil.hasModification(stack, "unbreakable")) {
+                if (StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
                     StackNBTUtil.removeUnbreakable(stack);
                 }
                 StackNBTUtil.removeArtifactoryTag(stack);

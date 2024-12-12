@@ -47,29 +47,4 @@ public final class ModificationUtil {
         }
         return Optional.empty();
     }
-
-    public static boolean hasModification(ItemStack stack, String modification) {
-        int currentAttunementLevel = AttunementUtil.getLevelOfAttunementAchieved(stack);
-        for(int i = 1; i <= currentAttunementLevel; i++){
-            if (ModificationUtil.attunementLevelHasModification(stack, i, modification)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean attunementLevelHasModification(ItemStack stack, int attunementLevelAchieved, String modification) {
-        return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
-            for(int i = 0; i < attunementLevelAchieved; i++) {
-                AttunementLevel attunementLevel = itemAttunementData.attunementLevels().get(i);
-                if(attunementLevel != null) {
-                    for(String modificationString : attunementLevel.getModifications()) {
-                        if (modification.equals(modificationString)) return true;
-                    }
-                }
-            }
-            return false;
-        }).orElse(false);
-    }
-
 }
