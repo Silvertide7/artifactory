@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 // CLEANUP
 // TODO: Add sync to attributes when placed into attunement nexus
 // TODO: Setup balanced datapack data
-// TODO: Remove any debugging methods, like itempickupevent outputting item attunement data
-// TODO: Remove unecessary logging
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory

@@ -1,6 +1,5 @@
 package net.silvertide.artifactory.client.state;
 
-import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 
 import java.util.ArrayList;

@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-
 public class SB_RemoveAttunedItem {
     private final UUID itemUUIDToRemove;
     public SB_RemoveAttunedItem(UUID itemUUIDToRemove) {

@@ -24,7 +24,7 @@ public class SystemEvents {
         Player player = event.getEntity();
 
         if (player instanceof ServerPlayer serverPlayer) {
-            //===========UPDATE DATA MIRROR=======================
+            // Sync attuned items and information to player
             Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
             NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
             ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);

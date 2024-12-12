@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-
 public class SB_ToggleManageAttunementsScreen {
     public SB_ToggleManageAttunementsScreen() {}
     public SB_ToggleManageAttunementsScreen(FriendlyByteBuf buf) {}
