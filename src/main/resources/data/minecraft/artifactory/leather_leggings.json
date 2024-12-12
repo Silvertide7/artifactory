@@ -2,13 +2,22 @@
   "slots_used": 1,
   "attunement_levels": [
     {
-      "modifications": ["unbreakable", "invulnerable"]
+      "modifications": ["unbreakable", "invulnerable"],
+      "requirements": {
+        "items": ["minecraft:leather#4"]
+      }
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2.0/legs"]
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2.0/legs"],
+      "requirements": {
+        "items": ["minecraft:emerald#5"]
+      }
     },
     {
-      "modifications": ["attribute/minecraft:generic.movement_speed/multiply_base/.1/legs"]
+      "modifications": ["attribute/minecraft:generic.movement_speed/multiply_base/.1/legs"],
+      "requirements": {
+        "items": ["minecraft:diamond#5"]
+      }
     }
   ]
 }
