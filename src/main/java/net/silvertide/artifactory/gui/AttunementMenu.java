@@ -244,6 +244,9 @@ public class AttunementMenu extends AbstractContainerMenu {
         } else if (pId == 2 && player instanceof ServerPlayer serverPlayer && AttunementUtil.doesPlayerHaveAttunedItem(serverPlayer)) {
             clearAllContainers();
             clearItemDataSlotData();
+            setProgress(0);
+            setIsActive(false);
+
             int numUnique = Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
             PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
         }
