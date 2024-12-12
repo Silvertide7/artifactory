@@ -1,11 +1,14 @@
 {
-  "slots_used": 0,
+  "slots_used": 1,
   "attunement_levels": [
     {
       "modifications": ["unbreakable", "invulnerable"]
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/1.0/head"]
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2.0/head"]
+    },
+    {
+      "modifications": ["attribute/minecraft:generic.movement_speed/multiply_base/.1/head"]
     }
   ]
 }
