@@ -117,7 +117,17 @@ public class AttunementMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 if(getIsActive()) return false;
-                return AttunementUtil.isValidAttunementItem(stack);
+                boolean isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
+
+                // Check if the item is unbreakable from artifactory but it is no longer a
+                // valid attunement item and remove unbreakable if so. We have to do it here
+                // instead of updateAttunementItemState because only valid attunement items can
+                // be placed in the slot and have that method run.
+                if(!isValidAttunementItem && StackNBTUtil.isUnbreakable(stack) && StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
+                    StackNBTUtil.removeUnbreakable(stack);
+                }
+
+                return isValidAttunementItem;
             }
 
             @Override
@@ -131,7 +141,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             public void set(ItemStack stack) {
                 super.set(stack);
                 if(!stack.isEmpty() && !player.level().isClientSide()) {
-                    checkItemInAttunementSlotForBrokenAttunement();
+                    updateAttunementItemNBT();
                     ArtifactorySavedData.get().updateDisplayName(stack);
                     AttunementMenu.this.updateAttunementState();
                 }
@@ -145,11 +155,14 @@ public class AttunementMenu extends AbstractContainerMenu {
         };
     }
 
-    public void checkItemInAttunementSlotForBrokenAttunement() {
-        if(attunementInputSlot.hasItem()){
-            if(AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem())) {
-                updateAttunementState();
-            }
+
+    // This method looks at the item in the attunement slot and syncs attunement data
+    // from data packs or updates the items NBT if the attunement has been broken
+    public void updateAttunementItemNBT() {
+        if(attunementInputSlot.hasItem()) {
+            ItemStack attunementItemStack = attunementInputSlot.getItem();
+            AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());
+            ModificationService.applyAttunementModifications(attunementItemStack);
         }
     }
 

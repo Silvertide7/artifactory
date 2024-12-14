@@ -67,9 +67,9 @@
   "screen.tooltip.artifactory.max_slots": "Slots",
 
   "screen.tooltip.artifactory.attunement.one_item_slot_required": "This item requires 1 open slot to attune.",
-  "screen.tooltip.artifactory.attunement.one_item_slot_reserved": "This item reserves 1 slot.",
+  "screen.tooltip.artifactory.attunement.one_item_slot_reserved": "This item is reserving 1 slot.",
   "screen.tooltip.artifactory.attunement.item_slots_required": "This item requires %1$s open slots to attune.",
-  "screen.tooltip.artifactory.attunement.item_slots_reserved": "This item reserves %1$s slots.",
+  "screen.tooltip.artifactory.attunement.item_slots_reserved": "This item is reserving %1$s slots.",
   "screen.tooltip.artifactory.attunement.slots_available": "You have %1$s slots available.",
   "screen.tooltip.artifactory.attunement.one_slot_available": "You have 1 slot available.",
   "screen.tooltip.artifactory.attunement.slots_ratio": "You are currently using %1$s of your %2$s slots.",

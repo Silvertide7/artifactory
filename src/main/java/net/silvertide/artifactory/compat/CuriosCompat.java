@@ -54,7 +54,7 @@ public class CuriosCompat {
     public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
         if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
-            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
+            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
                     attributeModification.addCurioAttributeModifier(event);

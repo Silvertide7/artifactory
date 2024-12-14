@@ -137,7 +137,7 @@ public class AttributeModification implements AttunementModification {
         if(attributeToModify != null) {
             boolean successfullyAddedToExistingAttr = StackNBTUtil.attemptToAddToExistingAttributeUUID(stack, this);
             if(!successfullyAddedToExistingAttr) {
-                StackNBTUtil.addAttributeModificaftionCompoundTag(stack, attributeUUID, createAttributeModificationTag());
+                StackNBTUtil.addAttributeModificaftionTag(stack, attributeUUID, createAttributeModificationTag());
             }
         }
     }

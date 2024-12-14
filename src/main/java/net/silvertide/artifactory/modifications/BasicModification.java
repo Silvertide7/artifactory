@@ -29,7 +29,7 @@ public class BasicModification implements AttunementModification {
 
     private void applyUnbreakable(ItemStack stack) {
         if(stack.isDamageableItem()){
-            StackNBTUtil.setUnbreakable(stack);
+            StackNBTUtil.makeUnbreakable(stack);
         }
     }
 

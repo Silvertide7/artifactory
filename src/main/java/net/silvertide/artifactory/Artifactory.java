@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 
 
 // CLEANUP
-// TODO: Add sync to attributes when placed into attunement nexus
 // TODO: Setup balanced datapack data
 
 @Mod(Artifactory.MOD_ID)

@@ -21,7 +21,7 @@ public final class AttunementService {
             successfulAttunementIncrease = StackNBTUtil.getItemAttunementUUID(stack).map(attunedToUUID -> ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunedToUUID)).orElse(false);
         }
         if (successfulAttunementIncrease) {
-            ModificationUtil.updateItemWithAttunementModifications(stack, levelOfAttunementAchieved + 1);
+            ModificationService.applyAttunementModifications(stack);
         }
     }
 
@@ -45,18 +45,15 @@ public final class AttunementService {
     public static void removeAttunementFromPlayerAndItem(ItemStack stack) {
         StackNBTUtil.getAttunedToUUID(stack).ifPresent(attunedToUUID -> {
             StackNBTUtil.getItemAttunementUUID(stack).ifPresent(itemAttunementUUID -> {
-                ArtifactorySavedData artifactorySavedData = ArtifactorySavedData.get();
-
                 if (StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
                     StackNBTUtil.removeUnbreakable(stack);
                 }
-
-                artifactorySavedData.removeAttunedItem(attunedToUUID, itemAttunementUUID);
+                ArtifactorySavedData.get().removeAttunedItem(attunedToUUID, itemAttunementUUID);
             });
         });
 
         // Clear the attunement data off of the item itself.
-        StackNBTUtil.removeArtifactoryTag(stack);
+        StackNBTUtil.removeArtifactoryNBT(stack);
     }
 
     public static void clearBrokenAttunements(Player player) {
@@ -76,7 +73,7 @@ public final class AttunementService {
                 if (StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
                     StackNBTUtil.removeUnbreakable(stack);
                 }
-                StackNBTUtil.removeArtifactoryTag(stack);
+                StackNBTUtil.removeArtifactoryNBT(stack);
                 return true;
             }
             return false;

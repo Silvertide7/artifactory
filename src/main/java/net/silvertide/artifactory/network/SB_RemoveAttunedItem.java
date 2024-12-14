@@ -36,7 +36,7 @@ public class SB_RemoveAttunedItem {
             ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), msg.itemUUIDToRemove);
             AttunementService.clearBrokenAttunements(player);
             if(player.containerMenu instanceof AttunementMenu attuneMenu && player.containerMenu.stillValid(player)) {
-                attuneMenu.checkItemInAttunementSlotForBrokenAttunement();
+                attuneMenu.updateAttunementItemNBT();
             }
         }
     }

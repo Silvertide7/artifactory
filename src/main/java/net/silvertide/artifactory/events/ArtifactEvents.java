@@ -147,7 +147,7 @@ public class ArtifactEvents {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
         if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
-            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationTag(stack);
+            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
                     if(attributeModification.getEquipmentSlot() == attributeModifierEvent.getSlotType()){

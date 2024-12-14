@@ -1,8 +1,8 @@
 package net.silvertide.artifactory.client.state;
 
 import net.silvertide.artifactory.modifications.AttunementModification;
+import net.silvertide.artifactory.modifications.ModificationFactory;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.util.ModificationUtil;
 
 import java.util.*;
 
@@ -55,7 +55,7 @@ public class ClientAttunedItems {
 
                         // This code should successfully create a modification. We will then use that modifications toString
                         // to get the relevant information.
-                        Optional<AttunementModification> modification = ModificationUtil.createAttunementModification(modificationCode);
+                        Optional<AttunementModification> modification = ModificationFactory.createAttunementModification(modificationCode);
                         if(modification.isPresent()) {
                             levelDescription.append(modification.get());
                             if(i != modificationCodes.length - 1) levelDescription.append(", ");
