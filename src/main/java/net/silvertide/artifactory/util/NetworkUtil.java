@@ -1,10 +1,7 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.silvertide.artifactory.network.CB_UpdateAttunedItem;
-import net.silvertide.artifactory.network.CB_UpdateAttunedItemModifications;
-import net.silvertide.artifactory.network.CB_UpdateAttunementNexusSlotInformation;
-import net.silvertide.artifactory.network.PacketHandler;
+import net.silvertide.artifactory.network.*;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 
@@ -29,5 +26,11 @@ public final class NetworkUtil {
 
     public static void syncClientAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
         PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(attunementNexusSlotInformation));
+    }
+
+    public static void syncAttunementData(ServerPlayer player) {
+        DataPackUtil.getAttunementDataMap().ifPresent(dataMap -> {
+            PacketHandler.sendToClient(player, new CB_UpdateAttunementData(dataMap));
+        });
     }
 }

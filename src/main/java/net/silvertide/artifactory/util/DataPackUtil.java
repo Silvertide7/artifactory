@@ -12,6 +12,11 @@ import java.util.*;
 public final class DataPackUtil {
     private DataPackUtil() {}
 
+    public static Optional<Map<ResourceLocation, ItemAttunementData>> getAttunementDataMap() {
+        if(AttunableItems.DATA_LOADER.getData().isEmpty()) return Optional.empty();
+        return Optional.of(AttunableItems.DATA_LOADER.getData());
+    }
+
     public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
     }

@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class CB_UpdateAttunedItem {
     private final AttunedItem attunedItem;
 
-    public CB_UpdateAttunedItem(AttunedItem itemToUpdate ) {
+    public CB_UpdateAttunedItem(AttunedItem itemToUpdate) {
         this.attunedItem = itemToUpdate;
     }
     public CB_UpdateAttunedItem(FriendlyByteBuf buf) {

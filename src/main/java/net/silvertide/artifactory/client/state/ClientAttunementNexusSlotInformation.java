@@ -8,7 +8,7 @@ import java.util.List;
 public class ClientAttunementNexusSlotInformation {
     private static AttunementNexusSlotInformation slotInformation = null;
     private static List<ClientSlotInformationListener> listeners = new ArrayList<>();
-    private ClientAttunementNexusSlotInformation() {};
+    private ClientAttunementNexusSlotInformation() {}
 
     public static void setSlotInformation(AttunementNexusSlotInformation attunedNexusSlotInformation) {
         slotInformation = attunedNexusSlotInformation;

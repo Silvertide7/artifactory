@@ -6,6 +6,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
@@ -19,8 +20,8 @@ public class ClientSetupEvents {
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if(!stack.isEmpty() && AttunementUtil.isValidAttunementItem(stack)) {
-            DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
+        if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
+            ClientItemAttunementData.getAttunementData(stack).ifPresent(itemAttunementData -> {
                 createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
                 addTraitTooltips(event.getToolTip(), stack);
                 addUniqueTooltip(event.getToolTip(), itemAttunementData);

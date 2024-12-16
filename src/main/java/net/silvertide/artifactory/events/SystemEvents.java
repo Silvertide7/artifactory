@@ -2,6 +2,7 @@ package net.silvertide.artifactory.events;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -34,5 +35,20 @@ public class SystemEvents {
     @SubscribeEvent
     public static void onCommandRegister(RegisterCommandsEvent event) {
         CmdRoot.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onDatapackReload(OnDatapackSyncEvent event) {
+        // event.getPlayer is nullable and will be null if this is a /reload so we should
+        // use event.getPlayerList to sync the new data with all connected users. If its
+        // not null then this player just joined the server, only send the update packet
+        // to them.
+        if (event.getPlayer() != null) {
+            NetworkUtil.syncAttunementData(event.getPlayer());
+        } else {
+            for (ServerPlayer player : event.getPlayerList().getPlayers()) {
+                NetworkUtil.syncAttunementData(player);
+            }
+        }
     }
 }

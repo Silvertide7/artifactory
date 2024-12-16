@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
+import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
@@ -89,7 +90,7 @@ public class ManageAttunementsScreen extends Screen {
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<ItemAttunementData> attunementData = DataPackUtil.getAttunementData(attunedItem.getResourceLocation());
+            Optional<ItemAttunementData> attunementData = ClientItemAttunementData.getAttunementData(attunedItem.getResourceLocation());
 
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
 

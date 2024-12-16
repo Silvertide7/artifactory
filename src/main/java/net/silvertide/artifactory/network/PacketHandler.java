@@ -61,6 +61,12 @@ public class PacketHandler {
                 .consumerMainThread(CB_RemoveAttunedItem::handle)
                 .add();
 
+        net.messageBuilder(CB_UpdateAttunementData.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CB_UpdateAttunementData::decode)
+                .encoder(CB_UpdateAttunementData::encode)
+                .consumerMainThread(CB_UpdateAttunementData::handle)
+                .add();
+
         // SERVER BOUND
         net.messageBuilder(SB_RemoveAttunedItem.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(SB_RemoveAttunedItem::new)
