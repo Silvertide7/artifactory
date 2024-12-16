@@ -1,0 +1,27 @@
+{
+  "slots_used": 2,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/chest"],
+      "requirements": {
+        "items": ["minecraft:gold_ingot#5"]
+      }
+    },
+    {
+      "modifications": ["attribute/minecraft:generic.luck/addition/0.5/chest"],
+      "requirements": {
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 40,
+        "items": ["minecraft:gold_block#2"]
+      }
+    },
+    {
+      "modifications": ["unbreakable", "soulbound"],
+      "requirements": {
+        "xpLevelsConsumed": 40,
+        "xpLevelThreshold": 45,
+        "items": ["minecraft:netherite_scrap#3", "minecraft:nether_star"]
+      }
+    }
+  ]
+}

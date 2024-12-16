@@ -1,0 +1,25 @@
+{
+  "slots_used": 3,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable"],
+      "requirements": {
+        "items": ["minecraft:emerald#5"]
+      }
+    },
+    {
+      "modifications": ["unbreakable", "attribute/minecraft:generic.movement_speed/multiply_base/0.2/mainhand"],
+      "requirements": {
+        "items": ["minecraft:diamond_block"]
+      }
+    },
+    {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "xpLevelsConsumed": 40,
+        "xpLevelThreshold": 50,
+        "items": ["minecraft:nether_star"]
+      }
+    }
+  ]
+}

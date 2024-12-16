@@ -1,0 +1,25 @@
+{
+  "slots_used": 2,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable"],
+      "requirements": {
+        "items": ["minecraft:diamond#5"]
+      }
+    },
+    {
+      "modifications": ["unbreakable", "attribute/minecraft:generic.luck/addition/1.0/mainhand"],
+      "requirements": {
+        "items": ["minecraft:heart_of_the_sea"]
+      }
+    },
+    {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "xpLevelsConsumed": 40,
+        "xpLevelThreshold": 50,
+        "items": ["minecraft:nether_star"]
+      }
+    }
+  ]
+}

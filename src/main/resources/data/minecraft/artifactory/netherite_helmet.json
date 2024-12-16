@@ -1,0 +1,35 @@
+{
+  "slots_used": 3,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/head"],
+      "requirements": {
+        "items": ["minecraft:diamond#5"]
+      }
+    },
+    {
+      "modifications": ["attribute/minecraft:generic.armor/addition/2.0/head"],
+      "requirements": {
+        "xpLevelsConsumed": 30,
+        "xpLevelThreshold": 40,
+        "items": ["minecraft:diamond_block"]
+      }
+    },
+    {
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor_toughness/addition/2.0/head"],
+      "requirements": {
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 45,
+        "items": ["minecraft:netherite_ingot"]
+      }
+    },
+    {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "xpLevelsConsumed": 40,
+        "xpLevelThreshold": 50,
+        "items": ["minecraft:nether_star"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "slots_used": 2,
+  "attunement_levels": [
+    {
+      "modifications": ["invulnerable"],
+      "requirements": {
+        "xpLevelsConsumed": 20,
+        "xpLevelThreshold": 30,
+        "items": ["minecraft:coal#64"]
+      }
+    },
+    {
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/addition/1/mainhand"],
+      "requirements": {
+        "xpLevelsConsumed": 25,
+        "xpLevelThreshold": 35,
+        "items": ["minecraft:diamond#5", "minecraft:amethyst_shard#5"]
+      }
+    },
+    {
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2/mainhand"],
+      "requirements": {
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 40,
+        "items": ["minecraft:nether_star", "minecraft:diamond_block"]
+      }
+    }
+  ]
+}
