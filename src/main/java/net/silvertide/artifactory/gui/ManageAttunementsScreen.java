@@ -12,6 +12,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -27,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+@OnlyIn(Dist.CLIENT)
 public class ManageAttunementsScreen extends Screen {
     private static final int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");

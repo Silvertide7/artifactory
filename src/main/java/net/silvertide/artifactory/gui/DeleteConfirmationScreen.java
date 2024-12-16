@@ -6,12 +6,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.PacketHandler;
 import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.GUIUtil;
 
+@OnlyIn(Dist.CLIENT)
 public class DeleteConfirmationScreen extends Screen {
     private static final float TEXT_SCALE = 0.85F;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
