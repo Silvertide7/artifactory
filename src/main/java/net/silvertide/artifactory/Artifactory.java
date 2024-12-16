@@ -1,7 +1,6 @@
 package net.silvertide.artifactory;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -17,12 +16,16 @@ import net.silvertide.artifactory.client.events.ClientSetupEvents;
 import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
-import net.silvertide.artifactory.gui.AttunementScreen;
 import org.slf4j.Logger;
 
 
 // CLEANUP
-// TODO: Setup balanced datapack data
+// TODO: Holding another players weapon allows you to damage mobs
+// TODO: Move this item is attuned to <name> to the requirement text instead
+// TODO: Don't render the item renderers if the item is attuned by another person
+// TODO: Items on players who join the server are not showing as attuneable or information in their tooltip
+// TODO: When placing a unique attuned item into attunement nexus the text shows this item is attuned to %1$ in required field
+// TODO: When a player has an attuned item it says attunement data no longer available for this item.
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
@@ -55,7 +58,7 @@ public class Artifactory
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), AttunementScreen::new);
+            net.minecraft.client.gui.screens.MenuScreens.register(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), net.silvertide.artifactory.gui.AttunementScreen::new);
             MinecraftForge.EVENT_BUS.register(new ClientSetupEvents());
         }
     }
