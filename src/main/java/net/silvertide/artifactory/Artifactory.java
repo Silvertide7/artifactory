@@ -18,17 +18,14 @@ import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
 import org.slf4j.Logger;
 
-
-// CLEANUP
 // TODO: Holding another players weapon allows you to damage mobs
 // TODO: Move this item is attuned to <name> to the requirement text instead
 // TODO: Don't render the item renderers if the item is attuned by another person
-// TODO: Items on players who join the server are not showing as attuneable or information in their tooltip
 // TODO: When placing a unique attuned item into attunement nexus the text shows this item is attuned to %1$ in required field
-// TODO: When a player has an attuned item it says attunement data no longer available for this item.
 // TODO: If an item is attuned and not unique, then changed to unique, it FUCKS EzvERYTHIGN FUCK. Not really it just has the wrong messages.
 // TODO: Client side when breaking a block it shows the block break and then reform. Prevent it entirely
 // TODO: Poison isn't doing damage to player holding another players item
+// TODO: Stack Attributes are not showing up in client tooltips
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
