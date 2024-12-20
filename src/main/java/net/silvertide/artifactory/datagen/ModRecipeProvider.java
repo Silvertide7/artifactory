@@ -23,9 +23,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('C', Ingredient.of(Items.CONDUIT))
                 .define('S', Ingredient.of(Items.BLACKSTONE))
                 .define('W', Ingredient.of(Items.DARK_OAK_WOOD))
-                .pattern("WAW")
-                .pattern("SBS")
-                .pattern("SCS")
+                .pattern("SAS")
+                .pattern("WBW")
+                .pattern("WCW")
                 .unlockedBy("has_beacon", has(Items.BEACON))
                 .save(pWriter);
     }

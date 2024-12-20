@@ -19,9 +19,9 @@
     }
   },
   "pattern": [
-    "WAW",
-    "SBS",
-    "SCS"
+    "SAS",
+    "WBW",
+    "WCW"
   ],
   "result": {
     "item": "artifactory:attunement_nexus"
