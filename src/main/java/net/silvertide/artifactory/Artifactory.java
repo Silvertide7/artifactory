@@ -18,6 +18,7 @@ import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.registry.*;
 import org.slf4j.Logger;
 
+// Playtest Notes
 // TODO: Holding another players weapon allows you to damage mobs
 // TODO: Move this item is attuned to <name> to the requirement text instead
 // TODO: Don't render the item renderers if the item is attuned by another person
@@ -26,6 +27,10 @@ import org.slf4j.Logger;
 // TODO: Client side when breaking a block it shows the block break and then reform. Prevent it entirely
 // TODO: Poison isn't doing damage to player holding another players item
 // TODO: Just having slots_used: 1 doesn't add the modifications.
+// TODO: Make sure soulbound only applies to a player who owns the item.
+// TODO: Make a keybind that searches nearby players and pulls your items into your inventory.
+// TODO: Search through all containers if theyre in the inventory as well, like backpacks.
+
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
