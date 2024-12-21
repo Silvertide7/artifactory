@@ -9,7 +9,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
 import java.util.List;

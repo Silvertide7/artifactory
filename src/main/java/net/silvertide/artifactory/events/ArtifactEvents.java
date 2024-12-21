@@ -20,7 +20,9 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
 
@@ -146,7 +148,15 @@ public class ArtifactEvents {
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
-        if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
+
+        boolean isValidAttunementItem;
+        if(EffectiveSide.get().isClient()) {
+            isValidAttunementItem = ClientItemAttunementData.isValidAttunementItem(stack);
+        } else {
+            isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
+        }
+
+        if (isValidAttunementItem && StackNBTUtil.containsAttributeModifications(stack)) {
             CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {

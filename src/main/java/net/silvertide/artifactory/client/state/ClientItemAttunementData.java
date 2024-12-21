@@ -2,9 +2,7 @@ package net.silvertide.artifactory.client.state;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
-import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Map;

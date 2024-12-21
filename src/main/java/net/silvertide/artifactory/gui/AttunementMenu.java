@@ -348,6 +348,7 @@ public class AttunementMenu extends AbstractContainerMenu {
         if(player instanceof ServerPlayer serverPlayer) {
             AttunementService.increaseLevelOfAttunement(serverPlayer, stackToAttune);
             if(!player.getAbilities().instabuild) this.payCostForAttunement();
+            attunementInputSlot.setChanged();
             this.access.execute((level, blockPos) -> {
                 this.clearContainer(player, this.itemRequirementOneContainer);
                 this.clearContainer(player, this.itemRequirementTwoContainer);
