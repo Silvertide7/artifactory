@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 // TODO: If an item is attuned and not unique, then changed to unique, it FUCKS EzvERYTHIGN FUCK. Not really it just has the wrong messages.
 // TODO: Client side when breaking a block it shows the block break and then reform. Prevent it entirely
 // TODO: Poison isn't doing damage to player holding another players item
-// TODO: Stack Attributes are not showing up in client tooltips
-// TODO: Switch tooltip to show attuned to at the bottom so the attributes flow together
 // TODO: Just having slots_used: 1 doesn't add the modifications.
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
