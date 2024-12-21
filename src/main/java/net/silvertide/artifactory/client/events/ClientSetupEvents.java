@@ -21,8 +21,8 @@ public class ClientSetupEvents {
         ItemStack stack = event.getItemStack();
         if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
             ClientItemAttunementData.getAttunementData(stack).ifPresent(itemAttunementData -> {
-                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
                 addTraitTooltips(event.getToolTip(), stack);
+                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
                 addUniqueTooltip(event.getToolTip(), itemAttunementData);
             });
         }
