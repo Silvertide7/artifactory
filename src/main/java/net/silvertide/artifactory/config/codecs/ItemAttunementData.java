@@ -9,7 +9,7 @@ import java.util.List;
 public record ItemAttunementData(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement, boolean unique, boolean replace) {
     public static final Codec<ItemAttunementData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.optionalFieldOf("slots_used", -1).forGetter(ItemAttunementData::attunementSlotsUsed),
-            Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", new ArrayList<>()).forGetter(ItemAttunementData::attunementLevels),
+            Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", getDefaultAttunementLevels()).forGetter(ItemAttunementData::attunementLevels),
             Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(ItemAttunementData::useWithoutAttunement),
             Codec.BOOL.optionalFieldOf("unique", false).forGetter(ItemAttunementData::unique),
             Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace))
@@ -19,6 +19,10 @@ public record ItemAttunementData(int attunementSlotsUsed, List<AttunementLevel> 
     public int getAttunementSlotsUsed() {
         if(attunementSlotsUsed < 0) return 0;
         return attunementSlotsUsed;
+    }
+
+    private static List<AttunementLevel> getDefaultAttunementLevels() {
+        return List.of(AttunementLevel.getDefault());
     }
 
     public String toString() {
