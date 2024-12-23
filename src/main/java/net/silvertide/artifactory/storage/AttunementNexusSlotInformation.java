@@ -74,7 +74,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
     }
 
     public boolean isPlayerAtMaxAttuneLevel() {
-        return levelAchievedByPlayer() == numAttunementLevels();
+        return levelAchievedByPlayer() >= numAttunementLevels();
     }
 
     public String getItemRequirement(int index) {
