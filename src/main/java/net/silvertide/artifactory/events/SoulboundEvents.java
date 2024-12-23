@@ -29,8 +29,8 @@ public class SoulboundEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerDeath(LivingDeathEvent livingDeathEvent) {
         LivingEntity livingEntity = livingDeathEvent.getEntity();
-        if (livingDeathEvent.getEntity().level().isClientSide() || livingDeathEvent.isCanceled() || !(livingEntity instanceof Player player) || livingEntity instanceof FakePlayer ||
-                player.isCreative() || player.isSpectator()) return;
+        if (livingDeathEvent.getEntity().level().isClientSide() || livingDeathEvent.isCanceled() || !(livingEntity instanceof Player player)
+                || livingEntity instanceof FakePlayer || player.isSpectator()) return;
 
         if (!player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             keepSoulboundItems(player);
