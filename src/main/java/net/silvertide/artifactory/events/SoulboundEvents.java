@@ -52,7 +52,7 @@ public class SoulboundEvents {
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
-            if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.isSoulbound(stack)) {
+            if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.isSoulbound(stack) && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
                 keepInventory.items.set(i, stack.copy());
                 player.getInventory().items.set(i, ItemStack.EMPTY);
             }
@@ -60,18 +60,17 @@ public class SoulboundEvents {
 
         for (int i = 0; i < player.getInventory().armor.size(); i++) {
             ItemStack armorStack = player.getInventory().armor.get(i);
-            if (AttunementUtil.isValidAttunementItem(armorStack) && StackNBTUtil.isSoulbound(armorStack)) {
+            if (AttunementUtil.isValidAttunementItem(armorStack) && StackNBTUtil.isSoulbound(armorStack)  && AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
                 keepInventory.armor.set(i, armorStack.copy());
                 player.getInventory().armor.set(i, ItemStack.EMPTY);
             }
         }
 
         ItemStack offhandItemStack = player.getInventory().offhand.get(0);
-        if (AttunementUtil.isValidAttunementItem(offhandItemStack) && StackNBTUtil.isSoulbound(offhandItemStack)) {
+        if (AttunementUtil.isValidAttunementItem(offhandItemStack) && StackNBTUtil.isSoulbound(offhandItemStack) && AttunementUtil.isItemAttunedToPlayer(player, offhandItemStack)) {
             keepInventory.offhand.set(0, player.getInventory().offhand.get(0).copy());
             player.getInventory().offhand.set(0, ItemStack.EMPTY);
         }
-
 
         if (!keepInventory.isEmpty()) {
             keepInventory.save(tagList);
