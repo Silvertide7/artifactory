@@ -1,8 +1,11 @@
 package net.silvertide.artifactory.client.state;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
+import net.silvertide.artifactory.util.AttunementUtil;
+import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Map;
@@ -34,5 +37,23 @@ public class ClientItemAttunementData {
 
     public static boolean isValidAttunementItem(ItemStack stack) {
         return !stack.isEmpty() && getAttunementData(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
+    }
+
+    public static boolean isUseRestricted(Player player, ItemStack stack) {
+        if(!isValidAttunementItem(stack)) return false;
+        return getAttunementData(stack).map(itemAttunementData -> {
+            if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
+                if(!player.level().isClientSide()) {
+                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                }
+                return true;
+            } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !itemAttunementData.useWithoutAttunement()) {
+                if(!player.level().isClientSide()) {
+                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+                }
+                return true;
+            }
+            return false;
+        }).orElse(false);
     }
 }
