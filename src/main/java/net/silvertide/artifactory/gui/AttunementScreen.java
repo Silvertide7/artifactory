@@ -87,11 +87,18 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         guiGraphics.blit(TEXTURE, backgroundX, backgroundY, 0, 0, imageWidth, imageHeight);
 
         renderTitle(guiGraphics);
-        renderItemRequirementSlots(guiGraphics, mouseX, mouseY);
+
+        AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
+        if(slotInformation != null && slotInformation.levelAchievedByPlayer() == 0 && !"".equals(slotInformation.attunedToName())) {
+            renderAttunedToAnotherPlayerText(guiGraphics, backgroundX, backgroundY, slotInformation);
+        } else {
+            renderItemRequirementSlots(guiGraphics, mouseX, mouseY);
+            renderAttunementInformation(guiGraphics, backgroundX, backgroundY, mouseX, mouseY);
+        }
+
         renderButtons(guiGraphics, mouseX, mouseY);
         renderManageTooltip(guiGraphics, mouseX, mouseY);
         renderInformationIcon(guiGraphics, mouseX, mouseY);
-        renderAttunementInformation(guiGraphics, backgroundX, backgroundY, mouseX, mouseY);
         renderProgressGraphic(guiGraphics, backgroundX, backgroundY);
     }
 
@@ -218,9 +225,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         MutableComponent attunementLevel;
-        if(slotInformation.levelAchievedByPlayer() == 0 && !"".equals(slotInformation.attunedToName())) {
-            attunementLevel = Component.translatable("screen.text.artifactory.attunement.attuned_to_other", slotInformation.attunedToName());
-        } else if(slotInformation.levelAchievedByPlayer() == 0){
+        if(slotInformation.levelAchievedByPlayer() == 0){
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.not_attuned");
         } else {
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.current_level", String.valueOf(slotInformation.levelAchievedByPlayer()));
@@ -337,7 +342,12 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
             guiGraphics.renderComponentTooltip(this.font, slotTooltips, mouseX, mouseY);
         }
+    }
 
+
+    private void renderAttunedToAnotherPlayerText(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
+        Component attunedToInfo = Component.translatable("screen.text.artifactory.attunement.attuned_to_other", slotInformation.attunedToName());
+        GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunedToInfo, x + 92, y + 32, 75, 0x9dbef2);
     }
 
     private void renderProgressGraphic(GuiGraphics guiGraphics, int x, int y) {
