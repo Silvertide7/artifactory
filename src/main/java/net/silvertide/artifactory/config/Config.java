@@ -50,7 +50,7 @@ public class Config {
         builder.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         builder.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed and poisoned");
         builder.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
-        EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = builder.define("Effect When Holding Other Player Item", "minecraft:slowness/4;minecraft:poison/1");
+        EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = builder.define("Effect When Holding Other Player Item", "minecraft:slowness/4;minecraft:poison/2");
 
         builder.comment("");
         builder.comment("A unique item can only be attuned by one player at a time. This controls how many unique attunements");

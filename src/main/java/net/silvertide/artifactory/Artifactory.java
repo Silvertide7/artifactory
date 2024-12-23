@@ -19,17 +19,19 @@ import net.silvertide.artifactory.registry.*;
 import org.slf4j.Logger;
 
 // Playtest Notes
-// TODO: Holding another players weapon allows you to damage mobs
-// TODO: Move this item is attuned to <name> to the requirement text instead
-// TODO: Don't render the item renderers if the item is attuned by another person
-// TODO: When placing a unique attuned item into attunement nexus the text shows this item is attuned to %1$ in required field
-// TODO: If an item is attuned and not unique, then changed to unique, it FUCKS EzvERYTHIGN FUCK. Not really it just has the wrong messages.
-// TODO: Client side when breaking a block it shows the block break and then reform. Prevent it entirely
-// TODO: Poison isn't doing damage to player holding another players item
-// TODO: Just having slots_used: 1 doesn't add the modifications.
-// TODO: Make sure soulbound only applies to a player who owns the item.
+// TODO: DONE - TEST THIS THOUGH -Holding another players weapon allows you to damage mobs.
+// TODO: DONE - TEST - Move this item is attuned to <name> to the requirement text instead.
+// TODO: Done - Test Don't render the item renderers if the item is attuned by another person.
+// TODO: Done - Test When placing a unique attuned item into attunement nexus the text shows this item is attuned to %1$ in required field.
+// TODO: Done - Test Client side when breaking a block it shows the block break and then reform. Prevent it entirely.
+// TODO: Poison isn't doing damage to player holding another players item.
+// TODO: Done - testMake sure soulbound only applies to a player who owns the item.
+// TODO: Done -  If an item is attuned and not unique, then changed to unique it breaks things. Not really it just has the wrong messages.
+
+// Future Features
 // TODO: Make a keybind that searches nearby players and pulls your items into your inventory.
-// TODO: Search through all containers if theyre in the inventory as well, like backpacks.
+// TODO: Search through all containers if theyre in the inventory as well, like backpacks, for soulbound.
+// TODO: Add curios slots that only allow artifacts placed in them for storage.
 
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
