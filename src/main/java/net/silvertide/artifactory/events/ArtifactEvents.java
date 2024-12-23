@@ -36,14 +36,16 @@ public class ArtifactEvents {
     public static void onLivingAttack(LivingAttackEvent event) {
         if (event.isCanceled() || event.getSource().getEntity() == null) return;
 
-        if (event.getSource().getEntity() instanceof Player player) {
+        if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide()) {
             LivingEntity target = event.getEntity();
             if (target == null) return;
 
-            ItemStack stackInHand = player.getMainHandItem();
-            if(AttunementUtil.isUseRestricted(player, stackInHand)) {
-                event.setCanceled(true);
-                PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+            List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
+            for(ItemStack stack : itemsInHand) {
+                if(sidedIsUseRestricted(player, stack)) {
+                    event.setCanceled(true);
+                    break;
+                }
             }
         }
     }
@@ -54,11 +56,11 @@ public class ArtifactEvents {
         if(event.isCanceled()) return;
 
         ItemStack stack = event.getItemStack();
-        if(AttunementUtil.isUseRestricted(player, stack)){
+
+        if(sidedIsUseRestricted(player, stack)){
             event.setUseItem(Event.Result.DENY);
             event.setUseBlock(Event.Result.DENY);
             event.setCanceled(true);
-            PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
         }
     }
 
@@ -68,10 +70,17 @@ public class ArtifactEvents {
         if(event.isCanceled()) return;
 
         ItemStack stack = event.getItemStack();
-        if(AttunementUtil.isUseRestricted(player, stack)) {
+        if(sidedIsUseRestricted(player, stack)) {
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
-            if(!player.level().isClientSide()) PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+        }
+    }
+
+    private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
+        if(EffectiveSide.get().isClient()) {
+            return ClientItemAttunementData.isUseRestricted(player, stack);
+        } else {
+            return AttunementUtil.isUseRestricted(player, stack);
         }
     }
 

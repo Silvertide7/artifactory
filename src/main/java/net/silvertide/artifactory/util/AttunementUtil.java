@@ -86,9 +86,20 @@ public final class AttunementUtil {
     }
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
+        if(!isValidAttunementItem(stack)) return false;
         return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
-            boolean isAttunedToPlayer = arePlayerAndItemAttuned(player, stack);
-            return !itemAttunementData.useWithoutAttunement() && !isAttunedToPlayer;
+            if(isAttunedToAnotherPlayer(player, stack)) {
+                if(!player.level().isClientSide()) {
+                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                }
+                return true;
+            } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !itemAttunementData.useWithoutAttunement()) {
+                if(!player.level().isClientSide()) {
+                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+                }
+                return true;
+            }
+            return false;
         }).orElse(false);
     }
 
