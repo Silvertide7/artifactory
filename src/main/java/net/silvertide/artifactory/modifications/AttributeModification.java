@@ -1,17 +1,18 @@
 package net.silvertide.artifactory.modifications;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
-import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -48,6 +49,9 @@ public class AttributeModification implements AttunementModification {
 
     public String getAttribute() {
         return this.attribute;
+    }
+    public ResourceLocation getAttributeResourceLocation() {
+        return ResourceLocation.parse(this.attribute);
     }
 
     public int getOperation() {
@@ -102,38 +106,31 @@ public class AttributeModification implements AttunementModification {
         return Optional.empty();
     }
 
-    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
-        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
-        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
-        if(attributeToModify != null) {
-            itemAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
-        }
+    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent, EquipmentSlotGroup slotGroup) {
+        Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
+        attributeToModify.ifPresent(attributeReference -> {
+            itemAttributeModifierEvent.addModifier(attributeReference, this.buildAttributeModifier(), slotGroup);
+        });
     }
 
-    public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
-        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
-        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
-        if(attributeToModify != null) {
-            curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
-        }
-    }
+
 
     private AttributeModifier buildAttributeModifier() {
-        return new AttributeModifier(attributeUUID, this.getName(), value, AttributeModifier.Operation.fromValue(operation));
+        return new AttributeModifier(this.getAttributeResourceLocation(), value, AttributeModifier.Operation.BY_ID.apply(operation));
     }
 
     private static int getOperationInteger(String operation) {
         switch(operation) {
-            case "addition": return 0;
-            case "multiply_base": return 1;
-            case "multiply_total": return 2;
+            case "add_value": return 0;
+            case "add_multiplied_base": return 1;
+            case "add_multiplied_total": return 2;
             default: return -1;
         }
     }
 
     @Override
     public void applyModification(ItemStack stack) {
-        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(attribute));
+        Attribute attributeToModify = BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.parse(attribute));
         if(attributeToModify != null) {
             boolean successfullyAddedToExistingAttr = StackNBTUtil.attemptToAddToExistingAttributeUUID(stack, this);
             if(!successfullyAddedToExistingAttr) {

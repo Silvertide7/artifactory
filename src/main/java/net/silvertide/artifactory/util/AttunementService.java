@@ -3,7 +3,7 @@ package net.silvertide.artifactory.util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 
@@ -84,9 +84,9 @@ public final class AttunementService {
     public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
-                EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
+                EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
             } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
-                EffectUtil.applyMobEffectInstancesToPlayer(player, Config.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
+                EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
             }
         }
     }

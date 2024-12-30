@@ -11,11 +11,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.ServerConfig;
 import net.silvertide.artifactory.events.custom.PostAttuneEvent;
 import net.silvertide.artifactory.events.custom.PreAttuneEvent;
-import net.silvertide.artifactory.network.CB_OpenManageAttunementsScreen;
-import net.silvertide.artifactory.network.PacketHandler;
+import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -260,7 +259,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             setProgress(0);
             setIsActive(false);
 
-            int numUnique = Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
+            int numUnique = ServerConfig.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
             PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
         }
         return super.clickMenuButton(player, pId);

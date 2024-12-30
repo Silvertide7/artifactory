@@ -1,9 +1,10 @@
 package net.silvertide.artifactory.storage;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.util.*;
 
@@ -11,6 +12,39 @@ import java.util.List;
 import java.util.UUID;
 
 public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, String uniqueStatus, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
+
+    public static final StreamCodec<FriendlyByteBuf, AttunementNexusSlotInformation> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public AttunementNexusSlotInformation decode(FriendlyByteBuf buf) {
+            return new AttunementNexusSlotInformation(
+                    buf.readUtf(),
+                    buf.readUtf(),
+                    buf.readBoolean(),
+                    buf.readInt(),
+                    buf.readUtf(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    ItemRequirements.decode(buf));
+        }
+        @Override
+        public void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
+            buf.writeUtf(slotInformation.itemName());
+            buf.writeUtf(slotInformation.attunedToName());
+            buf.writeBoolean(slotInformation.attunedByAnotherPlayer);
+            buf.writeInt(slotInformation.slotsUsed());
+            buf.writeUtf(slotInformation.uniqueStatus());
+            buf.writeInt(slotInformation.xpConsumed());
+            buf.writeInt(slotInformation.xpThreshold());
+            buf.writeInt(slotInformation.numAttunementLevels());
+            buf.writeInt(slotInformation.levelAchievedByPlayer());
+            buf.writeInt(slotInformation.numSlotsUsedByPlayer());
+            ItemRequirements.encode(buf, slotInformation.itemRequirements);
+        }
+    };
+
 
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!AttunementUtil.isValidAttunementItem(stack)) return null;
@@ -34,8 +68,8 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
                 // Get the next levels information.
                 AttunementLevel nextAttunementLevel = DataPackUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {
-                    xpThreshold = nextAttunementLevel.getRequirements().getXpLevelThreshold() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelThreshold() : Config.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
-                    xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : Config.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
+                    xpThreshold = nextAttunementLevel.getRequirements().getXpLevelThreshold() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelThreshold() : ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
+                    xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
                     itemRequirements.addRequirements(nextAttunementLevel.getRequirements().getItems());
                 }
             }
@@ -96,23 +130,4 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
         int quantity = getItemRequirementQuantity(index);
         return quantity + " " + itemName;
     }
-
-    public static void encode(FriendlyByteBuf buf, AttunementNexusSlotInformation slotInformation) {
-        buf.writeUtf(slotInformation.itemName());
-        buf.writeUtf(slotInformation.attunedToName());
-        buf.writeBoolean(slotInformation.attunedByAnotherPlayer);
-        buf.writeInt(slotInformation.slotsUsed());
-        buf.writeUtf(slotInformation.uniqueStatus());
-        buf.writeInt(slotInformation.xpConsumed());
-        buf.writeInt(slotInformation.xpThreshold());
-        buf.writeInt(slotInformation.numAttunementLevels());
-        buf.writeInt(slotInformation.levelAchievedByPlayer());
-        buf.writeInt(slotInformation.numSlotsUsedByPlayer());
-        ItemRequirements.encode(buf, slotInformation.itemRequirements);
-    }
-
-    public static AttunementNexusSlotInformation decode(FriendlyByteBuf buf) {
-        return new AttunementNexusSlotInformation(buf.readUtf(), buf.readUtf(), buf.readBoolean(), buf.readInt(), buf.readUtf(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ItemRequirements.decode(buf));
-    }
-
 }

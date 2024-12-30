@@ -10,20 +10,12 @@ import net.silvertide.artifactory.Artifactory;
 public final class ResourceLocationUtil {
     private ResourceLocationUtil() {}
 
-    public static ResourceLocation prefix(String path) {
-        return new ResourceLocation(Artifactory.MOD_ID, path);
-    }
-
     public static ResourceLocation getResourceLocation(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem());
     }
 
-    public static ResourceLocation getResourceLocation(String stringifiedResourceLocation) {
-        return ResourceLocation.of(stringifiedResourceLocation, ':');
-    }
-
     public static Item getItemFromResourceLocation(String stringifiedResourceLocation) {
-        return BuiltInRegistries.ITEM.get(getResourceLocation(stringifiedResourceLocation));
+        return BuiltInRegistries.ITEM.get(ResourceLocation.parse(stringifiedResourceLocation));
     }
     public static Item getItemFromResourceLocation(ResourceLocation location) {
         return BuiltInRegistries.ITEM.get(location);

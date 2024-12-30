@@ -2,7 +2,7 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -55,7 +55,7 @@ public final class DataPackUtil {
     }
 
     private static boolean shouldSendAttunementLevelInformation(int level, int currentAttunementLevel) {
-        String currentInformationLevel = Config.ATTUNEMENT_INFORMATION_EXTENT.get();
+        String currentInformationLevel = ServerConfigs.ATTUNEMENT_INFORMATION_EXTENT.get();
         if("all".equals(currentInformationLevel)) return true;
         else {
             if("next".equals(currentInformationLevel)) return level < currentAttunementLevel + 1;

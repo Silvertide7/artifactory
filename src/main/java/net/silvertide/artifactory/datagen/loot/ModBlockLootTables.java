@@ -3,7 +3,7 @@ package net.silvertide.artifactory.datagen.loot;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.silvertide.artifactory.registry.BlockRegistry;
 
 import java.util.Set;
@@ -20,6 +20,6 @@ public class ModBlockLootTables extends BlockLootSubProvider {
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return BlockRegistry.BLOCKS.getEntries().stream().map(RegistryObject::get)::iterator;
+        return BlockRegistry.blocks().stream().map(DeferredHolder::get)::iterator;
     }
 }

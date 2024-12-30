@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.Config;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
@@ -19,7 +19,7 @@ public final class AttunementUtil {
     private AttunementUtil() {}
 
     public static int getMaxAttunementSlots(Player player) {
-        return (int) player.getAttributeValue(AttributeRegistry.MAX_ATTUNEMENT_SLOTS.get());
+        return (int) player.getAttributeValue(AttributeRegistry.ATTUNEMENT_SLOTS);
     }
 
     public static int getAttunementSlotsUsed(Player player) {
@@ -147,7 +147,7 @@ public final class AttunementUtil {
     }
 
     public static boolean isPlayerAtUniqueAttunementLimit(UUID playerUUID) {
-        return getPlayersNumberOfUniqueAttunements(playerUUID) >= Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
+        return getPlayersNumberOfUniqueAttunements(playerUUID) >= ServerConfigs.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
     }
 
     public static int getPlayersNumberOfUniqueAttunements(UUID playerUUID) {

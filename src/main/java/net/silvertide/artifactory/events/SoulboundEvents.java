@@ -8,12 +8,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
@@ -21,7 +21,7 @@ import net.silvertide.artifactory.util.StackNBTUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class SoulboundEvents {
     public static final String ARTIFACTORY_INV_TAG = "artifactoryInventory";
 
@@ -100,7 +100,7 @@ public class SoulboundEvents {
         for (int i = 0; i < tag.size(); ++i) {
             CompoundTag compoundtag = tag.getCompound(i);
             int j = compoundtag.getByte("Slot") & 255;
-            ItemStack itemstack = ItemStack.of(compoundtag);
+            ItemStack itemstack = ItemStack.parse(inventory.player.registryAccess(), compoundtag).orElse(ItemStack.EMPTY);
             if (!itemstack.isEmpty()) {
                 if (j < inventory.items.size()) {
                     if (inventory.items.get(j).isEmpty()) {

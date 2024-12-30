@@ -2,20 +2,19 @@ package net.silvertide.artifactory.events.custom;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.Cancelable;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * InscribeSpellEvent is fired after a {@link Player} attunes to an item.<br>
  * <br>
- * This event is not {@link Cancelable}.<br>
+ * This event is not Cancelable.<br>
  * <br>
- * This event does not have a result. {@link HasResult}<br>
+ * This event does not have a result.<br>
  * <br>
- * This event is fired on the {@link MinecraftForge#EVENT_BUS}.<br>
+ * This event is fired on the Neoforge Event Bus (GAME).<br>
  **/
-public class PostAttuneEvent extends PlayerEvent {
+public class PostAttuneEvent extends PlayerEvent implements ICancellableEvent {
     private final ItemStack stack;
 
     public PostAttuneEvent(Player player, ItemStack stack)
@@ -23,9 +22,6 @@ public class PostAttuneEvent extends PlayerEvent {
         super(player);
         this.stack = stack;
     }
-
-    @Override
-    public boolean isCancelable() { return true; }
 
     public ItemStack getItemStack() {
         return this.stack;

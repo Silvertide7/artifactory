@@ -2,7 +2,9 @@ package net.silvertide.artifactory.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -77,6 +79,21 @@ public class AttunedItem {
             Codec.INT.fieldOf("order").forGetter(AttunedItem::getOrder)
     ).apply(instance, AttunedItem::new));
 
+    public static final StreamCodec<FriendlyByteBuf, AttunedItem> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public AttunedItem decode(FriendlyByteBuf buf) {
+            return new AttunedItem(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
+        }
+        @Override
+        public void encode(FriendlyByteBuf buf, AttunedItem attunedItem) {
+            buf.writeUUID(attunedItem.getItemUUID());
+            buf.writeUtf(attunedItem.getResourceLocation());
+            buf.writeUtf(attunedItem.getDisplayName());
+            buf.writeInt(attunedItem.getAttunementLevel());
+            buf.writeInt(attunedItem.getOrder());
+        }
+    };
+
 
     public void incremenetAttunementLevel() {
         setAttunementLevel(getAttunementLevel() + 1);
@@ -89,17 +106,5 @@ public class AttunedItem {
             String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
             return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1));
         });
-    }
-
-    public static void encode(FriendlyByteBuf buf, AttunedItem attunedItem) {
-        buf.writeUUID(attunedItem.getItemUUID());
-        buf.writeUtf(attunedItem.getResourceLocation());
-        buf.writeUtf(attunedItem.getDisplayName());
-        buf.writeInt(attunedItem.getAttunementLevel());
-        buf.writeInt(attunedItem.getOrder());
-    }
-
-    public static AttunedItem decode(FriendlyByteBuf buf) {
-        return new AttunedItem(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
     }
 }

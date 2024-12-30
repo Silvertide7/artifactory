@@ -3,24 +3,23 @@ package net.silvertide.artifactory.events;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
+import net.neoforged.neoforge.event.entity.player.*;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
@@ -29,17 +28,13 @@ import net.silvertide.artifactory.util.*;
 import java.util.List;
 
 
-@Mod.EventBusSubscriber(modid = Artifactory.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ArtifactEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingAttack(LivingAttackEvent event) {
-        if (event.isCanceled() || event.getSource().getEntity() == null) return;
-
-        if (event.getSource().getEntity() instanceof Player player && !player.level().isClientSide()) {
-            LivingEntity target = event.getEntity();
-            if (target == null) return;
-
+    public static void onLivingAttack(AttackEntityEvent event) {
+        if (event.isCanceled()) return;
+        if (event.getEntity() instanceof Player player && !player.level().isClientSide()) {
             List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack stack : itemsInHand) {
                 if(sidedIsUseRestricted(player, stack)) {
@@ -58,8 +53,6 @@ public class ArtifactEvents {
         ItemStack stack = event.getItemStack();
 
         if(sidedIsUseRestricted(player, stack)){
-            event.setUseItem(Event.Result.DENY);
-            event.setUseBlock(Event.Result.DENY);
             event.setCanceled(true);
         }
     }
@@ -77,7 +70,7 @@ public class ArtifactEvents {
     }
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
-        if(EffectiveSide.get().isClient()) {
+        if(FMLEnvironment.dist == Dist.CLIENT) {
             return ClientItemAttunementData.isUseRestricted(player, stack);
         } else {
             return AttunementUtil.isUseRestricted(player, stack);
@@ -85,10 +78,15 @@ public class ArtifactEvents {
     }
 
     @SubscribeEvent
-    public static void onItemPickup(PlayerEvent.ItemPickupEvent itemPickupEvent) {
-        Player player = itemPickupEvent.getEntity();
-        if(player.level().isClientSide() || itemPickupEvent.isCanceled()) return;
-        AttunementService.clearBrokenAttunementIfExists(itemPickupEvent.getStack());
+    public static void onItemPickup(ItemEntityPickupEvent.Pre itemPickupEvent) {
+        Player player = itemPickupEvent.getPlayer();
+        if(player.level().isClientSide()) return;
+        ItemStack stack = itemPickupEvent.getItemEntity().getItem();
+        AttunementService.clearBrokenAttunementIfExists(stack);
+        if(AttunementUtil.isValidAttunementItem(stack)
+                && AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
+            itemPickupEvent.setCanPickup(TriState.FALSE);
+        }
     }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
@@ -96,12 +94,12 @@ public class ArtifactEvents {
     // https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
     private static short ticksIgnoredSinceLastProcess = 0;
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent playerTickEvent) {
+    public static void onPlayerTick(PlayerTickEvent.Pre playerTickEvent) {
         ticksIgnoredSinceLastProcess++;
-        if (playerTickEvent.phase == TickEvent.Phase.END || ticksIgnoredSinceLastProcess < 18) return;
+        if (ticksIgnoredSinceLastProcess < 18) return;
         ticksIgnoredSinceLastProcess = 0;
 
-        Player player = playerTickEvent.player;
+        Player player = playerTickEvent.getEntity();
 
         if (player instanceof ServerPlayer) {
             Inventory inv = player.getInventory();
@@ -159,7 +157,7 @@ public class ArtifactEvents {
         ItemStack stack = attributeModifierEvent.getItemStack();
 
         boolean isValidAttunementItem;
-        if(EffectiveSide.get().isClient()) {
+        if(FMLEnvironment.dist == Dist.CLIENT) {
             isValidAttunementItem = ClientItemAttunementData.isValidAttunementItem(stack);
         } else {
             isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
@@ -169,8 +167,9 @@ public class ArtifactEvents {
             CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
             for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
                 AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
-                    if(attributeModification.getEquipmentSlot() == attributeModifierEvent.getSlotType()){
-                        attributeModification.addAttributeModifier(attributeModifierEvent);
+                    EquipmentSlot slot = stack.getEquipmentSlot();
+                    if(attributeModification.getEquipmentSlot() == slot) {
+                        attributeModification.addAttributeModifier(attributeModifierEvent, EquipmentSlotGroup.bySlot(slot));
                     }
                 });
             }

@@ -9,8 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.network.PacketHandler;
-import net.silvertide.artifactory.network.SB_RemoveAttunedItem;
+import net.silvertide.artifactory.network.server_packets.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.GUIUtil;
 

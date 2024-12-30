@@ -1,25 +1,23 @@
-package net.silvertide.artifactory.network;
+package net.silvertide.artifactory.network.client_packets;
 
 import com.mojang.serialization.JsonOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 
-public class CB_UpdateAttunementData {
+public class CB_SyncDatapackData {
     private final Map<ResourceLocation, ItemAttunementData> dataMap;
 
-    public CB_UpdateAttunementData(Map<ResourceLocation, ItemAttunementData> dataMap) {
+    public CB_SyncDatapackData(Map<ResourceLocation, ItemAttunementData> dataMap) {
         this.dataMap = dataMap;
     }
-    public static CB_UpdateAttunementData decode(FriendlyByteBuf buf) {
+    public static CB_SyncDatapackData decode(FriendlyByteBuf buf) {
         int size = buf.readVarInt();
         Map<ResourceLocation, ItemAttunementData> dataMap = new HashMap<>();
 
@@ -31,7 +29,7 @@ public class CB_UpdateAttunementData {
             dataMap.put(key, data);
         }
 
-        return new CB_UpdateAttunementData(dataMap);
+        return new CB_SyncDatapackData(dataMap);
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -45,7 +43,7 @@ public class CB_UpdateAttunementData {
         });
     }
 
-    static void handle(CB_UpdateAttunementData msg, Supplier<NetworkEvent.Context> contextSupplier) {
+    static void handle(CB_SyncDatapackData msg, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             ClientItemAttunementData.setAttunementData(msg.dataMap);

@@ -2,6 +2,10 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.silvertide.artifactory.network.*;
+import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
+import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItemModifications;
+import net.silvertide.artifactory.network.client_packets.CB_SyncDatapackData;
+import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 
@@ -30,7 +34,7 @@ public final class NetworkUtil {
 
     public static void syncAttunementData(ServerPlayer player) {
         DataPackUtil.getAttunementDataMap().ifPresent(dataMap -> {
-            PacketHandler.sendToClient(player, new CB_UpdateAttunementData(dataMap));
+            PacketHandler.sendToClient(player, new CB_SyncDatapackData(dataMap));
         });
     }
 }
