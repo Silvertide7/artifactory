@@ -12,15 +12,14 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
@@ -33,7 +32,7 @@ import java.util.Optional;
 @OnlyIn(Dist.CLIENT)
 public class ManageAttunementsScreen extends Screen {
     private static final int BUTTON_TEXT_COLOR = 0xFFFFFF;
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_manage.png");
     private static final int SCREEN_WIDTH = 176;
     private static final int SCREEN_HEIGHT = 166;
 
@@ -101,12 +100,17 @@ public class ManageAttunementsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        try {
+            renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
+            super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        } catch (Exception ignore) {
+            onClose();
+        }
+
     }
 
     protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 

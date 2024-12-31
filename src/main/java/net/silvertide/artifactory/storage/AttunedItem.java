@@ -94,7 +94,6 @@ public class AttunedItem {
         }
     };
 
-
     public void incremenetAttunementLevel() {
         setAttunementLevel(getAttunementLevel() + 1);
     }

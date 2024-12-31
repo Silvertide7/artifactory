@@ -1,15 +1,17 @@
 package net.silvertide.artifactory.storage;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
-import net.silvertide.artifactory.network.*;
 import net.silvertide.artifactory.network.client_packets.CB_RemoveAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
@@ -60,13 +62,16 @@ public class ArtifactorySavedData extends SavedData {
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
             attunedItem.incremenetAttunementLevel();
-
             this.setDirty();
 
-            ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
-            if(player != null){
-                PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
-                NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
+            // Sync updated information to the player.
+            MinecraftServer minecraftServer = ServerLifecycleHooks.getCurrentServer();
+            if(minecraftServer != null && !minecraftServer.getPlayerList().getPlayers().isEmpty()) {
+                ServerPlayer player = minecraftServer.getPlayerList().getPlayer(playerUUID);
+                if(player != null){
+                    PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItem(attunedItem));
+                    NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
+                }
             }
             return true;
         }
@@ -81,7 +86,7 @@ public class ArtifactorySavedData extends SavedData {
         attunedItems.computeIfAbsent(serverPlayer.getUUID(), i -> new HashMap<>()).put(attunedItem.getItemUUID(), attunedItem);
         setPlayerName(attunedItem.getItemUUID(), serverPlayer.getDisplayName().toString());
         this.setDirty();
-        PacketHandler.sendToClient(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
+        PacketDistributor.sendToPlayer(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
         NetworkUtil.updateAttunedItemModificationDescription(serverPlayer, attunedItem);
     }
 
@@ -91,7 +96,7 @@ public class ArtifactorySavedData extends SavedData {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null) {
-                PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.getItemUUID()));
+                PacketDistributor.sendToPlayer(player, new CB_RemoveAttunedItem(removedItem.getItemUUID()));
                 PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", removedItem.getDisplayName());
             }
         }
@@ -102,30 +107,34 @@ public class ArtifactorySavedData extends SavedData {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if (player != null) {
-                PacketHandler.sendToClient(player, new CB_ResetAttunedItems());
+                PacketDistributor.sendToPlayer(player, new CB_ResetAttunedItems());
             }
         }
     }
 
-    public ArtifactorySavedData(CompoundTag nbt) {
+    public ArtifactorySavedData() {}
+
+    public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
         attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY)).result().orElse(new HashMap<>()));
     }
 
-    public ArtifactorySavedData() {}
-
-    private static final String ATTUNED_ITEMS_KEY = "attuned_items";
-    private static final String ATTUNED_PLAYERS_KEY = "attuned_players";
+    public static Factory<ArtifactorySavedData> dataFactory() {
+        return new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
+    }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
         nbt.put(ATTUNED_PLAYERS_KEY, ATTUNED_PLAYERS_CODEC.encodeStart(NbtOps.INSTANCE, attunedPlayers).result().orElse(new CompoundTag()));
         return nbt;
     }
 
+    private static final String ATTUNED_ITEMS_KEY = "attuned_items";
+    private static final String ATTUNED_PLAYERS_KEY = "attuned_players";
+
     public static ArtifactorySavedData get() {
         if (ServerLifecycleHooks.getCurrentServer() != null)
-            return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(ArtifactorySavedData::new, ArtifactorySavedData::new, NAME);
+            return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
         else
             return new ArtifactorySavedData();
     }
@@ -140,7 +149,7 @@ public class ArtifactorySavedData extends SavedData {
 
                     ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunedToUUID);
                     if (player != null) {
-                        PacketHandler.sendToClient(player, new CB_UpdateAttunedItem(attunedItem));
+                        PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItem(attunedItem));
                     }
                 }
             });

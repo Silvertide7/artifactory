@@ -5,6 +5,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.keybindings.Keybindings;
 import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttunementsScreen;
@@ -15,7 +16,7 @@ public class ClientForgeEvents {
     public static void clientTick(ClientTickEvent clientTickEvent) {
         if(Minecraft.getInstance().player == null) return;
         if(Keybindings.INSTANCE.useOpenManageAttunementsKey.consumeClick()) {
-            PacketHandler.sendToServer(new SB_ToggleManageAttunementsScreen());
+            PacketDistributor.sendToServer(new SB_ToggleManageAttunementsScreen());
         }
     }
 }

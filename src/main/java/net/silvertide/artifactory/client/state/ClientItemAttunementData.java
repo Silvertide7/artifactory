@@ -32,7 +32,7 @@ public class ClientItemAttunementData {
 
     public static Optional<ItemAttunementData> getAttunementData(String resourceLocation) {
         if(itemAttunementData == null) return Optional.empty();
-        return getAttunementData(ResourceLocationUtil.getResourceLocation(resourceLocation));
+        return getAttunementData(ResourceLocation.parse(resourceLocation));
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {

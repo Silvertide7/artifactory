@@ -6,8 +6,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.server_packets.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
@@ -16,7 +17,7 @@ import net.silvertide.artifactory.util.GUIUtil;
 @OnlyIn(Dist.CLIENT)
 public class DeleteConfirmationScreen extends Screen {
     private static final float TEXT_SCALE = 0.85F;
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
     private static final int SCREEN_WIDTH = 146;
     private static final int SCREEN_HEIGHT = 81;
     //BUTTON CONSTANTS
@@ -43,7 +44,7 @@ public class DeleteConfirmationScreen extends Screen {
     }
 
     protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
@@ -156,7 +157,7 @@ public class DeleteConfirmationScreen extends Screen {
             this.onClose();
             return true;
         } else if(confirmButtonDown && isHoveringConfirmButton(mouseX, mouseY)){
-            PacketHandler.sendToServer(new SB_RemoveAttunedItem(itemToDelete.getItemUUID()));
+            PacketDistributor.sendToServer(new SB_RemoveAttunedItem(itemToDelete.getItemUUID()));
             this.onClose();
             return true;
         }

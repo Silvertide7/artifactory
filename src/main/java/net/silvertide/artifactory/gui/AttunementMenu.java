@@ -10,10 +10,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.silvertide.artifactory.config.ServerConfig;
-import net.silvertide.artifactory.events.custom.PostAttuneEvent;
-import net.silvertide.artifactory.events.custom.PreAttuneEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.silvertide.artifactory.config.ServerConfigs;
+import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
@@ -60,7 +60,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     // Server Constructor
     public AttunementMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(MenuRegistry.ATTUNEMENT_NEXUS_ATTUNE_MENU.get(), containerId);
+        super(MenuRegistry.ATTUNEMENT_NEXUS_MENU.get(), containerId);
         this.access = access;
         this.player = playerInventory.player;
 
@@ -259,8 +259,8 @@ public class AttunementMenu extends AbstractContainerMenu {
             setProgress(0);
             setIsActive(false);
 
-            int numUnique = ServerConfig.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
-            PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
+            int numUnique = ServerConfigs.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
+            PacketDistributor.sendToPlayer(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
         }
         return super.clickMenuButton(player, pId);
     }
@@ -279,10 +279,10 @@ public class AttunementMenu extends AbstractContainerMenu {
             } else {
                 if(this.canAscensionStart()) {
                     ItemStack stack = this.attunementInputSlot.getItem();
-                    if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
+                    if(!NeoForge.EVENT_BUS.post(new AttuneEvent.Pre(player, stack)).isCanceled()) {
                         handleAttunement(stack);
                         playAttuneEffects(serverPlayer);
-                        MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
+                        NeoForge.EVENT_BUS.post(new AttuneEvent.Post(player, stack));
                     }
                 }
                 setIsActive(false);

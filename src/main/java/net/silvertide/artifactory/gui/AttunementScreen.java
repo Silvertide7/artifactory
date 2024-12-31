@@ -46,7 +46,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
     private ItemRequirementSlotRenderer itemRequirementSlotOneRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
@@ -70,14 +70,14 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         updateRequirementsList();
-        renderBackground(guiGraphics);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
