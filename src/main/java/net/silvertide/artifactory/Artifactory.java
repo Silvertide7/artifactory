@@ -20,6 +20,7 @@ public class Artifactory
         BlockRegistry.register(modEventBus);
         AttributeRegistry.register(modEventBus);
         MenuRegistry.register(modEventBus);
+        DataComponentRegistry.register(modEventBus);
 
 //        if (ModList.get().isLoaded("curios")) {
 //            MinecraftForge.EVENT_BUS.addListener(CuriosCompat::onCuriosEquip);
