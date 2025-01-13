@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
 
@@ -128,7 +129,7 @@ public class ArtifactEvents {
             ItemStack stack = itemEntity.getItem();
             if(AttunementUtil.isValidAttunementItem(stack) && AttunementUtil.isItemAttunedToAPlayer(stack)) {
                 itemEntity.setUnlimitedLifetime();
-                if(StackNBTUtil.isInvulnerable(stack)) {
+                if(DataComponentUtil.getAttunementData(stack).map(AttunementData::isInvulnerable).orElse(false)) {
                     itemEntity.setInvulnerable(true);
                 }
             }
@@ -156,6 +157,7 @@ public class ArtifactEvents {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
 
+        // TODO: See if this requires client check still after figuring out data sync
         boolean isValidAttunementItem;
         if(FMLEnvironment.dist == Dist.CLIENT) {
             isValidAttunementItem = ClientItemAttunementData.isValidAttunementItem(stack);
@@ -163,16 +165,14 @@ public class ArtifactEvents {
             isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
         }
 
-        if (isValidAttunementItem && StackNBTUtil.containsAttributeModifications(stack)) {
-            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
-            for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
-                AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
-                    EquipmentSlot slot = stack.getEquipmentSlot();
-                    if(attributeModification.getEquipmentSlot() == slot) {
-                        attributeModification.addAttributeModifier(attributeModifierEvent, EquipmentSlotGroup.bySlot(slot));
+        if(isValidAttunementItem) {
+            DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+                for(AttributeModification modification : attunementData.attributeModifications()) {
+                    if(stack.getEquipmentSlot() != null && EquipmentSlotGroup.bySlot(stack.getEquipmentSlot()).equals(modification.slot())) {
+                        modification.addAttributeModifier(attributeModifierEvent);
                     }
-                });
-            }
+                }
+            });
         }
     }
 }

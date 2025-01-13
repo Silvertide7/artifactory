@@ -1,6 +1,8 @@
 package net.silvertide.artifactory.util;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
 import net.silvertide.artifactory.modifications.*;
 
@@ -40,11 +42,16 @@ public final class ModificationService {
     }
 
     private static void clearModifications(ItemStack stack) {
-        StackNBTUtil.removeUnbreakable(stack);
-        StackNBTUtil.removeArtifactoryUnbreakable(stack);
-        StackNBTUtil.removeInvulnerable(stack);
-        StackNBTUtil.removeSoulbound(stack);
-        StackNBTUtil.removeAttributeModifications(stack);
-    }
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            AttunementData clearedAttunementData = attunementData
+                    .withIsInvulnerable(false)
+                    .withIsSoulbound(false)
+                    .withAttributeModifications(new ArrayList<>());
 
+            if(clearedAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {
+                DataComponentUtil.removeUnbreakable(stack);
+            }
+            DataComponentUtil.setAttunementData(stack, clearedAttunementData.withIsUnbreakable(false));
+        });
+    }
 }

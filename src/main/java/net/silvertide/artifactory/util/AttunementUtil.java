@@ -5,9 +5,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.AttributeRegistry;
 
 import java.util.*;
@@ -26,7 +26,7 @@ public final class AttunementUtil {
         Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
-            numAttunementSlotsUsed += DataPackUtil.getAttunementData(attunedItem.getResourceLocation()).map(ItemAttunementData::attunementSlotsUsed).orElse(0);
+            numAttunementSlotsUsed += DataPackUtil.getAttunementData(attunedItem.getResourceLocation()).map(AttunementDataSource::attunementSlotsUsed).orElse(0);
         }
         return numAttunementSlotsUsed;
     }
@@ -36,36 +36,34 @@ public final class AttunementUtil {
     }
 
     public static int getLevelOfAttunementAchieved(ItemStack stack) {
-        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
-        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
-
-        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
-        }
-        return 0;
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            if(attunementData.attunementUUID() != null && attunementData.attunedToUUID() != null) {
+                return getLevelOfAttunementAchieved(attunementData.attunedToUUID(), attunementData.attunementUUID());
+            }
+            return 0;
+        }).orElse(0);
     }
 
     public static int getLevelOfAttunementAchievedByPlayer(ServerPlayer player, ItemStack stack) {
-        Optional<UUID> itemAttunementUUID = StackNBTUtil.getItemAttunementUUID(stack);
-        Optional<UUID> attunedToUUID = StackNBTUtil.getAttunedToUUID(stack);
-
-        if(itemAttunementUUID.isPresent() && attunedToUUID.isPresent()) {
-            if(!player.getUUID().equals(attunedToUUID.get())) return 0;
-
-            return getLevelOfAttunementAchieved(attunedToUUID.get(), itemAttunementUUID.get());
-        }
-        return 0;
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            if(attunementData.attunementUUID() != null
+                    && attunementData.attunedToUUID() != null
+                    && player.getUUID().equals(attunementData.attunedToUUID())) {
+                return getLevelOfAttunementAchieved(attunementData.attunedToUUID(), attunementData.attunementUUID());
+            }
+            return 0;
+        }).orElse(0);
     }
 
     public static int getLevelOfAttunementAchieved(UUID playerUUID, UUID itemAttunementUUID) {
         return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
-    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, ItemAttunementData attunementData) {
+    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, AttunementDataSource attunementData) {
         int openSlots = getOpenAttunementSlots(player);
         int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
-        boolean uniqueRestrictionActive = attunementData.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
-        return openSlots >= attunementSlotsRequired && !uniqueRestrictionActive;
+        boolean uniqueRestrictionIsActive = attunementData.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
+        return openSlots >= attunementSlotsRequired && !uniqueRestrictionIsActive;
     }
 
     public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
@@ -82,7 +80,8 @@ public final class AttunementUtil {
     }
 
     public static boolean isItemAttunedToAPlayer(ItemStack stack) {
-        return !stack.isEmpty() && StackNBTUtil.containsItemAttunementUUID(stack) && StackNBTUtil.containsAttunedToUUID(stack);
+        if(stack.isEmpty()) return false;
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> attunementData.attunedToUUID() != null && attunementData.attunementUUID() != null).orElse(false);
     }
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
@@ -103,8 +102,19 @@ public final class AttunementUtil {
         }).orElse(false);
     }
 
+    // Soulbound is active if the soulbound flag is set and the player uuid matches the stack attuned to uuid.
+    public static boolean isSoulboundActive(ServerPlayer player, ItemStack stack) {
+        return AttunementUtil.isValidAttunementItem(stack) && DataComponentUtil.getAttunementData(stack).map(attunementData -> attunementData.isSoulbound() && attunementData.attunedToUUID().equals(player.getUUID())).orElse(false);
+    }
+
     public static boolean isAttunedToAnotherPlayer(Player player, ItemStack stack) {
-        return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> !player.getUUID().equals(attunedToUUID)).orElse(false);
+        if(stack.isEmpty()) return false;
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            if(attunementData.attunedToUUID() != null) {
+                return !player.getUUID().equals(attunementData.attunedToUUID());
+            }
+            return false;
+        }).orElse(false);
     }
 
     public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
@@ -112,13 +122,16 @@ public final class AttunementUtil {
     }
 
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
-        if (stack.isEmpty() || !StackNBTUtil.containsAttunedToUUID(stack)) return false;
-        return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
+        if(stack.isEmpty()) return false;
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            if(attunementData.attunedToUUID() == null) return false;
+            return attunementData.attunedToUUID().equals(player.getUUID());
+        }).orElse(false);
     }
 
     private static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
-        return StackNBTUtil.getItemAttunementUUID(stack).map(itemAttunementUUID ->
-                        ArtifactorySavedData.get().getAttunedItem(player.getUUID(), itemAttunementUUID).isPresent())
+        return DataComponentUtil.getAttunementData(stack).map(attunementData ->
+            ArtifactorySavedData.get().getAttunedItem(player.getUUID(), attunementData.attunementUUID()).isPresent())
                 .orElse(false);
     }
 
@@ -131,7 +144,8 @@ public final class AttunementUtil {
         if(DataPackUtil.isUniqueAttunement(stack)) {
             uniqueRestrictionActive = !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
         }
-        return isValidAttunementItem(stack) && !StackNBTUtil.containsAttunedToUUID(stack) && !uniqueRestrictionActive;
+        boolean alreadyAttuned = DataComponentUtil.getAttunementData(stack).map(attunementData -> attunementData.attunedToUUID() != null).orElse(false);
+        return isValidAttunementItem(stack) && !alreadyAttuned && !uniqueRestrictionActive;
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
@@ -139,11 +153,11 @@ public final class AttunementUtil {
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
-        return GUIUtil.prettifyName(StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString()));
+        return GUIUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
     }
 
     public static Optional<String> getSavedDataAttunedItemOwnerDisplayName(ItemStack stack) {
-        return StackNBTUtil.getAttunedToUUID(stack).flatMap(attunedToUUID -> ArtifactorySavedData.get().getPlayerName(attunedToUUID));
+        return DataComponentUtil.getAttunementData(stack).flatMap(attunementData -> ArtifactorySavedData.get().getPlayerName(attunementData.attunedToUUID()));
     }
 
     public static boolean isPlayerAtUniqueAttunementLimit(UUID playerUUID) {

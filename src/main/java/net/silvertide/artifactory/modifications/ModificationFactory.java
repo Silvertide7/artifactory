@@ -8,7 +8,7 @@ public class ModificationFactory {
     public static Optional<AttunementModification> createAttunementModification(String modificationCode) {
         if(modificationCode.indexOf('/') >= 0) {
             String modificationIdentifier = modificationCode.split("/")[0];
-            if (modificationIdentifier.equalsIgnoreCase(AttributeModification.ATTRIBUTE_MODIFICATION_TYPE)) {
+            if (modificationIdentifier.equalsIgnoreCase("attribute")) {
                 return Optional.ofNullable(AttributeModification.fromAttunementDataString(modificationCode));
             }
         } else {

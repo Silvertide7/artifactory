@@ -3,17 +3,16 @@ package net.silvertide.artifactory.config.codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public record ItemAttunementData(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement, boolean unique, boolean replace) {
-    public static final Codec<ItemAttunementData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.optionalFieldOf("slots_used", -1).forGetter(ItemAttunementData::attunementSlotsUsed),
-            Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", getDefaultAttunementLevels()).forGetter(ItemAttunementData::attunementLevels),
-            Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(ItemAttunementData::useWithoutAttunement),
-            Codec.BOOL.optionalFieldOf("unique", false).forGetter(ItemAttunementData::unique),
-            Codec.BOOL.optionalFieldOf("replace", false).forGetter(ItemAttunementData::replace))
-            .apply(instance, ItemAttunementData::new)
+public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement, boolean unique, boolean replace) {
+    public static final Codec<AttunementDataSource> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.optionalFieldOf("slots_used", -1).forGetter(AttunementDataSource::attunementSlotsUsed),
+            Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", getDefaultAttunementLevels()).forGetter(AttunementDataSource::attunementLevels),
+            Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(AttunementDataSource::useWithoutAttunement),
+            Codec.BOOL.optionalFieldOf("unique", false).forGetter(AttunementDataSource::unique),
+            Codec.BOOL.optionalFieldOf("replace", false).forGetter(AttunementDataSource::replace))
+            .apply(instance, AttunementDataSource::new)
     );
 
     public int getAttunementSlotsUsed() {

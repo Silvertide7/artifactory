@@ -4,29 +4,29 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 
 import java.util.*;
 
 public final class DataPackUtil {
     private DataPackUtil() {}
 
-    public static Optional<Map<ResourceLocation, ItemAttunementData>> getAttunementDataMap() {
+    public static Optional<Map<ResourceLocation, AttunementDataSource>> getAttunementDataMap() {
         if(AttunableItems.DATA_LOADER.getData().isEmpty()) return Optional.empty();
         return Optional.of(AttunableItems.DATA_LOADER.getData());
     }
 
-    public static Optional<ItemAttunementData> getAttunementData(ResourceLocation resourceLocation) {
+    public static Optional<AttunementDataSource> getAttunementData(ResourceLocation resourceLocation) {
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
     }
 
-    public static Optional<ItemAttunementData> getAttunementData(ItemStack stack) {
+    public static Optional<AttunementDataSource> getAttunementData(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(stackResourceLocation));
     }
 
-    public static Optional<ItemAttunementData> getAttunementData(String resourceLocation) {
+    public static Optional<AttunementDataSource> getAttunementData(String resourceLocation) {
         return getAttunementData(ResourceLocationUtil.getResourceLocation(resourceLocation));
     }
 
@@ -65,14 +65,14 @@ public final class DataPackUtil {
     }
 
     public static boolean canUseWithoutAttunement(ItemStack stack) {
-        return getAttunementData(stack).map(ItemAttunementData::useWithoutAttunement).orElse(false);
+        return getAttunementData(stack).map(AttunementDataSource::useWithoutAttunement).orElse(false);
     }
 
     public static boolean isUniqueAttunement(ItemStack stack) {
-        return getAttunementData(stack).map(ItemAttunementData::unique).orElse(false);
+        return getAttunementData(stack).map(AttunementDataSource::unique).orElse(false);
     }
 
     public static boolean isUniqueAttunement(String resourceLocation) {
-        return getAttunementData(resourceLocation).map(ItemAttunementData::unique).orElse(false);
+        return getAttunementData(resourceLocation).map(AttunementDataSource::unique).orElse(false);
     }
 }

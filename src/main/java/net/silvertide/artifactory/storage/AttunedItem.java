@@ -2,7 +2,6 @@ package net.silvertide.artifactory.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Optional;
@@ -99,11 +98,11 @@ public class AttunedItem {
     }
 
     public static Optional<AttunedItem> buildAttunedItem(Player player, ItemStack stack) {
-        return StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> {
+        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
             ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
             int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
             String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
-            return Optional.of(new AttunedItem(itemUUID, resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1));
+            return new AttunedItem(attunementData.attunementUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
         });
     }
 }

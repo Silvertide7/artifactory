@@ -16,7 +16,6 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.StackNBTUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,12 +46,14 @@ public class SoulboundEvents {
     }
 
     private static void keepSoulboundItems(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+
         Inventory keepInventory = new Inventory(null);
         ListTag tagList = new ListTag();
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
-            if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.isSoulbound(stack) && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
+            if(AttunementUtil.isSoulboundActive(serverPlayer, stack)) {
                 keepInventory.items.set(i, stack.copy());
                 player.getInventory().items.set(i, ItemStack.EMPTY);
             }
@@ -60,14 +61,14 @@ public class SoulboundEvents {
 
         for (int i = 0; i < player.getInventory().armor.size(); i++) {
             ItemStack armorStack = player.getInventory().armor.get(i);
-            if (AttunementUtil.isValidAttunementItem(armorStack) && StackNBTUtil.isSoulbound(armorStack)  && AttunementUtil.isItemAttunedToPlayer(player, armorStack)) {
+            if(AttunementUtil.isSoulboundActive(serverPlayer, armorStack)) {
                 keepInventory.armor.set(i, armorStack.copy());
                 player.getInventory().armor.set(i, ItemStack.EMPTY);
             }
         }
 
         ItemStack offhandItemStack = player.getInventory().offhand.get(0);
-        if (AttunementUtil.isValidAttunementItem(offhandItemStack) && StackNBTUtil.isSoulbound(offhandItemStack) && AttunementUtil.isItemAttunedToPlayer(player, offhandItemStack)) {
+        if (AttunementUtil.isSoulboundActive(serverPlayer, offhandItemStack)) {
             keepInventory.offhand.set(0, player.getInventory().offhand.get(0).copy());
             player.getInventory().offhand.set(0, ItemStack.EMPTY);
         }

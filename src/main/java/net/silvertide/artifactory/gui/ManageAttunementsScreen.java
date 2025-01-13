@@ -17,7 +17,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
@@ -89,12 +89,12 @@ public class ManageAttunementsScreen extends Screen {
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<ItemAttunementData> attunementData = ClientItemAttunementData.getAttunementData(attunedItem.getResourceLocation());
+            Optional<AttunementDataSource> attunementData = ClientItemAttunementData.getAttunementData(attunedItem.getResourceLocation());
 
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
 
             if(attunementData.isPresent() && attunementData.get().unique()) numUniqueAttunements++;
-            numSlotsUsed += attunementData.map(ItemAttunementData::attunementSlotsUsed).orElse(0);
+            numSlotsUsed += attunementData.map(AttunementDataSource::attunementSlotsUsed).orElse(0);
         }
     }
 
@@ -347,7 +347,7 @@ public class ManageAttunementsScreen extends Screen {
 
         private int index;
         private final AttunedItem attunedItem;
-        private final ItemAttunementData attunementData;
+        private final AttunementDataSource attunementData;
         private final ItemStack itemToRender;
         private final List<String> modificationDescPerLevel;
         private boolean isDeleteButtonDown = false;
@@ -355,7 +355,7 @@ public class ManageAttunementsScreen extends Screen {
         private boolean isOffScreen = false;
         ManageAttunementsScreen manageScreen;
 
-        private AttunementCard(int index, AttunedItem attunedItem, ItemAttunementData attunementData, ManageAttunementsScreen manageScreen) {
+        private AttunementCard(int index, AttunedItem attunedItem, AttunementDataSource attunementData, ManageAttunementsScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
             this.attunementData = attunementData;

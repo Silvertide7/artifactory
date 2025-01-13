@@ -60,7 +60,7 @@ import java.util.function.Function;
  * After creating the manager, subscribeAsSyncable can optionally be called on it to subscribe the manager
  * to the forge events necessary for syncing datapack data to clients.
  */
-public class MergeableCodecDataManager extends SimplePreparableReloadListener<Map<ResourceLocation, ItemAttunementData>>
+public class MergeableCodecDataManager extends SimplePreparableReloadListener<Map<ResourceLocation, AttunementDataSource>>
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -70,11 +70,11 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     protected static final int JSON_EXTENSION_LENGTH = JSON_EXTENSION.length();
 
     /** the loaded data **/
-    protected Map<ResourceLocation, ItemAttunementData> data = new HashMap<>();
+    protected Map<ResourceLocation, AttunementDataSource> data = new HashMap<>();
 
     private final String folderName;
-    private final Codec<ItemAttunementData> codec;
-    private final Function<List<ItemAttunementData>, ItemAttunementData> merger;
+    private final Codec<AttunementDataSource> codec;
+    private final Function<List<AttunementDataSource>, AttunementDataSource> merger;
 
     /**
      * Initialize a data manager with the given folder name, codec, and merger
@@ -89,7 +89,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name itemUUID,
      * and then all tag jsons defined with the same ID are merged additively into a single set of items, etc
      */
-    public MergeableCodecDataManager(final String folderName, Codec<ItemAttunementData> codec, final Function<List<ItemAttunementData>, ItemAttunementData> merger)
+    public MergeableCodecDataManager(final String folderName, Codec<AttunementDataSource> codec, final Function<List<AttunementDataSource>, AttunementDataSource> merger)
     {
         this.folderName = folderName;
         this.codec = codec;
@@ -99,22 +99,22 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     /**
      * @return The immutable map of data entries
      */
-    public Map<ResourceLocation, ItemAttunementData> getData()
+    public Map<ResourceLocation, AttunementDataSource> getData()
     {
         return this.data;
     }
 
     /** Off-thread processing (can include reading files from hard drive) **/
     @Override
-    protected Map<ResourceLocation, ItemAttunementData> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected Map<ResourceLocation, AttunementDataSource> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         LOGGER.info("Beginning loading of data for data loader: {}", this.folderName);
-        final Map<ResourceLocation, ItemAttunementData> map = new HashMap<>();
+        final Map<ResourceLocation, AttunementDataSource> map = new HashMap<>();
 
         Map<ResourceLocation,List<Resource>> resourceStacks = resourceManager.listResourceStacks(this.folderName, id -> id.getPath().endsWith(JSON_EXTENSION));
         for (var entry : resourceStacks.entrySet())
         {
-            List<ItemAttunementData> raws = new ArrayList<>();
+            List<AttunementDataSource> raws = new ArrayList<>();
             ResourceLocation fullId = entry.getKey();
             String fullPath = fullId.getPath(); // includes folderName/ and .json
             ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
@@ -144,12 +144,12 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final Map<ResourceLocation, ItemAttunementData> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected void apply(final Map<ResourceLocation, AttunementDataSource> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         // Sanitation is setup to check all item resource location codes and make sure they are valid within minecraft.
         // If they are not they are removed and warning is logged.
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
-        Map<ResourceLocation, ItemAttunementData> filteredData = filterItems(processedData);
+        Map<ResourceLocation, AttunementDataSource> filteredData = filterItems(processedData);
         sanitizeItemRequirements(filteredData);
 
         this.data.putAll(filteredData);
@@ -164,8 +164,8 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * @param data The data to filter
      * @return
      */
-    private Map<ResourceLocation,ItemAttunementData> filterItems(Map<ResourceLocation, ItemAttunementData> data) {
-        Map<ResourceLocation, ItemAttunementData> filteredData = new HashMap<>();
+    private Map<ResourceLocation, AttunementDataSource> filterItems(Map<ResourceLocation, AttunementDataSource> data) {
+        Map<ResourceLocation, AttunementDataSource> filteredData = new HashMap<>();
         for(ResourceLocation key : data.keySet()) {
             ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
             if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
@@ -182,8 +182,8 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * in the game. If it can't create an ItemStack of them then it will remove it.
      * @param data - The data to search for item requirements in
      */
-    private void sanitizeItemRequirements(Map<ResourceLocation, ItemAttunementData> data) {
-        for(Map.Entry<ResourceLocation, ItemAttunementData> entry : data.entrySet()) {
+    private void sanitizeItemRequirements(Map<ResourceLocation, AttunementDataSource> data) {
+        for(Map.Entry<ResourceLocation, AttunementDataSource> entry : data.entrySet()) {
             for(AttunementLevel attunementLevel : entry.getValue().attunementLevels()) {
                 List<String> items = attunementLevel.getRequirements().getItems();
                 List<String> sanitizedItems = new ArrayList<>();
@@ -211,17 +211,17 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      *
      * @param packetFactory A packet constructor or factory method that converts the given map to a packet object to send on the given channel
      */
-    public void subscribeAsSyncable(final Function<Map<ResourceLocation, ItemAttunementData>, CustomPacketPayload> packetFactory) {
+    public void subscribeAsSyncable(final Function<Map<ResourceLocation, AttunementDataSource>, CustomPacketPayload> packetFactory) {
         NeoForge.EVENT_BUS.addListener(this.getDatapackSyncListener(packetFactory));
     }
 
     /** Generate an event listener function for the on-datapack-sync event **/
-    private Consumer<OnDatapackSyncEvent> getDatapackSyncListener(final Function<Map<ResourceLocation, ItemAttunementData>, CustomPacketPayload> packetFactory)
+    private Consumer<OnDatapackSyncEvent> getDatapackSyncListener(final Function<Map<ResourceLocation, AttunementDataSource>, CustomPacketPayload> packetFactory)
     {
         return event -> {
             ServerPlayer player = event.getPlayer();
             List<CustomPacketPayload> packets = new ArrayList<>();
-            for (Map.Entry<ResourceLocation, ItemAttunementData> entry : new HashMap<>(this.data).entrySet()) {
+            for (Map.Entry<ResourceLocation, AttunementDataSource> entry : new HashMap<>(this.data).entrySet()) {
                 if (entry.getKey() == null) continue;
                 packets.add(packetFactory.apply(Map.of(entry.getKey(), entry.getValue())));
             }

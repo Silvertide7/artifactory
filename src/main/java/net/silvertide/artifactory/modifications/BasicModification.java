@@ -1,7 +1,7 @@
 package net.silvertide.artifactory.modifications;
 
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.DataComponentUtil;
 
 public class BasicModification implements AttunementModification {
     BasicModificationType modificationType;
@@ -20,16 +20,24 @@ public class BasicModification implements AttunementModification {
     }
 
     private void applySoulbound(ItemStack stack) {
-        StackNBTUtil.setSoulbound(stack);
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            if(!attunementData.isSoulbound()) {
+                DataComponentUtil.setAttunementData(stack, attunementData.withIsSoulbound(true));
+            }
+        });
     }
 
     private void applyInvulnerable(ItemStack stack) {
-        StackNBTUtil.setInvulnerable(stack);
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            if(!attunementData.isInvulnerable()) {
+                DataComponentUtil.setAttunementData(stack, attunementData.withIsInvulnerable(true));
+            }
+        });
     }
 
     private void applyUnbreakable(ItemStack stack) {
-        if(stack.isDamageableItem()){
-            StackNBTUtil.makeUnbreakable(stack);
+        if(stack.isDamageableItem()) {
+            DataComponentUtil.makeUnbreakable(stack);
         }
     }
 

@@ -11,14 +11,12 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.client_packets.CB_RemoveAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
-import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.NetworkUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.*;
 
 import java.util.*;
 
@@ -52,8 +50,17 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
+        if(playerUUID == null || attunedItemId == null) return Optional.empty();
+
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         return Optional.ofNullable(playerAttunedItems.get(attunedItemId));
+    }
+
+    public Optional<AttunedItem> getAttunedItem(AttunementData attunementData) {
+        if(attunementData.attunedToUUID() == null || attunementData.attunementUUID() == null) return Optional.empty();
+
+        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(attunementData.attunedToUUID(), new HashMap<>());
+        return Optional.ofNullable(playerAttunedItems.get(attunementData.attunementUUID()));
     }
 
     // Returns true if the items level was increased successfully, and false if not.
@@ -140,14 +147,14 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void updateDisplayName(ItemStack stack) {
-        StackNBTUtil.getAttunedToUUID(stack).ifPresent(attunedToUUID -> {
-            StackNBTUtil.getItemAttunementUUID(stack).flatMap(itemUUID -> this.getAttunedItem(attunedToUUID, itemUUID)).ifPresent(attunedItem -> {
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            this.getAttunedItem(attunementData).ifPresent(attunedItem -> {
                 String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
                 if (!attunedItem.getDisplayName().equals(displayName)) {
                     attunedItem.setDisplayName(displayName);
                     this.setDirty();
 
-                    ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunedToUUID);
+                    ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(attunementData.attunedToUUID());
                     if (player != null) {
                         PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItem(attunedItem));
                     }

@@ -94,7 +94,8 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
 
             return new AttunementNexusSlotInformation(
                     AttunementUtil.getAttunedItemDisplayName(stack),
-                    StackNBTUtil.getAttunedToName(stack).orElse(""),
+                    DataComponentUtil.getAttunementData(stack)
+                            .map(attunementData -> attunementData.attunedToName() != null ? attunementData.attunedToName() : "").orElse(""),
                     AttunementUtil.isAttunedToAnotherPlayer(player, stack),
                     itemAttunementData.attunementSlotsUsed(),
                     uniqueStatus,

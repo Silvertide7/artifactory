@@ -7,10 +7,11 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.config.codecs.ItemAttunementData;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import net.silvertide.artifactory.util.DataComponentUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 public class ClientSetupEvents {
     private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
@@ -28,7 +29,7 @@ public class ClientSetupEvents {
         }
     }
 
-    private void createAttunementHoverComponent(List<Component> toolTips, ItemAttunementData itemAttunementData, ItemStack stack) {
+    private void createAttunementHoverComponent(List<Component> toolTips, AttunementDataSource itemAttunementData, ItemStack stack) {
         MutableComponent toolTip;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             toolTip = createAttunedHoverText(stack);
@@ -45,8 +46,10 @@ public class ClientSetupEvents {
 
     private MutableComponent createAttunedHoverText(ItemStack stack) {
         MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(attunedFormatting);
-        StackNBTUtil.getAttunedToName(stack).ifPresent(name -> {
-            hoverText.append(Component.literal(" <" + name + ">").withStyle(attunedFormatting));
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            if(attunementData.attunedToName() != null) {
+                hoverText.append(Component.literal(" <" + attunementData.attunedToName() + ">").withStyle(attunedFormatting));
+            }
         });
         return hoverText;
     }
@@ -60,24 +63,23 @@ public class ClientSetupEvents {
     }
 
     private void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
-        String traitText = null;
-        if(StackNBTUtil.isSoulbound(stack)) {
-            traitText = "Soulbound";
-        }
-
-        if(StackNBTUtil.isInvulnerable(stack)) {
-            if(traitText != null){
-                traitText += " | Invulnerable";
-            } else {
-                traitText = "Invulnerable";
+        List<String> traitTextList = DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            List<String> textList = new ArrayList<>();
+            if(attunementData.isSoulbound()) {
+                textList.add("Soulbound");
             }
-        }
-        if(traitText != null) {
-            toolTips.add(Component.literal(traitText).withStyle(ChatFormatting.LIGHT_PURPLE));
-        }
+
+            if(attunementData.isInvulnerable()) {
+                textList.add("Invulnerable");
+            }
+
+            return textList;
+        }).orElse(new ArrayList<>());
+
+        traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.DARK_BLUE)));
     }
 
-    private void addUniqueTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
+    private void addUniqueTooltip(List<Component> toolTips, AttunementDataSource itemAttunementData) {
         if(itemAttunementData.unique()) {
             toolTips.add(Component.translatable("hovertext.artifactory.unique").withStyle(ChatFormatting.GOLD));
         }

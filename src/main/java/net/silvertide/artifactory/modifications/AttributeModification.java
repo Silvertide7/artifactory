@@ -1,8 +1,11 @@
 package net.silvertide.artifactory.modifications;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -11,74 +14,68 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.GUIUtil;
-import net.silvertide.artifactory.util.StackNBTUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public class AttributeModification implements AttunementModification {
-    public static final String ATTRIBUTE_MODIFICATION_TYPE = "attribute";
-    public static final String ATTRIBUTE_UUID_KEY = "attribute_uuid";
-    public static final String ATTIBUTE_KEY = "attribute";
-    public static final String OPERATION_KEY = "operation";
-    public static final String VALUE_KEY = "value";
-    public static final String EQUIPMENT_SLOT_KEY = "equipment_slot";
+public record AttributeModification(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) implements AttunementModification {
+    public static final Codec<AttributeModification> CODEC;
+    public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModification> STREAM_CODEC;
 
-    private final String attribute;
-    private final int operation;
-    private final double value;
-    private final UUID attributeUUID;
-    private final String equipmentSlotName;
+    static {
+        CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                        Attribute.CODEC.fieldOf("attribute").forGetter(AttributeModification::attribute),
+                        AttributeModifier.CODEC.fieldOf("modifier").forGetter(AttributeModification::modifier),
+                        EquipmentSlotGroup.CODEC.fieldOf("slot").forGetter(AttributeModification::slot))
+                .apply(instance, AttributeModification::new));
 
-    private AttributeModification(String attribute, int operation, double value, String equipmentSlotName, UUID attributeUUID) {
-        this.attribute = attribute;
-        this.operation = operation;
-        this.value = value;
-        this.equipmentSlotName = equipmentSlotName;
-        this.attributeUUID = attributeUUID;
-    }
-
-    public String getName() {
-        return "Artifactory " + attribute;
-    }
-    public EquipmentSlot getEquipmentSlot() {
-        return EquipmentSlot.byName(equipmentSlotName);
-    }
-
-    public String getAttribute() {
-        return this.attribute;
-    }
-    public ResourceLocation getAttributeResourceLocation() {
-        return ResourceLocation.parse(this.attribute);
-    }
-
-    public int getOperation() {
-        return this.operation;
-    }
-
-    public String getEquipmentSlotName() {
-        return this.equipmentSlotName;
-    }
-
-    public double getValue() {
-        return this.value;
+        STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public @NotNull AttributeModification decode(@NotNull RegistryFriendlyByteBuf buf) {
+                return new AttributeModification(Attribute.STREAM_CODEC.decode(buf),
+                        AttributeModifier.STREAM_CODEC.decode(buf),
+                        EquipmentSlotGroup.STREAM_CODEC.decode(buf));
+            }
+            @Override
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttributeModification attunementData) {
+                Attribute.STREAM_CODEC.encode(buf, attunementData.attribute());
+                AttributeModifier.STREAM_CODEC.encode(buf, attunementData.modifier());
+                EquipmentSlotGroup.STREAM_CODEC.encode(buf, attunementData.slot());
+            }
+        };
     }
 
     @Nullable
     public static AttributeModification fromAttunementDataString(String attributeModificationDataString) {
+        //"attribute/minecraft:generic.attack_damage/addition/5/mainhand"
+        // TODO:  Refactor this
         String[] modification = attributeModificationDataString.split("/");
         if(modification.length == 5) {
             int operation = getOperationInteger(modification[2]);
             if(operation != -1) {
                 String attribute = modification[1];
-                double value = Double.parseDouble(modification[3]);
-                String equipmentSlot = modification[4];
-
-                if(isValidEquipmentSlot(equipmentSlot)){
-                    return new AttributeModification(attribute, operation, value, equipmentSlot, UUID.randomUUID());
+                double value;
+                try {
+                    value = Double.parseDouble(modification[3]);
+                }  catch (NumberFormatException exception) {
+                    Artifactory.LOGGER.warn("Attribute value could not be parsed into a number (" + modification[3] + ")");
+                    return null;
                 }
+
+                EquipmentSlotGroup equipmentSlotGroup = EquipmentSlotGroup.bySlot(EquipmentSlot.byName(modification[4]));
+                Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
+
+                return attributeToModify.map(attributeReference -> {
+                    AttributeModifier attributeModifier = buildAttributeModifier(attribute, value, operation);
+                    return new AttributeModification(attributeReference, attributeModifier, equipmentSlotGroup);
+                }).orElse(null);
+            } else {
+                Artifactory.LOGGER.warn("Attribute operation formatted incorrectly. Operation must be \"add_value\", \"add_multiplied_base\", or \"add_multiplied_total\"");
             }
         }
         return null;
@@ -94,29 +91,14 @@ public class AttributeModification implements AttunementModification {
         return true;
     }
 
-    public static Optional<AttributeModification> fromCompoundTag(CompoundTag attributeModificationCompoundTag) {
-        String attribute = attributeModificationCompoundTag.getString(ATTIBUTE_KEY);
-        if (!attribute.equals("")) {
-            int operation = attributeModificationCompoundTag.getInt(OPERATION_KEY);
-            double value = attributeModificationCompoundTag.getDouble(VALUE_KEY);
-            UUID attributeUUID = attributeModificationCompoundTag.getUUID(ATTRIBUTE_UUID_KEY);
-            String equipmentSlotName = attributeModificationCompoundTag.getString(EQUIPMENT_SLOT_KEY);
-            return Optional.of(new AttributeModification(attribute, operation, value, equipmentSlotName, attributeUUID));
-        }
-        return Optional.empty();
+    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
+        itemAttributeModifierEvent.addModifier(this.attribute, this.modifier, this.slot());
     }
 
-    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent, EquipmentSlotGroup slotGroup) {
-        Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
-        attributeToModify.ifPresent(attributeReference -> {
-            itemAttributeModifierEvent.addModifier(attributeReference, this.buildAttributeModifier(), slotGroup);
-        });
-    }
-
-
-
-    private AttributeModifier buildAttributeModifier() {
-        return new AttributeModifier(this.getAttributeResourceLocation(), value, AttributeModifier.Operation.BY_ID.apply(operation));
+    private static AttributeModifier buildAttributeModifier(String resourceLocation, double value, int operation) {
+        ResourceLocation location = ResourceLocation.parse(resourceLocation);
+        AttributeModifier.Operation modifierOperation = AttributeModifier.Operation.BY_ID.apply(operation);
+        return new AttributeModifier(location, value, modifierOperation);
     }
 
     private static int getOperationInteger(String operation) {
@@ -130,39 +112,27 @@ public class AttributeModification implements AttunementModification {
 
     @Override
     public void applyModification(ItemStack stack) {
-        Attribute attributeToModify = BuiltInRegistries.ATTRIBUTE.get(ResourceLocation.parse(attribute));
-        if(attributeToModify != null) {
-            boolean successfullyAddedToExistingAttr = StackNBTUtil.attemptToAddToExistingAttributeUUID(stack, this);
-            if(!successfullyAddedToExistingAttr) {
-                StackNBTUtil.addAttributeModificaftionTag(stack, attributeUUID, createAttributeModificationTag());
-            }
-        }
-    }
-
-    private CompoundTag createAttributeModificationTag() {
-        CompoundTag modificationTag = new CompoundTag();
-        modificationTag.putUUID(ATTRIBUTE_UUID_KEY, attributeUUID);
-        modificationTag.putString(ATTIBUTE_KEY, attribute);
-        modificationTag.putInt(OPERATION_KEY, operation);
-        modificationTag.putDouble(VALUE_KEY, value);
-        modificationTag.putString(EQUIPMENT_SLOT_KEY, equipmentSlotName);
-        return modificationTag;
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+            List<AttributeModification> newModifications = new ArrayList<>(attunementData.attributeModifications());
+            newModifications.add(this);
+            DataComponentUtil.setAttunementData(stack, attunementData.withAttributeModifications(newModifications));
+        });
     }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("+");
-        if(operation == 0) {
-            result.append(this.value);
+        if(modifier().operation().id() == 0) {
+            result.append(modifier().amount());
         } else {
-            result.append(this.value * 100).append("%");
+            result.append(modifier().amount() * 100).append("%");
         }
 
-        if(operation == 1) {
+        if(modifier().operation().id() == 1) {
             result.append(" Base");
         }
 
-        result.append(" ").append(GUIUtil.prettifyName(attribute));
+        result.append(" ").append(GUIUtil.prettifyName(attribute.toString()));
 
         return result.toString();
     }

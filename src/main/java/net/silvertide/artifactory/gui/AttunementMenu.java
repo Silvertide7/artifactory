@@ -12,12 +12,14 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
+import net.silvertide.artifactory.storage.AttunementManager;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,7 @@ public class AttunementMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 120;
     private final ContainerLevelAccess access;
     private final Player player;
+    private AttunementManager attunementManager = null;
     private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
 
     // Data Slot Fields
@@ -122,8 +125,8 @@ public class AttunementMenu extends AbstractContainerMenu {
                 // valid attunement item and remove unbreakable if so. We have to do it here
                 // instead of updateAttunementItemState because only valid attunement items can
                 // be placed in the slot and have that method run.
-                if(!isValidAttunementItem && StackNBTUtil.isUnbreakable(stack) && StackNBTUtil.isUnbreakableFromArtifactory(stack)) {
-                    StackNBTUtil.removeUnbreakable(stack);
+                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getAttunementData(stack).map(AttunementData::isUnbreakable).orElse(false)) {
+                    DataComponentUtil.removeUnbreakable(stack);
                 }
 
                 return isValidAttunementItem;
@@ -133,13 +136,15 @@ public class AttunementMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 clearItemDataSlotData();
                 clearAllContainers();
+                AttunementMenu.this.attunementManager = null;
                 super.onTake(player, stack);
             }
 
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                if(!stack.isEmpty() && !player.level().isClientSide()) {
+                if(!stack.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+                    AttunementMenu.this.attunementManager = new AttunementManager(serverPlayer, stack);
                     updateAttunementItemNBT();
                     ArtifactorySavedData.get().updateDisplayName(stack);
                     AttunementMenu.this.updateAttunementState();
@@ -345,6 +350,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     private void handleAttunement(ItemStack stackToAttune) {
         if(player instanceof ServerPlayer serverPlayer) {
+
             AttunementService.increaseLevelOfAttunement(serverPlayer, stackToAttune);
             if(!player.getAbilities().instabuild) this.payCostForAttunement();
             attunementInputSlot.setChanged();
