@@ -28,7 +28,6 @@ public class AttunementMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 120;
     private final ContainerLevelAccess access;
     private final Player player;
-    private AttunementManager attunementManager = null;
     private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
 
     // Data Slot Fields
@@ -136,15 +135,13 @@ public class AttunementMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 clearItemDataSlotData();
                 clearAllContainers();
-                AttunementMenu.this.attunementManager = null;
                 super.onTake(player, stack);
             }
 
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                if(!stack.isEmpty() && player instanceof ServerPlayer serverPlayer) {
-                    AttunementMenu.this.attunementManager = new AttunementManager(serverPlayer, stack);
+                if(!stack.isEmpty()) {
                     updateAttunementItemNBT();
                     ArtifactorySavedData.get().updateDisplayName(stack);
                     AttunementMenu.this.updateAttunementState();
@@ -350,8 +347,8 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     private void handleAttunement(ItemStack stackToAttune) {
         if(player instanceof ServerPlayer serverPlayer) {
-
             AttunementService.increaseLevelOfAttunement(serverPlayer, stackToAttune);
+
             if(!player.getAbilities().instabuild) this.payCostForAttunement();
             attunementInputSlot.setChanged();
             this.access.execute((level, blockPos) -> {

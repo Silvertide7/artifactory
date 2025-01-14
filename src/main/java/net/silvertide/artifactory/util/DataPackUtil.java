@@ -27,7 +27,7 @@ public final class DataPackUtil {
     }
 
     public static Optional<AttunementDataSource> getAttunementData(String resourceLocation) {
-        return getAttunementData(ResourceLocationUtil.getResourceLocation(resourceLocation));
+        return getAttunementData(ResourceLocation.parse(resourceLocation));
     }
 
     public static AttunementLevel getAttunementLevel(ItemStack stack, int level) {

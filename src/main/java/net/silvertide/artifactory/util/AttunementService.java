@@ -14,7 +14,20 @@ public final class AttunementService {
 
     // Atunement Actions
     // This is the main entry point to increase an attunement level.
+    // Atunement Actions
+    public static void increaseLevelOfAttunement(ServerPlayer player, ItemStack stack) {
+        int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
+        boolean successfulAttunementIncrease = false;
 
+        if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
+            successfulAttunementIncrease = attuneItemAndPlayer(player, stack);
+        } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
+//            successfulAttunementIncrease = StackNBTUtil.getItemAttunementUUID(stack).map(attunedToUUID -> ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunedToUUID)).orElse(false);
+        }
+        if (successfulAttunementIncrease) {
+            ModificationService.applyAttunementModifications(stack);
+        }
+    }
 
     // Returns true if the item was successfully attuned, and false if not.
     private static boolean attuneItemAndPlayer(ServerPlayer player, ItemStack stack) {
@@ -51,20 +64,20 @@ public final class AttunementService {
     // The purpose of this method is to check if the itemstack is attuned to a player
     // but that player is no longer attuned to that item. If so clear the items attunement
     // data, so it can be attuned again. Returns true if a broken attunement was cleaned up.
-    public static boolean clearBrokenAttunementIfExists(ItemStack stack) {
-        if(stack.isEmpty()) return false;
+    public static void clearBrokenAttunementIfExists(ItemStack stack) {
+        if(stack.isEmpty()) return;
 
-        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
-            if(attunementData.attunedToUUID() != null
+        DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            if (attunementData.attunedToUUID() != null
                     && ArtifactorySavedData.get().getAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID()).isEmpty()) {
-                if(attunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
+                if (attunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
                     stack.set(DataComponents.UNBREAKABLE, null);
                 }
                 stack.set(DataComponentRegistry.ATTUNEMENT_DATA, null);
                 return true;
             }
             return false;
-        }).orElse(false);
+        });
     }
 
     public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
