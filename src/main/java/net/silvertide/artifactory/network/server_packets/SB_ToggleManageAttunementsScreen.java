@@ -11,13 +11,14 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.util.PlayerMessenger;
+import org.jetbrains.annotations.NotNull;
 
 public record SB_ToggleManageAttunementsScreen() implements CustomPacketPayload {
     public static final SB_ToggleManageAttunementsScreen INSTANCE = new SB_ToggleManageAttunementsScreen();
     public static final Type<SB_ToggleManageAttunementsScreen> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "sb_toggle_manage_screen"));
     //TODO Make sure this is correct.
-    public static final StreamCodec<FriendlyByteBuf, SB_ToggleManageAttunementsScreen> CODEC = StreamCodec.unit(INSTANCE);
-    public static void handle(SB_ToggleManageAttunementsScreen packet, IPayloadContext ctx) {
+    public static final StreamCodec<FriendlyByteBuf, SB_ToggleManageAttunementsScreen> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static void handle(SB_ToggleManageAttunementsScreen ignoredPacket, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             if(ctx.player() instanceof ServerPlayer player) {
                 if(ServerConfigs.CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN.get()) {
@@ -29,5 +30,5 @@ public record SB_ToggleManageAttunementsScreen() implements CustomPacketPayload 
         });
     }
     @Override
-    public Type<SB_ToggleManageAttunementsScreen> type() { return TYPE; }
+    public @NotNull Type<SB_ToggleManageAttunementsScreen> type() { return TYPE; }
 }

@@ -8,10 +8,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.commands.CmdRoot;
+import net.silvertide.artifactory.network.client_packets.CB_SyncDatapackData;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.DataPackUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.Map;
@@ -39,16 +42,8 @@ public class SystemEvents {
 
     @SubscribeEvent
     public static void onDatapackReload(OnDatapackSyncEvent event) {
-        // event.getPlayer is nullable and will be null if this is a /reload so we should
-        // use event.getPlayerList to sync the new data with all connected users. If its
-        // not null then this player just joined the server, only send the update packet
-        // to them.
-        if (event.getPlayer() != null) {
-            NetworkUtil.syncAttunementData(event.getPlayer());
-        } else {
-            for (ServerPlayer player : event.getPlayerList().getPlayers()) {
-                NetworkUtil.syncAttunementData(player);
-            }
-        }
+        DataPackUtil.getAttunementDataMap().ifPresent(dataMap ->
+                event.getRelevantPlayers().forEach(serverPlayer ->
+                        PacketDistributor.sendToPlayer(serverPlayer, new CB_SyncDatapackData(dataMap))));
     }
 }

@@ -4,7 +4,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItemModifications;
-import net.silvertide.artifactory.network.client_packets.CB_SyncDatapackData;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
@@ -31,11 +30,4 @@ public final class NetworkUtil {
     public static void syncClientAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
         PacketDistributor.sendToPlayer(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(attunementNexusSlotInformation));
     }
-
-    // TODO: Sync Data Pack
-//    public static void syncAttunementData(ServerPlayer player) {
-//        DataPackUtil.getAttunementDataMap().ifPresent(dataMap -> {
-//            PacketDistributor.sendToPlayer(player, new CB_SyncDatapackData(dataMap));
-//        });
-//    }
 }

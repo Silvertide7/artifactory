@@ -18,6 +18,15 @@ public class AttunementRequirements {
         this.feats = feats;
     }
 
+    public static final Codec<AttunementRequirements> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::getXpLevelsConsumed),
+                    Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::getXpLevelThreshold),
+                    Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::getKills),
+                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::getItems),
+                    Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::getFeats))
+            .apply(instance, AttunementRequirements::new)
+    );
+
     public int getXpLevelsConsumed() {
         return xpLevelsConsumed;
     }
@@ -57,15 +66,6 @@ public class AttunementRequirements {
     public void setFeats(List<String> feats) {
         this.feats = feats;
     }
-
-    public static final Codec<AttunementRequirements> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.INT.optionalFieldOf("xpLevelsConsumed", -1).forGetter(AttunementRequirements::getXpLevelsConsumed),
-                    Codec.INT.optionalFieldOf("xpLevelThreshold", -1).forGetter(AttunementRequirements::getXpLevelThreshold),
-                    Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::getKills),
-                    Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::getItems),
-                    Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::getFeats))
-            .apply(instance, AttunementRequirements::new)
-    );
 
     public String toString() {
         StringBuilder result = new StringBuilder("AttunementRequirements: \n" +

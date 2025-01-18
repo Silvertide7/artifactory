@@ -11,12 +11,13 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.gui.AttunementMenu;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.util.AttunementService;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public record SB_RemoveAttunedItem(UUID itemUUIDToRemove) implements CustomPacketPayload {
     public static final Type<SB_RemoveAttunedItem> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "sb_remove_attuned_item"));
-    public static final StreamCodec<FriendlyByteBuf, SB_RemoveAttunedItem> CODEC = StreamCodec
+    public static final StreamCodec<FriendlyByteBuf, SB_RemoveAttunedItem> STREAM_CODEC = StreamCodec
             .composite(UUIDUtil.STREAM_CODEC, SB_RemoveAttunedItem::itemUUIDToRemove,
                     SB_RemoveAttunedItem::new);
 
@@ -33,5 +34,5 @@ public record SB_RemoveAttunedItem(UUID itemUUIDToRemove) implements CustomPacke
     }
 
     @Override
-    public Type<SB_RemoveAttunedItem> type() { return TYPE; }
+    public @NotNull Type<SB_RemoveAttunedItem> type() { return TYPE; }
 }

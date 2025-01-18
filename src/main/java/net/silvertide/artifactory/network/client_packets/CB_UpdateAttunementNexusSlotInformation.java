@@ -8,17 +8,16 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import org.jetbrains.annotations.NotNull;
 
 public record CB_UpdateAttunementNexusSlotInformation(AttunementNexusSlotInformation attunedNexusSlotInformation) implements CustomPacketPayload {
     public static final Type<CB_UpdateAttunementNexusSlotInformation> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "cb_update_slot_information"));
-    public static final StreamCodec<FriendlyByteBuf, CB_UpdateAttunementNexusSlotInformation> CODEC = StreamCodec
+    public static final StreamCodec<FriendlyByteBuf, CB_UpdateAttunementNexusSlotInformation> STREAM_CODEC = StreamCodec
             .composite(AttunementNexusSlotInformation.STREAM_CODEC, CB_UpdateAttunementNexusSlotInformation::attunedNexusSlotInformation, CB_UpdateAttunementNexusSlotInformation::new);
 
     public static void handle(CB_UpdateAttunementNexusSlotInformation packet, IPayloadContext ctx) {
-        ctx.enqueueWork(() -> {
-            ClientAttunementNexusSlotInformation.setSlotInformation(packet.attunedNexusSlotInformation);
-        });
+        ctx.enqueueWork(() -> ClientAttunementNexusSlotInformation.setSlotInformation(packet.attunedNexusSlotInformation));
     }
     @Override
-    public Type<CB_UpdateAttunementNexusSlotInformation> type() { return TYPE; }
+    public @NotNull Type<CB_UpdateAttunementNexusSlotInformation> type() { return TYPE; }
 }

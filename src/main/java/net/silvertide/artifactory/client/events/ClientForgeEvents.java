@@ -13,7 +13,7 @@ import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttuneme
 @EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class ClientForgeEvents {
     @SubscribeEvent
-    public static void clientTick(ClientTickEvent clientTickEvent) {
+    public static void clientTick(ClientTickEvent.Pre clientTickEvent) {
         if(Minecraft.getInstance().player == null) return;
         if(Keybindings.INSTANCE.useOpenManageAttunementsKey.consumeClick()) {
             PacketDistributor.sendToServer(new SB_ToggleManageAttunementsScreen());

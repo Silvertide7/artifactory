@@ -8,10 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
+import org.jetbrains.annotations.NotNull;
 
 public record CB_UpdateAttunedItemModifications(String attunedItemModifications) implements CustomPacketPayload {
-    public static final Type<CB_UpdateAttunedItemModifications> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "cb_remove_attuned_item"));
-    public static final StreamCodec<FriendlyByteBuf, CB_UpdateAttunedItemModifications> CODEC = StreamCodec
+    public static final Type<CB_UpdateAttunedItemModifications> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "cb_update_attuned_item_modifications"));
+    public static final StreamCodec<FriendlyByteBuf, CB_UpdateAttunedItemModifications> STREAM_CODEC = StreamCodec
             .composite(ByteBufCodecs.STRING_UTF8, CB_UpdateAttunedItemModifications::attunedItemModifications,
                     CB_UpdateAttunedItemModifications::new);
 
@@ -27,5 +28,5 @@ public record CB_UpdateAttunedItemModifications(String attunedItemModifications)
     }
 
     @Override
-    public Type<CB_UpdateAttunedItemModifications> type() { return TYPE; }
+    public @NotNull Type<CB_UpdateAttunedItemModifications> type() { return TYPE; }
 }
