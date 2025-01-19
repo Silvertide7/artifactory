@@ -4,8 +4,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
@@ -13,12 +16,13 @@ import net.silvertide.artifactory.util.DataComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-public class ClientSetupEvents {
-    private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
-    private final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
+@EventBusSubscriber(modid= Artifactory.MOD_ID, bus=EventBusSubscriber.Bus.GAME, value= Dist.CLIENT)
+public class TooltipHandler {
+    private static final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
+    private static final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
 
     @SubscribeEvent
-    public void onTooltip(ItemTooltipEvent event) {
+    public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
         if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
             ClientItemAttunementData.getAttunementData(stack).ifPresent(itemAttunementData -> {
@@ -29,7 +33,7 @@ public class ClientSetupEvents {
         }
     }
 
-    private void createAttunementHoverComponent(List<Component> toolTips, AttunementDataSource itemAttunementData, ItemStack stack) {
+    private static void createAttunementHoverComponent(List<Component> toolTips, AttunementDataSource itemAttunementData, ItemStack stack) {
         MutableComponent toolTip;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             toolTip = createAttunedHoverText(stack);
@@ -44,7 +48,7 @@ public class ClientSetupEvents {
         toolTips.add(toolTip);
     }
 
-    private MutableComponent createAttunedHoverText(ItemStack stack) {
+    private static MutableComponent createAttunedHoverText(ItemStack stack) {
         MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(attunedFormatting);
         DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
             if(attunementData.attunedToName() != null) {
@@ -54,7 +58,7 @@ public class ClientSetupEvents {
         return hoverText;
     }
 
-    private MutableComponent createUnattunedHoverText(boolean useWithoutAttunement) {
+    private static MutableComponent createUnattunedHoverText(boolean useWithoutAttunement) {
         if(useWithoutAttunement){
             return Component.translatable("hovertext.artifactory.use_without_attunement").withStyle(unAttunedFormatting);
         } else {
@@ -62,7 +66,7 @@ public class ClientSetupEvents {
         }
     }
 
-    private void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
+    private static void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
         List<String> traitTextList = DataComponentUtil.getAttunementData(stack).map(attunementData -> {
             List<String> textList = new ArrayList<>();
             if(attunementData.isSoulbound()) {
@@ -79,7 +83,7 @@ public class ClientSetupEvents {
         traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.DARK_BLUE)));
     }
 
-    private void addUniqueTooltip(List<Component> toolTips, AttunementDataSource itemAttunementData) {
+    private static void addUniqueTooltip(List<Component> toolTips, AttunementDataSource itemAttunementData) {
         if(itemAttunementData.unique()) {
             toolTips.add(Component.translatable("hovertext.artifactory.unique").withStyle(ChatFormatting.GOLD));
         }
