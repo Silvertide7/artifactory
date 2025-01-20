@@ -44,6 +44,17 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
+//    unitTest {
+//        // Enable JUnit support in the moddev plugin
+//        enable()
+//        // Configure which mod is being tested.
+//        // This allows NeoForge to load the test/ classes and resources as belonging to the mod.
+//        testedMod = mods.artifactory // <mod name> must match the name in the mods { } block.
+//        // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
+//        // This must contain testedMod, and can include other mods as well.
+//        // loadedMods = [mods.<mod name >, mods.<mod name 2>]
+//    }
+
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -102,8 +113,8 @@ neoForge {
         // these are used to tell the game which sources are for which mod
         // mostly optional in a single mod project
         // but multi mod projects should define one per mod
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
+        artifactory {
+            sourceSet sourceSets.main
         }
     }
 }
