@@ -22,7 +22,12 @@ public final class AttunementService {
         if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
             successfulAttunementIncrease = attuneItemAndPlayer(player, stack);
         } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
-//            successfulAttunementIncrease = StackNBTUtil.getItemAttunementUUID(stack).map(attunedToUUID -> ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunedToUUID)).orElse(false);
+            successfulAttunementIncrease = DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+                if(attunementData.attunementUUID() != null) {
+                    return ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunementData.attunementUUID());
+                }
+                return false;
+            }).orElse(false);
         }
         if (successfulAttunementIncrease) {
             ModificationService.applyAttunementModifications(stack);
