@@ -24,7 +24,7 @@
     "WCW"
   ],
   "result": {
-    "item": "artifactory:attunement_nexus"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "artifactory:attunement_nexus"
+  }
 }

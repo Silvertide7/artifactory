@@ -1,15 +1,15 @@
 package net.silvertide.artifactory.component;
 
-//import org.junit.jupiter.api.Test;
-//
-//import java.util.ArrayList;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class AttunementDataTest {
-
+//
 //    @Test
 //    void testCreateAttunementData() {
 //        UUID itemAttunementUUID = UUID.randomUUID();
