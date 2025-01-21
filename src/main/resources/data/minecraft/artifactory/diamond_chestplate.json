@@ -2,19 +2,19 @@
   "slots_used": 2,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/chest"],
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/chest"],
       "requirements": {
         "items": ["minecraft:emerald#5"]
       }
     },
     {
-      "modifications": ["attribute/minecraft:generic.armor_toughness/addition/3.0/chest"],
+      "modifications": ["attribute/minecraft:generic.armor_toughness/add_value/3.0/chest"],
       "requirements": {
         "items": ["minecraft:diamond#5"]
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/addition/2.0/chest"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/add_value/2.0/chest"],
       "requirements": {
         "items": ["minecraft:diamond_block"]
       }

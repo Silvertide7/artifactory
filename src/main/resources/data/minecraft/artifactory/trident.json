@@ -2,25 +2,25 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/forge:swim_speed/multiply_base/0.1/mainhand"],
+      "modifications": ["invulnerable", "attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand"],
       "requirements": {
         "items": ["minecraft:emerald#5"]
       }
     },
     {
-      "modifications": ["attribute/forge:swim_speed/multiply_base/0.1/mainhand", "attribute/minecraft:generic.attack_damage/addition/1/mainhand"],
+      "modifications": ["attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand", "attribute/minecraft:generic.attack_damage/add_value/1/mainhand"],
       "requirements": {
         "items": ["minecraft:diamond#5"]
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/forge:swim_speed/multiply_base/0.1/mainhand"],
+      "modifications": ["unbreakable", "attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand"],
       "requirements": {
         "items": ["minecraft:heart_of_the_sea"]
       }
     },
     {
-      "modifications": ["attribute/forge:swim_speed/multiply_base/0.1/mainhand", "attribute/minecraft:generic.attack_damage/addition/2/mainhand"],
+      "modifications": ["attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand", "attribute/minecraft:generic.attack_damage/add_value/2/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 45,
@@ -28,7 +28,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/forge:swim_speed/multiply_base/0.1/mainhand", "attribute/minecraft:generic.attack_speed/multiply_base/0.25/mainhand"],
+      "modifications": ["soulbound", "attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.25/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 40,
         "xpLevelThreshold": 50,

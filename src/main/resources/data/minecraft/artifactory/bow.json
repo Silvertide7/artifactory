@@ -8,7 +8,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.movement_speed/multiply_base/0.2/mainhand"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.movement_speed/add_multiplied_base/0.2/mainhand"],
       "requirements": {
         "items": ["minecraft:diamond_block"]
       }

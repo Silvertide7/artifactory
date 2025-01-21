@@ -9,7 +9,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.attack_speed/multiply_base/0.3/mainhand"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.3/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 30,
         "xpLevelThreshold": 40,
@@ -17,7 +17,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/4/mainhand"],
+      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/add_value/4/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 40,
         "xpLevelThreshold": 50,

@@ -2,13 +2,13 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/head"],
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/head"],
       "requirements": {
         "items": ["minecraft:scute#5"]
       }
     },
     {
-      "modifications": ["attribute/forge:swim_speed/multiply_base/0.2/head"],
+      "modifications": ["attribute/forge:swim_speed/add_multiplied_base/0.2/head"],
       "requirements": {
         "xpLevelsConsumed": 30,
         "xpLevelThreshold": 40,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/addition/2.0/head"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/add_value/2.0/head"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 45,
@@ -24,7 +24,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/forge:swim_speed/multiply_base/0.2/head"],
+      "modifications": ["soulbound", "attribute/forge:swim_speed/add_multiplied_base/0.2/head"],
       "requirements": {
         "xpLevelsConsumed": 40,
         "xpLevelThreshold": 50,

@@ -2,13 +2,13 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/feet"],
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/feet"],
       "requirements": {
         "items": ["minecraft:diamond#5"]
       }
     },
     {
-      "modifications": ["attribute/minecraft:generic.armor/addition/2.0/feet"],
+      "modifications": ["attribute/minecraft:generic.armor/add_value/2.0/feet"],
       "requirements": {
         "xpLevelsConsumed": 30,
         "xpLevelThreshold": 40,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.armor_toughness/addition/2.0/feet"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor_toughness/add_value/2.0/feet"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 45,

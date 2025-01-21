@@ -10,7 +10,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/addition/1/mainhand"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/add_value/1/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 25,
         "xpLevelThreshold": 35,
@@ -18,7 +18,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.armor/addition/2/mainhand"],
+      "modifications": ["soulbound", "attribute/minecraft:generic.armor/add_value/2/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 40,

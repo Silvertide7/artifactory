@@ -17,7 +17,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/addition/5/mainhand"],
+      "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/add_value/5/mainhand"],
       "requirements": {
         "xpLevelsConsumed": 40,
         "xpLevelThreshold": 50,

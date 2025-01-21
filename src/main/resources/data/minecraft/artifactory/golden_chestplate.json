@@ -2,13 +2,13 @@
   "slots_used": 2,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/addition/1.0/chest"],
+      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/chest"],
       "requirements": {
         "items": ["minecraft:gold_ingot#5"]
       }
     },
     {
-      "modifications": ["attribute/minecraft:generic.luck/addition/0.5/chest"],
+      "modifications": ["attribute/minecraft:generic.luck/add_value/0.5/chest"],
       "requirements": {
         "xpLevelsConsumed": 35,
         "xpLevelThreshold": 40,

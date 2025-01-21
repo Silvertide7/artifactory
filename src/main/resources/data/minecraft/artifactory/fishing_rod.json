@@ -8,7 +8,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.luck/addition/1.0/mainhand"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.luck/add_value/1.0/mainhand"],
       "requirements": {
         "items": ["minecraft:heart_of_the_sea"]
       }

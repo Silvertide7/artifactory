@@ -8,7 +8,7 @@
       }
     },
     {
-      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/addition/3.0/mainhand"],
+      "modifications": ["unbreakable", "attribute/minecraft:generic.armor/add_value/3.0/mainhand"],
       "requirements": {
         "items": ["minecraft:diamond_block"]
       }
