@@ -39,15 +39,16 @@ public class DeleteConfirmationScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        try {
+            super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        } catch (Exception ignore) {
+            onClose();
+        }
     }
 
-    protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderTransparentBackground(guiGraphics);
         int x = getScreenStartX();
         int y = getScreenStartY();
 
@@ -176,10 +177,5 @@ public class DeleteConfirmationScreen extends Screen {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
     }
 }

@@ -1,12 +1,10 @@
 package net.silvertide.artifactory.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -101,21 +99,17 @@ public class ManageAttunementsScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         try {
-            renderBackground(guiGraphics, partialTicks, mouseX, mouseY);
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
         } catch (Exception ignore) {
             onClose();
         }
-
     }
 
-    protected void renderBackground(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderTransparentBackground(guiGraphics);
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F, 100F);
+        guiGraphics.pose().translate(0F, 0F, 300F);
 
         renderScrollAreaBackground(guiGraphics);
         renderAttunementCards(guiGraphics, mouseX, mouseY);

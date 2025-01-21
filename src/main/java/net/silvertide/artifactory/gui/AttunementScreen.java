@@ -69,18 +69,18 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        updateRequirementsList();
-        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-        renderTooltip(guiGraphics, mouseX, mouseY);
+        try {
+            updateRequirementsList();
+            renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+            super.render(guiGraphics, mouseX, mouseY, partialTicks);
+            renderTooltip(guiGraphics, mouseX, mouseY);
+        } catch (Exception ignore) {
+            onClose();
+        }
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-
         int backgroundX = getBackgroundX();
         int backgroundY = getBackgroundY();
 
