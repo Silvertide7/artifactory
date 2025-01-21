@@ -55,7 +55,6 @@ public final class DataComponentUtil {
         if(!isUnbreakable(stack)) {
             stack.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
             Integer damage = stack.get(DataComponents.DAMAGE);
-            // TODO: Test this out in game
             if(damage != null && damage > 0) stack.set(DataComponents.DAMAGE, 0);
         }
     }

@@ -157,7 +157,6 @@ public class ArtifactEvents {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
 
-        // TODO: See if this requires client check still after figuring out data sync
         boolean isValidAttunementItem;
         if(FMLEnvironment.dist == Dist.CLIENT) {
             isValidAttunementItem = ClientItemAttunementData.isValidAttunementItem(stack);

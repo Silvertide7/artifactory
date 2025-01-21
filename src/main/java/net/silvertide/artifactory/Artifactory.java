@@ -10,10 +10,6 @@ import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.*;
 import org.slf4j.Logger;
 
-// TODO: Get attunement upgrades working
-// TODO: Manage screen is blurry
-// TODO: Tooltips don't work
-
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
