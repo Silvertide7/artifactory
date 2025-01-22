@@ -52,8 +52,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
 
     @Nullable
     public static AttributeModification fromAttunementDataString(String attributeModificationDataString) {
-        //"attribute/minecraft:generic.attack_damage/addition/5/mainhand"
-        // TODO:  Refactor this
+        //"attribute/minecraft:generic.attack_damage/add_value/5/mainhand"
         String[] modification = attributeModificationDataString.split("/");
         if(modification.length == 5) {
             int operation = getOperationInteger(modification[2]);
@@ -81,16 +80,6 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         return null;
     }
 
-    private static boolean isValidEquipmentSlot(String equipmentSlot) {
-        try {
-            EquipmentSlot.byName(equipmentSlot);
-        } catch(IllegalArgumentException e) {
-            Artifactory.LOGGER.warn(equipmentSlot + " is not a valid equipment slot. Use mainhand, offhand, head, chest, legs, or feet.");
-            return false;
-        }
-        return true;
-    }
-
     public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
         itemAttributeModifierEvent.addModifier(this.attribute, this.modifier, this.slot());
     }
@@ -114,10 +103,31 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
     public void applyModification(ItemStack stack) {
         DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
             List<AttributeModification> newModifications = new ArrayList<>(attunementData.attributeModifications());
-            newModifications.add(this);
+
+            boolean wasCombined = false;
+            for(int i = 0; i < newModifications.size(); i++) {
+                AttributeModification currModification = newModifications.get(i);
+                if(this.attribute().value().getDescriptionId().equals(currModification.attribute().value().getDescriptionId()) && this.slot() == currModification.slot()) {
+                    newModifications.set(i, combineWith(currModification));
+                    wasCombined = true;
+                    break;
+                }
+            }
+
+            if(!wasCombined) {
+                newModifications.add(this);
+            }
+
             DataComponentUtil.setAttunementData(stack, attunementData.withAttributeModifications(newModifications));
         });
     }
+
+    public AttributeModification combineWith(AttributeModification existingAttributeModification) {
+        AttributeModifier existingModifier = existingAttributeModification.modifier();
+        AttributeModifier newModifier = new AttributeModifier(existingModifier.id(), this.modifier().amount() + existingModifier.amount(), existingModifier.operation());
+        return new AttributeModification(existingAttributeModification.attribute(), newModifier, existingAttributeModification.slot());
+    }
+
 
     @Override
     public String toString() {
@@ -132,8 +142,11 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
             result.append(" Base");
         }
 
-        result.append(" ").append(GUIUtil.prettifyName(attribute.toString()));
-
+        if(attribute().isBound()) {
+            result.append(" ").append(GUIUtil.prettifyName(attribute().value().getDescriptionId()));
+        } else {
+            result.append(" unknown");
+        }
         return result.toString();
     }
 }

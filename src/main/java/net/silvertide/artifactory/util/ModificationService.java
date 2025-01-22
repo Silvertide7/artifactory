@@ -1,6 +1,5 @@
 package net.silvertide.artifactory.util;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.codecs.AttunementLevel;
