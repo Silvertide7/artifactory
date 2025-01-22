@@ -80,7 +80,7 @@ public class TooltipHandler {
             return textList;
         }).orElse(new ArrayList<>());
 
-        traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.DARK_BLUE)));
+        traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.BLUE)));
     }
 
     private static void addUniqueTooltip(List<Component> toolTips, AttunementDataSource itemAttunementData) {
