@@ -166,11 +166,7 @@ public class ArtifactEvents {
 
         if(isValidAttunementItem) {
             DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
-                for(AttributeModification modification : attunementData.attributeModifications()) {
-                    if(stack.getEquipmentSlot() != null && EquipmentSlotGroup.bySlot(stack.getEquipmentSlot()).equals(modification.slot())) {
-                        modification.addAttributeModifier(attributeModifierEvent);
-                    }
-                }
+                attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(attributeModifierEvent));
             });
         }
     }
