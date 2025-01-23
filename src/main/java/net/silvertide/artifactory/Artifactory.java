@@ -10,6 +10,8 @@ import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.*;
 import org.slf4j.Logger;
 
+// TODO: Get curios working
+// TODO: Add curios specific slots for artifact storage
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

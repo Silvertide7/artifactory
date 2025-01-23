@@ -1,15 +1,11 @@
 package net.silvertide.artifactory.events;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,7 +19,6 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.component.AttunementData;
-import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -71,11 +66,10 @@ public class ArtifactEvents {
     }
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
-        if(FMLEnvironment.dist == Dist.CLIENT) {
-            return ClientItemAttunementData.isUseRestricted(player, stack);
-        } else {
-            return AttunementUtil.isUseRestricted(player, stack);
-        }
+        return switch(FMLEnvironment.dist) {
+            case CLIENT -> ClientItemAttunementData.isUseRestricted(player, stack);
+            case DEDICATED_SERVER -> AttunementUtil.isUseRestricted(player, stack);
+        };
     }
 
     @SubscribeEvent
@@ -157,12 +151,10 @@ public class ArtifactEvents {
         // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
 
-        boolean isValidAttunementItem;
-        if(FMLEnvironment.dist == Dist.CLIENT) {
-            isValidAttunementItem = ClientItemAttunementData.isValidAttunementItem(stack);
-        } else {
-            isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
-        }
+        boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
+            case CLIENT -> ClientItemAttunementData.isValidAttunementItem(stack);
+            case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
+        };
 
         if(isValidAttunementItem) {
             DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {

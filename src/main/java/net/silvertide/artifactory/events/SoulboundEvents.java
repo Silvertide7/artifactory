@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.events;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,11 +29,11 @@ public class SoulboundEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerDeath(LivingDeathEvent livingDeathEvent) {
         LivingEntity livingEntity = livingDeathEvent.getEntity();
-        if (livingDeathEvent.getEntity().level().isClientSide() || livingDeathEvent.isCanceled() || !(livingEntity instanceof Player player)
+        if (!(livingDeathEvent.getEntity() instanceof ServerPlayer serverPlayer) || livingDeathEvent.isCanceled() || !(livingEntity instanceof Player player)
                 || livingEntity instanceof FakePlayer || player.isSpectator()) return;
 
         if (!player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
-            keepSoulboundItems(player);
+            keepSoulboundItems(serverPlayer);
         }
     }
 
@@ -45,37 +46,35 @@ public class SoulboundEvents {
         }
     }
 
-    private static void keepSoulboundItems(Player player) {
-        if (!(player instanceof ServerPlayer serverPlayer)) return;
-
-        Inventory keepInventory = new Inventory(null);
+    private static void keepSoulboundItems(ServerPlayer serverPlayer) {
+        Inventory keepInventory = new Inventory(serverPlayer);
         ListTag tagList = new ListTag();
 
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            ItemStack stack = player.getInventory().items.get(i);
+        for (int i = 0; i < serverPlayer.getInventory().items.size(); i++) {
+            ItemStack stack = serverPlayer.getInventory().items.get(i);
             if(AttunementUtil.isSoulboundActive(serverPlayer, stack)) {
                 keepInventory.items.set(i, stack.copy());
-                player.getInventory().items.set(i, ItemStack.EMPTY);
+                serverPlayer.getInventory().items.set(i, ItemStack.EMPTY);
             }
         }
 
-        for (int i = 0; i < player.getInventory().armor.size(); i++) {
-            ItemStack armorStack = player.getInventory().armor.get(i);
+        for (int i = 0; i < serverPlayer.getInventory().armor.size(); i++) {
+            ItemStack armorStack = serverPlayer.getInventory().armor.get(i);
             if(AttunementUtil.isSoulboundActive(serverPlayer, armorStack)) {
                 keepInventory.armor.set(i, armorStack.copy());
-                player.getInventory().armor.set(i, ItemStack.EMPTY);
+                serverPlayer.getInventory().armor.set(i, ItemStack.EMPTY);
             }
         }
 
-        ItemStack offhandItemStack = player.getInventory().offhand.get(0);
-        if (AttunementUtil.isSoulboundActive(serverPlayer, offhandItemStack)) {
-            keepInventory.offhand.set(0, player.getInventory().offhand.get(0).copy());
-            player.getInventory().offhand.set(0, ItemStack.EMPTY);
+        ItemStack offhandStack = serverPlayer.getInventory().offhand.get(0);
+        if (AttunementUtil.isSoulboundActive(serverPlayer, offhandStack)) {
+            keepInventory.offhand.set(0, serverPlayer.getInventory().offhand.get(0).copy());
+            serverPlayer.getInventory().offhand.set(0, ItemStack.EMPTY);
         }
 
         if (!keepInventory.isEmpty()) {
             keepInventory.save(tagList);
-            getPlayerData(player).put(ARTIFACTORY_INV_TAG, tagList);
+            getPlayerData(serverPlayer).put(ARTIFACTORY_INV_TAG, tagList);
         }
     }
 
@@ -85,23 +84,22 @@ public class SoulboundEvents {
         CompoundTag playerData = getPlayerData(player);
         if (!player.level().isClientSide() && playerData.contains(ARTIFACTORY_INV_TAG)) {
             ListTag tagList = playerData.getList(ARTIFACTORY_INV_TAG, 10);
-            loadNoClear(tagList, player.getInventory());
+            loadNoClear(player.registryAccess(), tagList, player.getInventory());
             getPlayerData(player).getList(ARTIFACTORY_INV_TAG, 10).clear();
             getPlayerData(player).remove(ARTIFACTORY_INV_TAG);
         }
     }
 
-    // Twilight Forest Implementation
     //[VanillaCopy] of Inventory.load, but removed clearing all slots
     //also add a handler to move items to the next available slot if the slot they want to go to isnt available
-    private static void loadNoClear(ListTag tag, Inventory inventory) {
+    public static void loadNoClear(RegistryAccess registryAccess, ListTag tag, Inventory inventory) {
 
         List<ItemStack> blockedItems = new ArrayList<>();
 
         for (int i = 0; i < tag.size(); ++i) {
             CompoundTag compoundtag = tag.getCompound(i);
             int j = compoundtag.getByte("Slot") & 255;
-            ItemStack itemstack = ItemStack.parse(inventory.player.registryAccess(), compoundtag).orElse(ItemStack.EMPTY);
+            ItemStack itemstack = ItemStack.parseOptional(registryAccess, compoundtag);
             if (!itemstack.isEmpty()) {
                 if (j < inventory.items.size()) {
                     if (inventory.items.get(j).isEmpty()) {
@@ -124,8 +122,8 @@ public class SoulboundEvents {
                 }
             }
         }
-        
-        if(!blockedItems.isEmpty()) blockedItems.forEach(inventory::add);
+
+        if (!blockedItems.isEmpty()) blockedItems.forEach(inventory::add);
     }
 
     public static CompoundTag getPlayerData(Player player) {

@@ -4,6 +4,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.DataComponentRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -50,9 +51,7 @@ public final class AttunementService {
 
     public static void removeAttunementFromPlayerAndItem(ItemStack stack) {
         DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
-            if(attunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {
-                DataComponentUtil.removeUnbreakable(stack);
-            }
+            removeUnbreakableIfFromArtifactory(stack, attunementData);
             ArtifactorySavedData.get().removeAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID());
         });
 
@@ -75,14 +74,18 @@ public final class AttunementService {
         DataComponentUtil.getAttunementData(stack).map(attunementData -> {
             if (attunementData.attunedToUUID() != null
                     && ArtifactorySavedData.get().getAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID()).isEmpty()) {
-                if (attunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
-                    stack.set(DataComponents.UNBREAKABLE, null);
-                }
+                removeUnbreakableIfFromArtifactory(stack, attunementData);
                 stack.set(DataComponentRegistry.ATTUNEMENT_DATA, null);
                 return true;
             }
             return false;
         });
+    }
+
+    public static void removeUnbreakableIfFromArtifactory(ItemStack stack, AttunementData attunementData) {
+        if (attunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
+            DataComponentUtil.removeUnbreakable(stack);
+        }
     }
 
     public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {

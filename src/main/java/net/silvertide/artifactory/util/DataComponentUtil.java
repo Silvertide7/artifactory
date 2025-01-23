@@ -56,6 +56,12 @@ public final class DataComponentUtil {
             stack.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
             Integer damage = stack.get(DataComponents.DAMAGE);
             if(damage != null && damage > 0) stack.set(DataComponents.DAMAGE, 0);
+
+            // Turn on the unbreakable flag because we only hit this code if it wasn't unbreakable
+            // before hand. This will remove unbreakable in the future if they break the attunement.
+            getAttunementData(stack).ifPresent(attunementData -> {
+                setAttunementData(stack, attunementData.withIsUnbreakable(true));
+            });
         }
     }
 
