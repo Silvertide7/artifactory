@@ -46,6 +46,7 @@ public class CuriosCompat {
       @SubscribeEvent
       public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
           ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
+          // Todo fix this later
           Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
           if(attributeToModify != null) {
               curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
