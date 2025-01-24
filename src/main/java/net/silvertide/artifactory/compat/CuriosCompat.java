@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
@@ -19,6 +20,7 @@ import top.theillusivec4.curios.api.type.capability.ICurio;
 
 public class CuriosCompat {
 
+    // Check if the curios item should not be equipable and prevent it if so.
     @SubscribeEvent
     public static void onCuriosEquip(CurioCanEquipEvent event) {
         SlotContext slotContext = event.getSlotContext();
@@ -43,22 +45,13 @@ public class CuriosCompat {
         }
         event.setEquipResult(TriState.DEFAULT);
     }
-      @SubscribeEvent
-      public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
-          ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
-          // Todo fix this later
-          Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
-          if(attributeToModify != null) {
-              curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
-          }
-      }
 
     @SubscribeEvent
-    public static void keepCurios(DropRulesEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            if (!player.level().isClientSide()) {
-                changeSoulboundCuriosDropRule(player, event);
-            }
+    public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
+        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
+        Attribute attributeToModify = NeoForge.EVENT_BUS.getValue(attributeResourceLocation);
+        if(attributeToModify != null) {
+            curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
         }
     }
 
@@ -72,6 +65,13 @@ public class CuriosCompat {
                     attributeModification.addCurioAttributeModifier(event);
                 });
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void keepCurios(DropRulesEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            changeSoulboundCuriosDropRule(serverPlayer, event);
         }
     }
 

@@ -13,9 +13,8 @@ import net.silvertide.artifactory.storage.AttunedItem;
 public final class AttunementService {
     private AttunementService() {}
 
-    // Atunement Actions
+    // Attunement Actions
     // This is the main entry point to increase an attunement level.
-    // Atunement Actions
     public static void increaseLevelOfAttunement(ServerPlayer player, ItemStack stack) {
         int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
         boolean successfulAttunementIncrease = false;
