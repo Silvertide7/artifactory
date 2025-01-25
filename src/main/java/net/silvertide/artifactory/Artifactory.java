@@ -4,13 +4,11 @@ import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
-import net.silvertide.artifactory.compat.CuriosCompat;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.*;
+import net.silvertide.artifactory.setup.CuriosSetup;
 import org.slf4j.Logger;
 
 // TODO: Get curios working
@@ -27,10 +25,8 @@ public class Artifactory
         MenuRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
 
-        if (ModList.get().isLoaded("curios")) {
-            NeoForge.EVENT_BUS.addListener(CuriosCompat::onCuriosEquip);
-            NeoForge.EVENT_BUS.addListener(CuriosCompat::keepCurios);
-        }
+        modEventBus.addListener(CuriosSetup::init);
+
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfigs.SPEC, String.format("%s-server.toml", Artifactory.MOD_ID));
     }
 }

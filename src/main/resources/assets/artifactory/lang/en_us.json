@@ -23,7 +23,6 @@
   "screen.button.artifactory.attune.max_attunement_reached": "Max",
   "screen.button.artifactory.attune.slot_information_not_available": "",
 
-
   "screen.button.artifactory.confirmation.confirm": "§2Confirm§r",
   "screen.button.artifactory.confirmation.cancel": "§cCancel§r",
 
@@ -76,5 +75,5 @@
   "screen.tooltip.artifactory.attunement.not_enough_slots": "You don't have enough slots available to attune this item.",
 
   "screen.tooltip.artifactory.not_enough_slots_available": "Not enough attunement slots available to attune this item.",
-  "curios.identifier.homebound_stone": "Test Slot"
+  "curios.identifier.artifactory": "Attuned Item"
 }

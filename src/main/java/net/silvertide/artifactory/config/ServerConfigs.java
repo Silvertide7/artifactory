@@ -15,6 +15,7 @@ public class ServerConfigs {
     public static final ModConfigSpec.ConfigValue<Integer> NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER;
     public static final ModConfigSpec.ConfigValue<String> ATTUNEMENT_INFORMATION_EXTENT;
     public static final ModConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
+    public static final ModConfigSpec.ConfigValue<Integer> NUMBER_ATTUNED_ITEM_CURIOS_SLOTS;
 
     static {
         BUILDER.push("Artifactory Configs");
@@ -57,6 +58,10 @@ public class ServerConfigs {
         BUILDER.comment("If true the player can assign a keybind to the manage attunements screen and open it anywhere.");
         BUILDER.comment("If false it will not ope when the keybind is assigned and pressed.");
         CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN = BUILDER.worldRestart().define("Can Open Manage Attunements Screen From Keybind", true);
+
+        BUILDER.comment("If curios is installed this determines how many attuned item curios slots should be created.");
+        BUILDER.comment("Players can place any items they have attuned into these slots. Useful to store attuned items you're not using.");
+        NUMBER_ATTUNED_ITEM_CURIOS_SLOTS = BUILDER.worldRestart().defineInRange("numAttunedItemCuriosSlots", 0, 0, 100);
 
         BUILDER.pop();
 
