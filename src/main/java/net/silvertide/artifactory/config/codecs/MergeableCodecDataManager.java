@@ -203,33 +203,4 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
             }
         }
     }
-
-    /**
-     * This should be called at most once, during construction of your mod (static init of your main mod class is fine)
-     * (FMLCommonSetupEvent *may* work as well)
-     * Calling this method automatically subscribes a packet-sender to {@link }.
-     *
-     * @param packetFactory A packet constructor or factory method that converts the given map to a packet object to send on the given channel
-     */
-    public void subscribeAsSyncable(final Function<Map<ResourceLocation, AttunementDataSource>, CustomPacketPayload> packetFactory) {
-        NeoForge.EVENT_BUS.addListener(this.getDatapackSyncListener(packetFactory));
-    }
-
-    /** Generate an event listener function for the on-datapack-sync event **/
-    private Consumer<OnDatapackSyncEvent> getDatapackSyncListener(final Function<Map<ResourceLocation, AttunementDataSource>, CustomPacketPayload> packetFactory)
-    {
-        return event -> {
-            ServerPlayer player = event.getPlayer();
-            List<CustomPacketPayload> packets = new ArrayList<>();
-            for (Map.Entry<ResourceLocation, AttunementDataSource> entry : new HashMap<>(this.data).entrySet()) {
-                if (entry.getKey() == null) continue;
-                packets.add(packetFactory.apply(Map.of(entry.getKey(), entry.getValue())));
-            }
-
-            if (player == null)
-                packets.forEach(PacketDistributor::sendToAllPlayers);
-            else
-                packets.forEach(p ->PacketDistributor.sendToPlayer(player, p));
-        };
-    }
 }

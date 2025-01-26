@@ -3,10 +3,13 @@ package net.silvertide.artifactory.compat;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
+import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.util.*;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 import top.theillusivec4.curios.api.event.CurioCanEquipEvent;
 import top.theillusivec4.curios.api.event.DropRulesEvent;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -28,7 +31,7 @@ public class CuriosEvents {
                 } else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
                     PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                     event.setEquipResult(TriState.FALSE);
-                } else if (slotContext.identifier().equals("artifactory")) {
+                } else if (slotContext.identifier().equals("attuned_item")) {
                     if(!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack)) {
                         PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                         event.setEquipResult(TriState.FALSE);
@@ -55,16 +58,22 @@ public class CuriosEvents {
         }
     }
 
-//    @SubscribeEvent
-//    public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
-//        ItemStack stack = event.getItemStack();
-//        if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
-//            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
-//            for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
-//                AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
-//                    attributeModification.addCurioAttributeModifier(event);
-//                });
-//            }
-//        }
-//    }
+    @SubscribeEvent
+    public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
+        // Don't apply attributes if placed into an attuned_item slot
+        if(!"attuned_item".equals(event.getSlotContext().identifier())) {
+            // Check the artifactory attributes data and apply attribute modifiers
+            ItemStack stack = event.getItemStack();
+            boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
+                case CLIENT -> ClientItemAttunementData.isValidAttunementItem(stack);
+                case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
+            };
+
+            if(isValidAttunementItem) {
+                DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+                    attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(event));
+                });
+            }
+        }
+    }
 }

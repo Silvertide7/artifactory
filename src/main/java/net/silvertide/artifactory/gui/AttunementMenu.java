@@ -19,7 +19,6 @@ import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunement
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.storage.AttunementManager;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
@@ -127,6 +126,8 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getAttunementData(stack).map(AttunementData::isUnbreakable).orElse(false)) {
                     DataComponentUtil.removeUnbreakable(stack);
                 }
+                AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());
+
 
                 return isValidAttunementItem;
             }
@@ -142,7 +143,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             public void set(ItemStack stack) {
                 super.set(stack);
                 if(!stack.isEmpty()) {
-                    updateAttunementItemNBT();
+                    updateAttunementItemDataComponent();
                     ArtifactorySavedData.get().updateDisplayName(stack);
                     AttunementMenu.this.updateAttunementState();
                 }
@@ -159,10 +160,9 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     // This method looks at the item in the attunement slot and syncs attunement data
     // from data packs or updates the items NBT if the attunement has been broken
-    public void updateAttunementItemNBT() {
+    public void updateAttunementItemDataComponent() {
         if(attunementInputSlot.hasItem()) {
             ItemStack attunementItemStack = attunementInputSlot.getItem();
-            AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());
             ModificationService.applyAttunementModifications(attunementItemStack);
         }
     }

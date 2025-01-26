@@ -75,5 +75,5 @@
   "screen.tooltip.artifactory.attunement.not_enough_slots": "You don't have enough slots available to attune this item.",
 
   "screen.tooltip.artifactory.not_enough_slots_available": "Not enough attunement slots available to attune this item.",
-  "curios.identifier.artifactory": "Attuned Item"
+  "curios.identifier.attuned_item": "Attuned Item"
 }

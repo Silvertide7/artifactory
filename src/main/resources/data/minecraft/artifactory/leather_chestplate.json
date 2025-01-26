@@ -8,7 +8,7 @@
       }
     },
     {
-      "modifications": ["attribute/minecraft:generic.movement_speed/add_multiplied_base/.1/chest"],
+      "modifications": ["attribute/minecraft:generic.movement_speed/add_multiplied_base/0.1/chest"],
       "requirements": {
         "items": ["minecraft:emerald#5"]
       }

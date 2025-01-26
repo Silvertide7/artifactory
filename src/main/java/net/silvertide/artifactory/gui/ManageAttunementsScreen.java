@@ -109,7 +109,7 @@ public class ManageAttunementsScreen extends Screen {
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderTransparentBackground(guiGraphics);
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0F, 0F, 300F);
+        guiGraphics.pose().translate(0F, 0F, 200F);
 
         renderScrollAreaBackground(guiGraphics);
         renderAttunementCards(guiGraphics, mouseX, mouseY);
@@ -380,10 +380,10 @@ public class ManageAttunementsScreen extends Screen {
                 this.isOffScreen = false;
             }
 
-
             renderBackground(guiGraphics);
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics, (int) mouseX, (int) mouseY);
+
             if(attunementData != null) {
                 renderAttunementLevel(guiGraphics);
                 renderSlotsUsed(guiGraphics);
@@ -465,7 +465,7 @@ public class ManageAttunementsScreen extends Screen {
         private void renderInformationTooltip(GuiGraphics guiGraphics, double mouseX, double mouseY) {
             if(isHoveringInformationIcon(mouseX, mouseY)) {
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(0F, 0F, 500F);
+                guiGraphics.pose().translate(0F, 0F, 700F);
 
                 List<Component> list = Lists.newArrayList();
                 for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {

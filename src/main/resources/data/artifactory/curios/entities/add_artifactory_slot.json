@@ -1,4 +1,4 @@
 {
   "entities": ["player"],
-  "slots": ["artifactory"]
+  "slots": ["attuned_item"]
 }

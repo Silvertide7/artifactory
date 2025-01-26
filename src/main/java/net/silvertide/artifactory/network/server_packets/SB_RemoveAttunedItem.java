@@ -27,7 +27,7 @@ public record SB_RemoveAttunedItem(UUID itemUUIDToRemove) implements CustomPacke
                 ArtifactorySavedData.get().removeAttunedItem(player.getUUID(), packet.itemUUIDToRemove);
                 AttunementService.clearBrokenAttunements(player);
                 if(player.containerMenu instanceof AttunementMenu attuneMenu && player.containerMenu.stillValid(player)) {
-                    attuneMenu.updateAttunementItemNBT();
+                    attuneMenu.updateAttunementItemDataComponent();
                 }
             }
         });

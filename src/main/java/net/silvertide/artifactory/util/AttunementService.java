@@ -6,7 +6,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
-import net.silvertide.artifactory.registry.DataComponentRegistry;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 
@@ -70,14 +69,12 @@ public final class AttunementService {
     public static void clearBrokenAttunementIfExists(ItemStack stack) {
         if(stack.isEmpty()) return;
 
-        DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
             if (attunementData.attunedToUUID() != null
                     && ArtifactorySavedData.get().getAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID()).isEmpty()) {
                 removeUnbreakableIfFromArtifactory(stack, attunementData);
-                stack.set(DataComponentRegistry.ATTUNEMENT_DATA, null);
-                return true;
+                DataComponentUtil.clearAttunementData(stack);
             }
-            return false;
         });
     }
 
