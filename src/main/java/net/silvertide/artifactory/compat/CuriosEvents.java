@@ -2,7 +2,6 @@ package net.silvertide.artifactory.compat;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
@@ -16,7 +15,6 @@ import top.theillusivec4.curios.api.type.capability.ICurio;
 
 public class CuriosEvents {
     // Check if the curios item should not be equipable and prevent it if so.
-    @SubscribeEvent
     public static void onCuriosEquip(CurioCanEquipEvent event) {
         SlotContext slotContext = event.getSlotContext();
 
@@ -25,25 +23,20 @@ public class CuriosEvents {
             AttunementService.clearBrokenAttunementIfExists(stack);
 
             if(AttunementUtil.isValidAttunementItem(stack)) {
+                //If a player tries to equip an item attuned to another player to ANY slot, deny it.
                 if(AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
                     PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.owned_by_another_player");
                     event.setEquipResult(TriState.FALSE);
-                } else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
+                }
+                // If a player tries to equip an item they are not attuned to and that item must be attuned to use to ANY slot, deny it.
+                else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
                     PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                     event.setEquipResult(TriState.FALSE);
-                } else if (slotContext.identifier().equals("attuned_item")) {
-                    if(!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack)) {
-                        PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
-                        event.setEquipResult(TriState.FALSE);
-                    } else {
-                        event.setEquipResult(TriState.TRUE);
-                    }
                 }
             }
         }
     }
 
-    @SubscribeEvent
     public static void keepCurios(DropRulesEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             CuriosApi.getCuriosInventory(serverPlayer).ifPresent(itemHandler -> {
@@ -58,7 +51,6 @@ public class CuriosEvents {
         }
     }
 
-    @SubscribeEvent
     public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
         // Don't apply attributes if placed into an attuned_item slot
         if(!"attuned_item".equals(event.getSlotContext().identifier())) {

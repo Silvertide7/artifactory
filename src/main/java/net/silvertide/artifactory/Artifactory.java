@@ -11,6 +11,7 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.setup.CuriosSetup;
 import org.slf4j.Logger;
 
+// TODO: Test curios with attuned items from other players - remove curios implementation gradle
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

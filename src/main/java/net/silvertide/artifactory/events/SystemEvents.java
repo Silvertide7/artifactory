@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class SystemEvents {
-    @SubscribeEvent(priority= EventPriority.LOW)
+    @SubscribeEvent(priority=EventPriority.LOW)
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
 
