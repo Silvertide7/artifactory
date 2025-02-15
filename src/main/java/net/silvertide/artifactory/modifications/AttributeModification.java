@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public record AttributeModification(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) implements AttunementModification {
     public static final Codec<AttributeModification> CODEC;
@@ -69,9 +70,9 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
 
                 EquipmentSlotGroup equipmentSlotGroup = EquipmentSlotGroup.bySlot(EquipmentSlot.byName(modification[4]));
                 Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
-
+                String uniqueResourceLocation = attribute + "_" + equipmentSlotGroup.getSerializedName() + "_" + UUID.randomUUID();
                 return attributeToModify.map(attributeReference -> {
-                    AttributeModifier attributeModifier = buildAttributeModifier(attribute, value, operation);
+                    AttributeModifier attributeModifier = buildAttributeModifier(uniqueResourceLocation, value, operation);
                     return new AttributeModification(attributeReference, attributeModifier, equipmentSlotGroup);
                 }).orElse(null);
             } else {
