@@ -48,17 +48,6 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
-//    unitTest {
-//        // Enable JUnit support in the moddev plugin
-//        enable()
-//        // Configure which mod is being tested.
-//        // This allows NeoForge to load the test/ classes and resources as belonging to the mod.
-//        testedMod = mods.artifactory // <mod name> must match the name in the mods { } block.
-//        // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
-//        // This must contain testedMod, and can include other mods as well.
-//        // loadedMods = [mods.<mod name >, mods.<mod name 2>]
-//    }
-
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -135,32 +124,7 @@ configurations {
 }
 
 dependencies {
-//    testImplementation(platform('org.junit:junit-bom:5.11.4'))
-//    testImplementation('org.junit.jupiter:junit-jupiter')
-//    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
-
     compileOnly "curse.maven:curios-${projectid_curios}:${version_curios}"
-    // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
-
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
-
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -18,7 +18,8 @@ public class DeleteConfirmationScreen extends Screen {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_confirmation.png");
     private static final int SCREEN_WIDTH = 146;
     private static final int SCREEN_HEIGHT = 81;
-    //BUTTON CONSTANTS
+
+    // BUTTON CONSTANTS
     private static final int BUTTON_Y = 58;
     private static final int BUTTON_WIDTH = 50;
     private static final int BUTTON_HEIGHT = 12;
