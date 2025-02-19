@@ -1,10 +1,13 @@
 package net.silvertide.artifactory.compat;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.silvertide.artifactory.client.state.ClientItemAttunementData;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.util.*;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -21,19 +24,20 @@ public class CuriosCompat {
         SlotContext slotContext = event.getSlotContext();
 
         if(!event.isCanceled() && slotContext.entity() instanceof Player) {
-            if(slotContext.entity() instanceof Player player && !player.level().isClientSide()) {
+            if(slotContext.entity() instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = event.getStack();
                 AttunementService.clearBrokenAttunementIfExists(stack);
 
                 if(AttunementUtil.isValidAttunementItem(stack)) {
-                    if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
-                        PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                    //If a player tries to equip an item attuned to another player to ANY slot, deny it.
+                    if(AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
+                        PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.owned_by_another_player");
                         event.setResult(Event.Result.DENY);
-                        return;
-                    } else if (!AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
-                        PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_equippable");
+                    }
+                    // If a player tries to equip an item they are not attuned to and that item must be attuned to use to ANY slot, deny it.
+                    else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
+                        PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                         event.setResult(Event.Result.DENY);
-                        return;
                     }
                 }
             }
@@ -52,13 +56,22 @@ public class CuriosCompat {
 
     @SubscribeEvent
     public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
-        ItemStack stack = event.getItemStack();
-        if (AttunementUtil.isValidAttunementItem(stack) && StackNBTUtil.containsAttributeModifications(stack)) {
-            CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
-            for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
-                AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
-                    attributeModification.addCurioAttributeModifier(event);
-                });
+        // Don't apply attributes if placed into an attuned_item slot
+        if(!"attuned_item".equals(event.getSlotContext().identifier())) {
+            // Check the artifactory attributes data and apply attribute modifiers
+            ItemStack stack = event.getItemStack();
+            boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
+                case CLIENT -> ClientItemAttunementData.isValidAttunementItem(stack);
+                case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
+            };
+
+            if(isValidAttunementItem && StackNBTUtil.containsAttributeModifications(stack)) {
+                CompoundTag artifactoryAttributeModificationsTag = StackNBTUtil.getOrCreateAttributeModificationNBT(stack);
+                for(String attributeModificationKey : artifactoryAttributeModificationsTag.getAllKeys()) {
+                    AttributeModification.fromCompoundTag(artifactoryAttributeModificationsTag.getCompound(attributeModificationKey)).ifPresent(attributeModification -> {
+                        attributeModification.addCurioAttributeModifier(event);
+                    });
+                }
             }
         }
     }

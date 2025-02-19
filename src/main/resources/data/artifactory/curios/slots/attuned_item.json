@@ -1,0 +1,7 @@
+{
+  "order": 1999,
+  "size": 1,
+  "render_toggle": false,
+  "icon": "artifactory:slot/artifactory_slot",
+  "validators": ["artifactory:is_attuned_item"]
+}

@@ -11,8 +11,9 @@ import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
 
+import java.util.ArrayList;
 import java.util.List;
-public class ClientSetupEvents {
+public class TooltipHandler {
     private final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
     private final ChatFormatting attunedFormatting = ChatFormatting.LIGHT_PURPLE;
 
@@ -60,21 +61,15 @@ public class ClientSetupEvents {
     }
 
     private void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
-        String traitText = null;
-        if(StackNBTUtil.isSoulbound(stack)) {
-            traitText = "Soulbound";
+        List<String> textList = new ArrayList<>();
+        if(StackNBTUtil.isInvulnerable(stack)) {
+            textList.add("Invulnerable");
         }
 
-        if(StackNBTUtil.isInvulnerable(stack)) {
-            if(traitText != null){
-                traitText += " | Invulnerable";
-            } else {
-                traitText = "Invulnerable";
-            }
+        if(StackNBTUtil.isSoulbound(stack)) {
+            textList.add("Soulbound");
         }
-        if(traitText != null) {
-            toolTips.add(Component.literal(traitText).withStyle(ChatFormatting.LIGHT_PURPLE));
-        }
+        textList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.BLUE)));
     }
 
     private void addUniqueTooltip(List<Component> toolTips, ItemAttunementData itemAttunementData) {
