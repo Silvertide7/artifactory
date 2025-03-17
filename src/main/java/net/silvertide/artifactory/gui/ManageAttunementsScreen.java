@@ -63,7 +63,7 @@ public class ManageAttunementsScreen extends Screen {
     private final int numUniqueAttunementsAllowed;
     private int numUniqueAttunements;
     private final List<AttunementCard> attunementCards = new ArrayList<>();
-    LocalPlayer player;
+    private final LocalPlayer player;
 
     public ManageAttunementsScreen(int numUniqueAttunementsAllowed) {
         super(Component.literal(""));
@@ -129,6 +129,7 @@ public class ManageAttunementsScreen extends Screen {
     }
 
     private void renderTitle(GuiGraphics guiGraphics) {
+        //TODO: Make this translatable
         Component buttonTextComp = Component.literal("Manage Attunements");
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.85F, this.font, buttonTextComp, this.getScreenLeftPos() + SCREEN_WIDTH / 2, this.getScreenTopPos() + 13, 100, BUTTON_TEXT_COLOR);
     }
