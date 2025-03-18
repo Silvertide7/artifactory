@@ -25,7 +25,7 @@ public class PostAttuneEvent extends PlayerEvent {
     }
 
     @Override
-    public boolean isCancelable() { return true; }
+    public boolean isCancelable() { return false; }
 
     public ItemStack getItemStack() {
         return this.stack;

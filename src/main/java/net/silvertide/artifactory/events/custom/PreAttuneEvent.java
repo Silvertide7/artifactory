@@ -26,7 +26,7 @@ public class PreAttuneEvent extends PlayerEvent {
     }
 
     @Override
-    public boolean isCancelable() { return false; }
+    public boolean isCancelable() { return true; }
 
     public ItemStack getItemStack() {
         return this.stack;
