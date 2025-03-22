@@ -12,6 +12,10 @@ import net.silvertide.artifactory.setup.CuriosSetup;
 import org.slf4j.Logger;
 
 // TODO: Test curios with attuned items from other players - remove curios implementation gradle
+// TODO: Test to make sure attuned items are only usable in any way by their wielder
+// TODO: Add data component for flag and attune data
+// TODO: Rework attunement data component to use data from other component
+// TODO: Add data codec field for chance to be attunable
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

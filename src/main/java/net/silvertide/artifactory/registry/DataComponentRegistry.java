@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.AttunementFlag;
 
 import java.util.function.UnaryOperator;
 
@@ -16,6 +17,9 @@ public class DataComponentRegistry {
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttunementData>> ATTUNEMENT_DATA = register("attunement_data",
             builder -> builder.persistent(AttunementData.CODEC).networkSynchronized(AttunementData.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttunementFlag>> ATTUNEMENT_FLAG = register("attunement_flag",
+            builder -> builder.persistent(AttunementFlag.CODEC).networkSynchronized(AttunementFlag.STREAM_CODEC));
 
     private static <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name,
                                                                                            UnaryOperator<DataComponentType.Builder<T>> builderOperator) {

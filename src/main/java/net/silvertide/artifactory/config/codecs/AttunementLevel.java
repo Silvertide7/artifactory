@@ -5,19 +5,27 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.*;
 
-public class AttunementLevel {
+public record AttunementLevel(AttunementRequirements requirements, List<String> modifications) {
+    public static final Codec<AttunementLevel> CODEC;
+
     private AttunementRequirements requirements;
     private List<String> modifications;
+
 
     public AttunementLevel(List<String> modifications, AttunementRequirements requirements) {
         this.requirements = requirements;
         this.modifications = modifications;
     }
-    public static final Codec<AttunementLevel> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.list(Codec.STRING).optionalFieldOf("modifications", new ArrayList<>()).forGetter(AttunementLevel::getModifications),
-                    AttunementRequirements.CODEC.optionalFieldOf("requirements", AttunementRequirements.getDefault()).forGetter(AttunementLevel::getRequirements))
+
+    static {
+        CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.list(Codec.STRING).optionalFieldOf("modifications", new ArrayList<>()).forGetter(AttunementLevel::getModifications),
+                AttunementRequirements.CODEC.optionalFieldOf("requirements", AttunementRequirements.getDefault()).forGetter(AttunementLevel::getRequirements))
             .apply(instance, AttunementLevel::new)
-    );
+        );
+    }
+
+
 
     public List<String> getModifications() {
         return this.modifications;
