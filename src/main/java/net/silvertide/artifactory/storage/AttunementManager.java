@@ -2,7 +2,7 @@ package net.silvertide.artifactory.storage;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.component.AttunementDataSource;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
@@ -13,7 +13,7 @@ public class AttunementManager {
     private final ItemStack stack;
     private final ServerPlayer player;
     private final Optional<AttunementDataSource> dataSource;
-    private final Optional<AttunementData> attunementData;
+    private final Optional<PlayerAttunementData> attunementData;
     private final Optional<AttunedItem> attunedItem;
     private int levelOfAttunement;
 
@@ -31,7 +31,7 @@ public class AttunementManager {
         return this.dataSource;
     }
 
-    public Optional<AttunementData> getAttunementData() {
+    public Optional<PlayerAttunementData> getAttunementData() {
         return this.attunementData;
     }
 

@@ -4,7 +4,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
@@ -78,8 +78,8 @@ public final class AttunementService {
         });
     }
 
-    public static void removeUnbreakableIfFromArtifactory(ItemStack stack, AttunementData attunementData) {
-        if (attunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
+    public static void removeUnbreakableIfFromArtifactory(ItemStack stack, PlayerAttunementData playerAttunementData) {
+        if (playerAttunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
             DataComponentUtil.removeUnbreakable(stack);
         }
     }

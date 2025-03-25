@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
@@ -123,7 +123,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 // valid attunement item and remove unbreakable if so. We have to do it here
                 // instead of updateAttunementItemState because only valid attunement items can
                 // be placed in the slot and have that method run.
-                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getAttunementData(stack).map(AttunementData::isUnbreakable).orElse(false)) {
+                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
                     DataComponentUtil.removeUnbreakable(stack);
                 }
                 AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());

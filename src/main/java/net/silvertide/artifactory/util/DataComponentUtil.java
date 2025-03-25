@@ -5,11 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.registry.DataComponentRegistry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,12 +16,12 @@ public final class DataComponentUtil {
     private DataComponentUtil() {}
 
     // ACCESS METHODS
-    public static Optional<AttunementData> getAttunementData(ItemStack stack) {
+    public static Optional<PlayerAttunementData> getAttunementData(ItemStack stack) {
         return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_DATA));
     }
 
-    public static void setAttunementData(ItemStack stack, AttunementData attunementData) {
-        stack.set(DataComponentRegistry.ATTUNEMENT_DATA, attunementData);
+    public static void setAttunementData(ItemStack stack, PlayerAttunementData playerAttunementData) {
+        stack.set(DataComponentRegistry.ATTUNEMENT_DATA, playerAttunementData);
     }
 
     public static void clearAttunementData(ItemStack stack) {
@@ -32,7 +31,7 @@ public final class DataComponentUtil {
     // LIFECYCLE METHODS
     public static void setupAttunementData(ItemStack stack) {
         setAttunementData(stack,
-                new AttunementData(
+                new PlayerAttunementData(
                         UUID.randomUUID(),
                     null,
                     null,

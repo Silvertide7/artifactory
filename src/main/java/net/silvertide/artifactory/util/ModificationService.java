@@ -1,7 +1,7 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.modifications.*;
 
@@ -42,15 +42,15 @@ public final class ModificationService {
 
     private static void clearModifications(ItemStack stack) {
         DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
-            AttunementData clearedAttunementData = attunementData
+            PlayerAttunementData clearedPlayerAttunementData = attunementData
                     .withIsInvulnerable(false)
                     .withIsSoulbound(false)
                     .withAttributeModifications(new ArrayList<>());
 
-            if(clearedAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {
+            if(clearedPlayerAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {
                 DataComponentUtil.removeUnbreakable(stack);
             }
-            DataComponentUtil.setAttunementData(stack, clearedAttunementData.withIsUnbreakable(false));
+            DataComponentUtil.setAttunementData(stack, clearedPlayerAttunementData.withIsUnbreakable(false));
         });
     }
 }

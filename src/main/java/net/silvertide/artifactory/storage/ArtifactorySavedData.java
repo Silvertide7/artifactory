@@ -11,7 +11,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.client_packets.CB_RemoveAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
@@ -56,11 +56,11 @@ public class ArtifactorySavedData extends SavedData {
         return Optional.ofNullable(playerAttunedItems.get(attunedItemId));
     }
 
-    public Optional<AttunedItem> getAttunedItem(AttunementData attunementData) {
-        if(attunementData.attunedToUUID() == null || attunementData.attunementUUID() == null) return Optional.empty();
+    public Optional<AttunedItem> getAttunedItem(PlayerAttunementData playerAttunementData) {
+        if(playerAttunementData.attunedToUUID() == null || playerAttunementData.attunementUUID() == null) return Optional.empty();
 
-        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(attunementData.attunedToUUID(), new HashMap<>());
-        return Optional.ofNullable(playerAttunedItems.get(attunementData.attunementUUID()));
+        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerAttunementData.attunedToUUID(), new HashMap<>());
+        return Optional.ofNullable(playerAttunedItems.get(playerAttunementData.attunementUUID()));
     }
 
     // Returns true if the items level was increased successfully, and false if not.
