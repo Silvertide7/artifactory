@@ -15,7 +15,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.component.AttunementDataSource;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;

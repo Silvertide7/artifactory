@@ -10,7 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.component.AttunementDataSource;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 

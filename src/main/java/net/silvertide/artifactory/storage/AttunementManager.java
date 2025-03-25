@@ -3,7 +3,7 @@ package net.silvertide.artifactory.storage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.PlayerAttunementData;
-import net.silvertide.artifactory.component.AttunementDataSource;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.DataPackUtil;
 

@@ -17,11 +17,11 @@ public final class DataComponentUtil {
 
     // ACCESS METHODS
     public static Optional<PlayerAttunementData> getAttunementData(ItemStack stack) {
-        return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_DATA));
+        return Optional.ofNullable(stack.get(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA));
     }
 
     public static void setAttunementData(ItemStack stack, PlayerAttunementData playerAttunementData) {
-        stack.set(DataComponentRegistry.ATTUNEMENT_DATA, playerAttunementData);
+        stack.set(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA, playerAttunementData);
     }
 
     public static void clearAttunementData(ItemStack stack) {

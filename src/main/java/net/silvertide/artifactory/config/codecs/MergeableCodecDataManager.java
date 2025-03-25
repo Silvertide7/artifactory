@@ -38,7 +38,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.component.AttunementDataSource;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementRequirements;
 import net.silvertide.artifactory.storage.ItemRequirements;

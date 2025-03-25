@@ -1,9 +1,10 @@
-package net.silvertide.artifactory.component;
+package net.silvertide.artifactory.config.codecs;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.silvertide.artifactory.component.AttunementLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,8 +49,13 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
 
                 buf.writeVarInt(attunementDataSource.attunementLevels().size());
                 for(int i = 0; i < attunementDataSource.attunementLevels().size(); i++) {
-
+                    AttunementLevel.STREAM_CODEC.encode(buf, attunementDataSource.attunementLevels.get(i));
                 }
+
+                buf.writeDouble(attunementDataSource.chance());
+                buf.writeBoolean(attunementDataSource.useWithoutAttunement());
+                buf.writeBoolean(attunementDataSource.unique());
+                buf.writeBoolean(attunementDataSource.replace());
             }
         };
     }
