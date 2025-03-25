@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
+import net.silvertide.artifactory.component.AttunementDataSource;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.registry.AttributeRegistry;

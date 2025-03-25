@@ -4,8 +4,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
-import net.silvertide.artifactory.config.codecs.AttunementLevel;
+import net.silvertide.artifactory.component.AttunementDataSource;
+import net.silvertide.artifactory.component.AttunementLevel;
 
 import java.util.*;
 

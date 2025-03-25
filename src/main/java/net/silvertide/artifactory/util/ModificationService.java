@@ -2,7 +2,7 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementData;
-import net.silvertide.artifactory.config.codecs.AttunementLevel;
+import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.modifications.*;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public final class ModificationService {
 
                 int levelsToApply = Math.min(levelOfAttunement, attunementLevels.size());
                 attunementLevels.subList(0, levelsToApply).stream()
-                        .flatMap(attunementLevel -> attunementLevel.getModifications().stream())
+                        .flatMap(attunementLevel -> attunementLevel.modifications().stream())
                         .forEach(modification -> {
                             applyAttunementModification(stack, modification);
                         });

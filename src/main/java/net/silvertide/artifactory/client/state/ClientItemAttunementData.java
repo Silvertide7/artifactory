@@ -3,7 +3,7 @@ package net.silvertide.artifactory.client.state;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
+import net.silvertide.artifactory.component.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.PlayerMessenger;
 import net.silvertide.artifactory.util.ResourceLocationUtil;

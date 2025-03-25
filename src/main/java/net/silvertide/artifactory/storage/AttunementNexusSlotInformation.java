@@ -5,7 +5,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
-import net.silvertide.artifactory.config.codecs.AttunementLevel;
+import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -68,9 +68,9 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
                 // Get the next levels information.
                 AttunementLevel nextAttunementLevel = DataPackUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {
-                    xpThreshold = nextAttunementLevel.getRequirements().getXpLevelThreshold() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelThreshold() : ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
-                    xpConsumed = nextAttunementLevel.getRequirements().getXpLevelsConsumed() >= 0 ? nextAttunementLevel.getRequirements().getXpLevelsConsumed() : ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
-                    itemRequirements.addRequirements(nextAttunementLevel.getRequirements().getItems());
+                    xpThreshold = nextAttunementLevel.requirements().xpLevelThreshold() >= 0 ? nextAttunementLevel.requirements().xpLevelThreshold() : ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
+                    xpConsumed = nextAttunementLevel.requirements().xpLevelsConsumed() >= 0 ? nextAttunementLevel.requirements().xpLevelsConsumed() : ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
+                    itemRequirements.addRequirements(nextAttunementLevel.requirements().items());
                 }
             }
 

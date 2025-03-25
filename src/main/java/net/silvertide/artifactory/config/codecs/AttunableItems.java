@@ -1,5 +1,7 @@
 package net.silvertide.artifactory.config.codecs;
 
+import net.silvertide.artifactory.component.AttunementDataSource;
+
 import java.util.List;
 
 public class AttunableItems {
