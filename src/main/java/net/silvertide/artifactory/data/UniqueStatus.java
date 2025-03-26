@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.data;
 
 public class UniqueStatus {
     public static final String ALREADY_ATTUNED_BY_THIS_PLAYER = "ALREADY_ATTUNED_BY_THIS_PLAYER";

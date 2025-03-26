@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.services;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -8,6 +8,7 @@ import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.*;
 
 public final class AttunementService {
     private AttunementService() {}
@@ -21,7 +22,7 @@ public final class AttunementService {
         if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
             successfulAttunementIncrease = attuneItemAndPlayer(player, stack);
         } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
-            successfulAttunementIncrease = DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+            successfulAttunementIncrease = DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
                 if(attunementData.attunementUUID() != null) {
                     return ArtifactorySavedData.get().increaseLevelOfAttunedItem(player.getUUID(), attunementData.attunementUUID());
                 }
@@ -36,25 +37,22 @@ public final class AttunementService {
     // Returns true if the item was successfully attuned, and false if not.
     private static boolean attuneItemAndPlayer(ServerPlayer player, ItemStack stack) {
         if (AttunementUtil.canIncreaseAttunementLevel(player, stack)) {
-            DataComponentUtil.setupAttunementData(stack);
-
-            AttunedItem.buildAttunedItem(player, stack).ifPresent(attunedItem -> {
-                ArtifactorySavedData.get().setAttunedItem(player, attunedItem);
-                DataComponentUtil.configureAttunementData(player, stack);
-            });
+            AttunedItem attunedItem = AttunedItem.buildAttunedItem(player, stack);
+            DataComponentUtil.configurePlayerAttunementData(player, stack, attunedItem);
+            ArtifactorySavedData.get().setAttunedItem(player, attunedItem);
             return true;
         }
         return false;
     }
 
     public static void removeAttunementFromPlayerAndItem(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             removeUnbreakableIfFromArtifactory(stack, attunementData);
             ArtifactorySavedData.get().removeAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID());
         });
 
         // Clear the attunement data off of the item itself.
-        DataComponentUtil.clearAttunementData(stack);
+        DataComponentUtil.clearPlayerAttunementData(stack);
     }
 
     public static void clearBrokenAttunements(Player player) {
@@ -69,11 +67,11 @@ public final class AttunementService {
     public static void clearBrokenAttunementIfExists(ItemStack stack) {
         if(stack.isEmpty()) return;
 
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             if (attunementData.attunedToUUID() != null
                     && ArtifactorySavedData.get().getAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID()).isEmpty()) {
                 removeUnbreakableIfFromArtifactory(stack, attunementData);
-                DataComponentUtil.clearAttunementData(stack);
+                DataComponentUtil.clearPlayerAttunementData(stack);
             }
         });
     }
@@ -88,7 +86,7 @@ public final class AttunementService {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-            } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
+            } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementDataSourceUtil.canUseWithoutAttunement(stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
             }
         }

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Map;
@@ -19,29 +19,29 @@ public class ClientItemAttunementData {
         itemAttunementData = syncedAttunementData;
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(ResourceLocation resourceLocation) {
+    public static Optional<AttunementDataSource> getSyncedAttunementDataSource(ResourceLocation resourceLocation) {
         if(itemAttunementData == null) return Optional.empty();
         return Optional.ofNullable(itemAttunementData.get(resourceLocation));
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(ItemStack stack) {
+    public static Optional<AttunementDataSource> getSyncedAttunementDataSource(ItemStack stack) {
         if(itemAttunementData == null) return Optional.empty();
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-        return Optional.ofNullable(itemAttunementData.get(stackResourceLocation));
+        return getSyncedAttunementDataSource(stackResourceLocation);
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(String resourceLocation) {
+    public static Optional<AttunementDataSource> getSyncedAttunementDataSource(String resourceLocation) {
         if(itemAttunementData == null) return Optional.empty();
-        return getAttunementData(ResourceLocation.parse(resourceLocation));
+        return getSyncedAttunementDataSource(ResourceLocation.parse(resourceLocation));
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
-        return !stack.isEmpty() && getAttunementData(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
+        return !stack.isEmpty() && getSyncedAttunementDataSource(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
     }
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
         if(!isValidAttunementItem(stack)) return false;
-        return getAttunementData(stack).map(itemAttunementData -> {
+        return getSyncedAttunementDataSource(stack).map(itemAttunementData -> {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 if(!player.level().isClientSide()) {
                     PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");

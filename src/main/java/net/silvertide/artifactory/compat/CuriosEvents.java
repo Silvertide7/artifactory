@@ -5,6 +5,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.services.AttunementService;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
@@ -29,7 +31,7 @@ public class CuriosEvents {
                     event.setEquipResult(TriState.FALSE);
                 }
                 // If a player tries to equip an item they are not attuned to and that item must be attuned to use to ANY slot, deny it.
-                else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !DataPackUtil.canUseWithoutAttunement(stack)) {
+                else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !AttunementDataSourceUtil.canUseWithoutAttunement(stack)) {
                     PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                     event.setEquipResult(TriState.FALSE);
                 }
@@ -62,7 +64,7 @@ public class CuriosEvents {
             };
 
             if(isValidAttunementItem) {
-                DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+                DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
                     attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(event));
                 });
             }

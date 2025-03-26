@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.component.AttunementLevel;
+import net.silvertide.artifactory.data.UniqueStatus;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -49,10 +50,10 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!AttunementUtil.isValidAttunementItem(stack)) return null;
 
-        return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
+        return AttunementDataSourceUtil.getAttunementDataSource(stack).map(itemAttunementData -> {
             // Get the level of attunement achieved by the player.
             int levelOfAttunementAchievedByPlayer = AttunementUtil.getLevelOfAttunementAchievedByPlayer(player, stack);
-            int numLevels = DataPackUtil.getNumAttunementLevels(stack);
+            int numLevels = AttunementSchemaUtil.getNumAttunementLevels(stack);
 
             // Set default values. These are used if the player has maxed out the attunement to the item.
             int xpThreshold = -1;
@@ -66,7 +67,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
             // If not lets get all of the relevant data
             if (levelOfAttunementAchievedByPlayer < numLevels) {
                 // Get the next levels information.
-                AttunementLevel nextAttunementLevel = DataPackUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
+                AttunementLevel nextAttunementLevel = AttunementSchemaUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {
                     xpThreshold = nextAttunementLevel.requirements().xpLevelThreshold() >= 0 ? nextAttunementLevel.requirements().xpLevelThreshold() : ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
                     xpConsumed = nextAttunementLevel.requirements().xpLevelsConsumed() >= 0 ? nextAttunementLevel.requirements().xpLevelsConsumed() : ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
@@ -94,7 +95,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
 
             return new AttunementNexusSlotInformation(
                     AttunementUtil.getAttunedItemDisplayName(stack),
-                    DataComponentUtil.getAttunementData(stack)
+                    DataComponentUtil.getPlayerAttunementData(stack)
                             .map(attunementData -> attunementData.attunedToName() != null ? attunementData.attunedToName() : "").orElse(""),
                     AttunementUtil.isAttunedToAnotherPlayer(player, stack),
                     itemAttunementData.attunementSlotsUsed(),

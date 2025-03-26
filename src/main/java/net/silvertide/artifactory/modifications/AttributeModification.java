@@ -107,7 +107,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
 
     @Override
     public void applyModification(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             List<AttributeModification> newModifications = new ArrayList<>(attunementData.attributeModifications());
 
             boolean wasCombined = false;
@@ -124,7 +124,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
                 newModifications.add(this);
             }
 
-            DataComponentUtil.setAttunementData(stack, attunementData.withAttributeModifications(newModifications));
+            DataComponentUtil.setPlayerAttunementData(stack, attunementData.withAttributeModifications(newModifications));
         });
     }
 

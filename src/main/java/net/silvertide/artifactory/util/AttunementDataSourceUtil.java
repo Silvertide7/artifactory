@@ -9,38 +9,30 @@ import net.silvertide.artifactory.component.AttunementLevel;
 
 import java.util.*;
 
-public final class DataPackUtil {
-    private DataPackUtil() {}
+public final class AttunementDataSourceUtil {
+    private AttunementDataSourceUtil() {}
 
     public static Optional<Map<ResourceLocation, AttunementDataSource>> getAttunementDataMap() {
         if(AttunableItems.DATA_LOADER.getData().isEmpty()) return Optional.empty();
         return Optional.of(AttunableItems.DATA_LOADER.getData());
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(ResourceLocation resourceLocation) {
+    public static Optional<AttunementDataSource> getAttunementDataSource(ResourceLocation resourceLocation) {
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(ItemStack stack) {
+    public static Optional<AttunementDataSource> getAttunementDataSource(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(stackResourceLocation));
     }
 
-    public static Optional<AttunementDataSource> getAttunementData(String resourceLocation) {
-        return getAttunementData(ResourceLocation.parse(resourceLocation));
-    }
-
-    public static AttunementLevel getAttunementLevel(ItemStack stack, int level) {
-        return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().get(level - 1)).orElse(null);
-    }
-
-    public static int getNumAttunementLevels(ItemStack stack) {
-        return getAttunementData(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
+    public static Optional<AttunementDataSource> getAttunementDataSource(String resourceLocation) {
+        return getAttunementDataSource(ResourceLocation.parse(resourceLocation));
     }
 
     public static String getAttunementLevelDescriptions(String resourceLocation, int currentAttunementLevel) {
         // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
-        return getAttunementData(resourceLocation).map(itemAttunementData -> {
+        return getAttunementDataSource(resourceLocation).map(itemAttunementData -> {
             StringBuilder stringBuilder = new StringBuilder(resourceLocation + ";");
 
             for(int i = 0; i < itemAttunementData.attunementLevels().size(); i++) {
@@ -65,14 +57,14 @@ public final class DataPackUtil {
     }
 
     public static boolean canUseWithoutAttunement(ItemStack stack) {
-        return getAttunementData(stack).map(AttunementDataSource::useWithoutAttunement).orElse(false);
+        return getAttunementDataSource(stack).map(AttunementDataSource::useWithoutAttunement).orElse(false);
     }
 
     public static boolean isUniqueAttunement(ItemStack stack) {
-        return getAttunementData(stack).map(AttunementDataSource::unique).orElse(false);
+        return getAttunementDataSource(stack).map(AttunementDataSource::unique).orElse(false);
     }
 
     public static boolean isUniqueAttunement(String resourceLocation) {
-        return getAttunementData(resourceLocation).map(AttunementDataSource::unique).orElse(false);
+        return getAttunementDataSource(resourceLocation).map(AttunementDataSource::unique).orElse(false);
     }
 }

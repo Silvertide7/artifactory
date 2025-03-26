@@ -1,9 +1,13 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.services;
 
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.modifications.*;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
+import net.silvertide.artifactory.util.AttunementUtil;
+import net.silvertide.artifactory.util.DataComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +23,10 @@ public final class ModificationService {
 
     public static void applyAttunementModifications(ItemStack stack, int levelOfAttunement) {
         if(levelOfAttunement > 0) {
-            DataPackUtil.getAttunementData(stack).ifPresent(itemAttunementData -> {
+            AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {
                 ModificationService.clearModifications(stack);
 
-                List<AttunementLevel> attunementLevels = itemAttunementData.attunementLevels();
+                List<AttunementLevel> attunementLevels = attunementSchema.attunementLevels();
 
                 int levelsToApply = Math.min(levelOfAttunement, attunementLevels.size());
                 attunementLevels.subList(0, levelsToApply).stream()
@@ -34,14 +38,14 @@ public final class ModificationService {
         }
     }
 
-    public static void applyAttunementModification(ItemStack stack, String modificationString) {
+    private static void applyAttunementModification(ItemStack stack, String modificationString) {
         ModificationFactory.createAttunementModification(modificationString).ifPresent(modification -> {
             modification.applyModification(stack);
         });
     }
 
     private static void clearModifications(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             PlayerAttunementData clearedPlayerAttunementData = attunementData
                     .withIsInvulnerable(false)
                     .withIsSoulbound(false)
@@ -50,7 +54,7 @@ public final class ModificationService {
             if(clearedPlayerAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {
                 DataComponentUtil.removeUnbreakable(stack);
             }
-            DataComponentUtil.setAttunementData(stack, clearedPlayerAttunementData.withIsUnbreakable(false));
+            DataComponentUtil.setPlayerAttunementData(stack, clearedPlayerAttunementData.withIsUnbreakable(false));
         });
     }
 }

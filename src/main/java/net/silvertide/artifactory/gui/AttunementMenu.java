@@ -18,6 +18,8 @@ import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
 import net.silvertide.artifactory.registry.MenuRegistry;
+import net.silvertide.artifactory.services.AttunementService;
+import net.silvertide.artifactory.services.ModificationService;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
@@ -123,7 +125,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 // valid attunement item and remove unbreakable if so. We have to do it here
                 // instead of updateAttunementItemState because only valid attunement items can
                 // be placed in the slot and have that method run.
-                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
+                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
                     DataComponentUtil.removeUnbreakable(stack);
                 }
                 AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());

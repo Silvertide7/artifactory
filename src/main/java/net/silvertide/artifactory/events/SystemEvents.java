@@ -16,7 +16,7 @@ import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.network.client_packets.CB_SyncDatapackData;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.util.DataPackUtil;
+import net.silvertide.artifactory.util.AttunementDataSourceUtil;
 import net.silvertide.artifactory.util.NetworkUtil;
 
 import java.util.Map;
@@ -43,7 +43,7 @@ public class SystemEvents {
 
     @SubscribeEvent
     public static void onDatapackReload(OnDatapackSyncEvent event) {
-        DataPackUtil.getAttunementDataMap().ifPresent(dataMap -> {
+        AttunementDataSourceUtil.getAttunementDataMap().ifPresent(dataMap -> {
             event.getRelevantPlayers().forEach(serverPlayer ->
                     PacketDistributor.sendToPlayer(serverPlayer, new CB_SyncDatapackData(dataMap)));
         });

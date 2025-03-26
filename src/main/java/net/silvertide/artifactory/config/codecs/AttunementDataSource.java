@@ -5,12 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.silvertide.artifactory.component.AttunementLevel;
+import net.silvertide.artifactory.component.AttunementOverride;
+import net.silvertide.artifactory.component.AttunementSchema;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, boolean unique, boolean replace) {
+public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, boolean unique, boolean replace) implements AttunementSchema {
     public static final Codec<AttunementDataSource> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementDataSource> STREAM_CODEC;
 
@@ -73,6 +75,9 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
         return List.of(AttunementLevel.getDefault());
     }
 
+    public AttunementOverride asAttunementSchema() {
+        return new AttunementOverride(this.attunementSlotsUsed(), this.attunementLevels(), useWithoutAttunement(), unique());
+    }
 //    public String toString() {
 //        StringBuilder attunementString = new StringBuilder();
 //

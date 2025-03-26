@@ -20,17 +20,17 @@ public class BasicModification implements AttunementModification {
     }
 
     private void applySoulbound(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             if(!attunementData.isSoulbound()) {
-                DataComponentUtil.setAttunementData(stack, attunementData.withIsSoulbound(true));
+                DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsSoulbound(true));
             }
         });
     }
 
     private void applyInvulnerable(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             if(!attunementData.isInvulnerable()) {
-                DataComponentUtil.setAttunementData(stack, attunementData.withIsInvulnerable(true));
+                DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsInvulnerable(true));
             }
         });
     }

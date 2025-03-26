@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.services;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;

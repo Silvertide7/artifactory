@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
-import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import org.jetbrains.annotations.NotNull;
 
 public record SB_ToggleManageAttunementsScreen() implements CustomPacketPayload {

@@ -16,6 +16,7 @@ import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.client_packets.CB_RemoveAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
 
 import java.util.*;
@@ -147,7 +148,7 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void updateDisplayName(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             this.getAttunedItem(attunementData).ifPresent(attunedItem -> {
                 String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
                 if (!attunedItem.getDisplayName().equals(displayName)) {

@@ -10,12 +10,17 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.component.AttunementFlag;
+import net.silvertide.artifactory.component.AttunementOverride;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @EventBusSubscriber(modid= Artifactory.MOD_ID, bus=EventBusSubscriber.Bus.GAME, value= Dist.CLIENT)
 public class TooltipHandler {
     private static final ChatFormatting unAttunedFormatting = ChatFormatting.DARK_PURPLE;
@@ -24,13 +29,39 @@ public class TooltipHandler {
     @SubscribeEvent
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
-            ClientItemAttunementData.getAttunementData(stack).ifPresent(itemAttunementData -> {
-                addTraitTooltips(event.getToolTip(), stack);
-                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
-                addUniqueTooltip(event.getToolTip(), itemAttunementData);
-            });
+        if(!stack.isEmpty()) {
+            // If a player is attuned to an item then display that information
+            Optional<PlayerAttunementData> playerAttunementData = DataComponentUtil.getPlayerAttunementData(stack);
+            if(playerAttunementData.isPresent()) {
+                Optional<AttunementOverride> attunementSchema = DataComponentUtil.getAttunementOverride(stack);
+
+            } else {
+                Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
+                if(attunementFlag.isEmpty()) {
+                    addUnknownAttunementState(event.getToolTip());
+                } else {
+                    Optional<AttunementOverride> attunementOverride = DataComponentUtil.getAttunementOverride(stack);
+                }
+            }
         }
+
+        if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
+
+            Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
+            if(attunementFlag.isEmpty()) {
+
+            } else {
+                ClientItemAttunementData.getSyncedAttunementDataSource(stack).ifPresent(itemAttunementData -> {
+                    addTraitTooltips(event.getToolTip(), stack);
+                    createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
+                    addUniqueTooltip(event.getToolTip(), itemAttunementData);
+                });
+            }
+        }
+    }
+
+    private static void addUnknownAttunementState(List<Component> toolTips) {
+        toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown"));
     }
 
     private static void createAttunementHoverComponent(List<Component> toolTips, AttunementDataSource itemAttunementData, ItemStack stack) {
@@ -50,7 +81,7 @@ public class TooltipHandler {
 
     private static MutableComponent createAttunedHoverText(ItemStack stack) {
         MutableComponent hoverText = Component.translatable("hovertext.artifactory.attuned_item").withStyle(attunedFormatting);
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             if(attunementData.attunedToName() != null) {
                 hoverText.append(Component.literal(" <" + attunementData.attunedToName() + ">").withStyle(attunedFormatting));
             }
@@ -67,7 +98,7 @@ public class TooltipHandler {
     }
 
     private static void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
-        List<String> traitTextList = DataComponentUtil.getAttunementData(stack).map(attunementData -> {
+        List<String> traitTextList = DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
             List<String> textList = new ArrayList<>();
             if(attunementData.isSoulbound()) {
                 textList.add("Soulbound");

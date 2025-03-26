@@ -97,12 +97,11 @@ public class AttunedItem {
         setAttunementLevel(getAttunementLevel() + 1);
     }
 
-    public static Optional<AttunedItem> buildAttunedItem(Player player, ItemStack stack) {
-        return DataComponentUtil.getAttunementData(stack).map(attunementData -> {
-            ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-            int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
-            String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
-            return new AttunedItem(attunementData.attunementUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
-        });
+    public static AttunedItem buildAttunedItem(Player player, ItemStack stack) {
+        ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
+        int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
+        String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
+        return new AttunedItem(UUID.randomUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
+
     }
 }

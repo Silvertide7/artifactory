@@ -20,7 +20,7 @@ import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
-import net.silvertide.artifactory.util.UniqueStatus;
+import net.silvertide.artifactory.data.UniqueStatus;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;

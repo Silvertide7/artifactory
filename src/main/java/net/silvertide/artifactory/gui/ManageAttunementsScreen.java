@@ -87,7 +87,7 @@ public class ManageAttunementsScreen extends Screen {
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<AttunementDataSource> attunementData = ClientItemAttunementData.getAttunementData(attunedItem.getResourceLocation());
+            Optional<AttunementDataSource> attunementData = ClientItemAttunementData.getSyncedAttunementDataSource(attunedItem.getResourceLocation());
 
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
 
