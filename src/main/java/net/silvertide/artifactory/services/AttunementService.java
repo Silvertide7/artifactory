@@ -4,11 +4,17 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementFlag;
+import net.silvertide.artifactory.component.AttunementOverride;
+import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.*;
+
+import java.util.Optional;
 
 public final class AttunementService {
     private AttunementService() {}
@@ -57,21 +63,40 @@ public final class AttunementService {
 
     public static void clearBrokenAttunements(Player player) {
         for (int i = 0; i < player.getInventory().items.size(); i++) {
-            clearBrokenAttunementIfExists(player.getInventory().items.get(i));
+            checkAndUpdateAttunementComponents(player.getInventory().items.get(i));
         }
     }
 
     // The purpose of this method is to check if the itemstack is attuned to a player
     // but that player is no longer attuned to that item. If so clear the items attunement
     // data, so it can be attuned again. Returns true if a broken attunement was cleaned up.
-    public static void clearBrokenAttunementIfExists(ItemStack stack) {
+    // This method also sets the attunement flag information if it's not set.
+    public static void checkAndUpdateAttunementComponents(ItemStack stack) {
         if(stack.isEmpty()) return;
 
-        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
-            if (attunementData.attunedToUUID() != null
-                    && ArtifactorySavedData.get().getAttunedItem(attunementData.attunedToUUID(), attunementData.attunementUUID()).isEmpty()) {
-                removeUnbreakableIfFromArtifactory(stack, attunementData);
+        boolean hasNoFlagData = DataComponentUtil.getAttunementFlag(stack).isEmpty();
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresentOrElse(playerAttunementData -> {
+            if(hasNoFlagData) {
+                DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0));
+            }
+
+            if (playerAttunementData.attunedToUUID() != null
+                    && ArtifactorySavedData.get()
+                    .getAttunedItem(playerAttunementData.attunedToUUID(), playerAttunementData.attunementUUID())
+                    .isEmpty()) {
+                removeUnbreakableIfFromArtifactory(stack, playerAttunementData);
                 DataComponentUtil.clearPlayerAttunementData(stack);
+            }
+        },
+        () -> {
+            if(hasNoFlagData) {
+                AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {
+                    if(attunementSchema instanceof AttunementDataSource source) {
+                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, source.chance()));
+                    } else if(attunementSchema instanceof AttunementOverride) {
+                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0D));
+                    }
+                });
             }
         });
     }

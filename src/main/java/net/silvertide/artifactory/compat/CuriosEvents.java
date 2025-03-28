@@ -22,7 +22,7 @@ public class CuriosEvents {
 
         if(slotContext.entity() instanceof ServerPlayer serverPlayer) {
             ItemStack stack = event.getStack();
-            AttunementService.clearBrokenAttunementIfExists(stack);
+            AttunementService.checkAndUpdateAttunementComponents(stack);
 
             if(AttunementUtil.isValidAttunementItem(stack)) {
                 //If a player tries to equip an item attuned to another player to ANY slot, deny it.

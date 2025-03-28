@@ -78,7 +78,7 @@ public class ArtifactEvents {
         Player player = itemPickupEvent.getPlayer();
         if(player.level().isClientSide()) return;
         ItemStack stack = itemPickupEvent.getItemEntity().getItem();
-        AttunementService.clearBrokenAttunementIfExists(stack);
+        AttunementService.checkAndUpdateAttunementComponents(stack);
         if(AttunementUtil.isValidAttunementItem(stack)
                 && AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
             itemPickupEvent.setCanPickup(TriState.FALSE);
@@ -104,7 +104,7 @@ public class ArtifactEvents {
 
             for (ItemStack armorStack : armorItems) {
                 if(armorStack.isEmpty()) continue;
-                AttunementService.clearBrokenAttunementIfExists(armorStack);
+                AttunementService.checkAndUpdateAttunementComponents(armorStack);
 
                 AttunementService.applyEffectsToPlayer(player, armorStack, true);
             }
@@ -112,7 +112,7 @@ public class ArtifactEvents {
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack handStack : handItems) {
                 if(handStack.isEmpty()) continue;
-                AttunementService.clearBrokenAttunementIfExists(handStack);
+                AttunementService.checkAndUpdateAttunementComponents(handStack);
 
                 AttunementService.applyEffectsToPlayer(player, handStack, false);
             }

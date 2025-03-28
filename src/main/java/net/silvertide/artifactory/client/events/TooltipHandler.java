@@ -10,16 +10,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.component.AttunementFlag;
-import net.silvertide.artifactory.component.AttunementOverride;
-import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @EventBusSubscriber(modid= Artifactory.MOD_ID, bus=EventBusSubscriber.Bus.GAME, value= Dist.CLIENT)
 public class TooltipHandler {
@@ -29,34 +25,28 @@ public class TooltipHandler {
     @SubscribeEvent
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if(!stack.isEmpty()) {
-            // If a player is attuned to an item then display that information
-            Optional<PlayerAttunementData> playerAttunementData = DataComponentUtil.getPlayerAttunementData(stack);
-            if(playerAttunementData.isPresent()) {
-                Optional<AttunementOverride> attunementSchema = DataComponentUtil.getAttunementOverride(stack);
-
-            } else {
-                Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
-                if(attunementFlag.isEmpty()) {
-                    addUnknownAttunementState(event.getToolTip());
-                } else {
-                    Optional<AttunementOverride> attunementOverride = DataComponentUtil.getAttunementOverride(stack);
-                }
-            }
-        }
+//        if(!stack.isEmpty()) {
+//            // If a player is attuned to an item then display that information
+//            Optional<PlayerAttunementData> playerAttunementData = DataComponentUtil.getPlayerAttunementData(stack);
+//            if(playerAttunementData.isPresent()) {
+//                Optional<AttunementOverride> attunementSchema = DataComponentUtil.getAttunementOverride(stack);
+//
+//            } else {
+//                Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
+//                if(attunementFlag.isEmpty()) {
+//                    addUnknownAttunementState(event.getToolTip());
+//                } else {
+//                    Optional<AttunementOverride> attunementOverride = DataComponentUtil.getAttunementOverride(stack);
+//                }
+//            }
+//        }
 
         if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
-
-            Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
-            if(attunementFlag.isEmpty()) {
-
-            } else {
-                ClientItemAttunementData.getSyncedAttunementDataSource(stack).ifPresent(itemAttunementData -> {
-                    addTraitTooltips(event.getToolTip(), stack);
-                    createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
-                    addUniqueTooltip(event.getToolTip(), itemAttunementData);
-                });
-            }
+            ClientItemAttunementData.getClientAttunementDataSource(stack).ifPresent(itemAttunementData -> {
+                addTraitTooltips(event.getToolTip(), stack);
+                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
+                addUniqueTooltip(event.getToolTip(), itemAttunementData);
+            });
         }
     }
 

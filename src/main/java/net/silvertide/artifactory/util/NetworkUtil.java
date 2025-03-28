@@ -2,6 +2,8 @@ package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.silvertide.artifactory.component.AttunementSchema;
+import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItemModifications;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunementNexusSlotInformation;
@@ -23,7 +25,14 @@ public final class NetworkUtil {
     }
 
     public static void updateAttunedItemModificationDescription(ServerPlayer player, AttunedItem attunedItem) {
-        String description = AttunementDataSourceUtil.getAttunementLevelDescriptions(attunedItem.getResourceLocation(), attunedItem.getAttunementLevel());
+        String description;
+        if(attunedItem.getAttunementOverride() != null) {
+            description = AttunementSchemaUtil.getAttunementLevelDescriptions(attunedItem.getAttunementOverride(), attunedItem.getResourceLocation(), attunedItem.getAttunementLevel());
+        } else {
+            description = AttunementDataSourceUtil.getAttunementDataSource(attunedItem.getResourceLocation())
+                    .map(attunementDataSource -> AttunementSchemaUtil.getAttunementLevelDescriptions(attunementDataSource, attunedItem.getResourceLocation(), attunedItem.getAttunementLevel()))
+                    .orElse("");
+        }
         PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItemModifications(description));
     }
 

@@ -128,7 +128,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
                     DataComponentUtil.removeUnbreakable(stack);
                 }
-                AttunementService.clearBrokenAttunementIfExists(attunementInputSlot.getItem());
+                AttunementService.checkAndUpdateAttunementComponents(attunementInputSlot.getItem());
 
 
                 return isValidAttunementItem;

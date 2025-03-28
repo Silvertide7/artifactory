@@ -4,12 +4,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.data.UniqueStatus;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, String uniqueStatus, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
@@ -50,7 +52,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!AttunementUtil.isValidAttunementItem(stack)) return null;
 
-        return AttunementDataSourceUtil.getAttunementDataSource(stack).map(itemAttunementData -> {
+        return AttunementSchemaUtil.getAttunementSchema(stack).map(attunementSchema -> {
             // Get the level of attunement achieved by the player.
             int levelOfAttunementAchievedByPlayer = AttunementUtil.getLevelOfAttunementAchievedByPlayer(player, stack);
             int numLevels = AttunementSchemaUtil.getNumAttunementLevels(stack);
@@ -78,7 +80,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
             // If the player isn't attuned to the item we need to first check if its a unique item
             // and the item type has no other attuned owners. If there is then it can't be attuned by
             // the player.
-            if(itemAttunementData.unique() && levelOfAttunementAchievedByPlayer == 0) {
+            if(attunementSchema.unique() && levelOfAttunementAchievedByPlayer == 0) {
                 List<UUID> ownerUUIDs = AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack));
                 if(!ownerUUIDs.isEmpty()) {
                     if(ownerUUIDs.contains(player.getUUID())) {
@@ -98,7 +100,7 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
                     DataComponentUtil.getPlayerAttunementData(stack)
                             .map(attunementData -> attunementData.attunedToName() != null ? attunementData.attunedToName() : "").orElse(""),
                     AttunementUtil.isAttunedToAnotherPlayer(player, stack),
-                    itemAttunementData.attunementSlotsUsed(),
+                    attunementSchema.attunementSlotsUsed(),
                     uniqueStatus,
                     xpConsumed,
                     xpThreshold,

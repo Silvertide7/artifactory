@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.services.PlayerMessenger;
@@ -60,22 +61,22 @@ public final class AttunementUtil {
         return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
-    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, AttunementDataSource attunementData) {
+    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, AttunementSchema attunementSchema) {
         int openSlots = getOpenAttunementSlots(player);
-        int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
-        boolean uniqueRestrictionIsActive = attunementData.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
+        int attunementSlotsRequired = attunementSchema.attunementSlotsUsed();
+        boolean uniqueRestrictionIsActive = attunementSchema.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
         return openSlots >= attunementSlotsRequired && !uniqueRestrictionIsActive;
     }
 
     public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
         if(stack.isEmpty() || !AttunementUtil.isValidAttunementItem(stack)) return false;
-        return AttunementDataSourceUtil.getAttunementDataSource(stack).map(attunementData -> {
+        return AttunementSchemaUtil.getAttunementSchema(stack).map(attunementSchema -> {
             if(isItemAttunedToPlayer(player, stack)) {
                 int levelAchieved = getLevelOfAttunementAchieved(stack);
                 int maxLevel = AttunementSchemaUtil.getNumAttunementLevels(stack);
                 return levelAchieved < maxLevel;
             } else {
-                return isAvailableToAttune(stack) && doesPlayerHaveSlotCapacityToAttuneItem(player, attunementData);
+                return isAvailableToAttune(stack) && doesPlayerHaveSlotCapacityToAttuneItem(player, attunementSchema);
             }
         }).orElse(false);
     }
@@ -87,15 +88,15 @@ public final class AttunementUtil {
 
     public static boolean isUseRestricted(Player player, ItemStack stack) {
         if(!isValidAttunementItem(stack)) return false;
-        return AttunementDataSourceUtil.getAttunementDataSource(stack).map(itemAttunementData -> {
+        return AttunementSchemaUtil.getAttunementSchema(stack).map(attunementSchema -> {
             if(isAttunedToAnotherPlayer(player, stack)) {
-                if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                if(player instanceof ServerPlayer serverPlayer) {
+                    PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.owned_by_another_player");
                 }
                 return true;
-            } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !itemAttunementData.useWithoutAttunement()) {
-                if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+            } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !attunementSchema.useWithoutAttunement()) {
+                if(player instanceof ServerPlayer serverPlayer) {
+                    PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_usable");
                 }
                 return true;
             }
@@ -142,7 +143,7 @@ public final class AttunementUtil {
 
     public static boolean isAvailableToAttune(ItemStack stack) {
         boolean uniqueRestrictionActive = false;
-        if(AttunementDataSourceUtil.isUniqueAttunement(stack)) {
+        if(AttunementSchemaUtil.isUniqueAttunement(stack)) {
             uniqueRestrictionActive = !AttunementUtil.getPlayerUUIDsWithAttunementToItem(ResourceLocationUtil.getResourceLocation(stack)).isEmpty();
         }
         boolean alreadyAttuned = DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> attunementData.attunedToUUID() != null).orElse(false);
@@ -150,7 +151,7 @@ public final class AttunementUtil {
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
-        return !stack.isEmpty() && AttunementDataSourceUtil.getAttunementDataSource(stack).map(attunementData -> attunementData.attunementSlotsUsed() >= 0).orElse(false);
+        return !stack.isEmpty() && AttunementSchemaUtil.getAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
