@@ -17,11 +17,6 @@ public final class AttunementDataSourceUtil {
         if(AttunableItems.DATA_LOADER.getData().isEmpty()) return Optional.empty();
         return Optional.of(AttunableItems.DATA_LOADER.getData());
     }
-
-    public static Optional<AttunementDataSource> getAttunementDataSource(ResourceLocation resourceLocation) {
-        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
-    }
-
     public static Optional<AttunementDataSource> getAttunementDataSource(ItemStack stack) {
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(stackResourceLocation));
@@ -31,15 +26,7 @@ public final class AttunementDataSourceUtil {
         return getAttunementDataSource(ResourceLocation.parse(resourceLocation));
     }
 
-    public static boolean canUseWithoutAttunement(ItemStack stack) {
-        return getAttunementDataSource(stack).map(AttunementDataSource::useWithoutAttunement).orElse(false);
-    }
-
-    public static boolean isUniqueAttunement(ItemStack stack) {
-        return getAttunementDataSource(stack).map(AttunementDataSource::unique).orElse(false);
-    }
-
-    public static boolean isUniqueAttunement(String resourceLocation) {
-        return getAttunementDataSource(resourceLocation).map(AttunementDataSource::unique).orElse(false);
+    private static Optional<AttunementDataSource> getAttunementDataSource(ResourceLocation resourceLocation) {
+        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
     }
 }

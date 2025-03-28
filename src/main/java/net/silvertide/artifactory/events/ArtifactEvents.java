@@ -31,10 +31,10 @@ public class ArtifactEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.isCanceled()) return;
-        if (event.getEntity() instanceof Player player && !player.level().isClientSide()) {
-            List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            List<ItemStack> itemsInHand = List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
             for(ItemStack stack : itemsInHand) {
-                if(sidedIsUseRestricted(player, stack)) {
+                if(AttunementUtil.isUseRestricted(serverPlayer, stack)) {
                     event.setCanceled(true);
                     break;
                 }
@@ -68,21 +68,21 @@ public class ArtifactEvents {
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
         return switch(FMLEnvironment.dist) {
-            case CLIENT -> ClientItemAttunementData.isUseRestricted(player, stack);
+            case CLIENT -> ClientItemAttunementData.isUseRestricted(stack);
             case DEDICATED_SERVER -> AttunementUtil.isUseRestricted(player, stack);
         };
     }
 
     @SubscribeEvent
     public static void onItemPickup(ItemEntityPickupEvent.Pre itemPickupEvent) {
-        Player player = itemPickupEvent.getPlayer();
-        if(player.level().isClientSide()) return;
-        ItemStack stack = itemPickupEvent.getItemEntity().getItem();
-        AttunementService.checkAndUpdateAttunementComponents(stack);
-        if(AttunementUtil.isValidAttunementItem(stack)
-                && AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
-            itemPickupEvent.setCanPickup(TriState.FALSE);
-            //TODO: Set a pickup delay here.
+        if(itemPickupEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
+            ItemStack stack = itemPickupEvent.getItemEntity().getItem();
+            AttunementService.checkAndUpdateAttunementComponents(stack);
+            if(AttunementUtil.isValidAttunementItem(stack)
+                    && AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
+                itemPickupEvent.setCanPickup(TriState.FALSE);
+                //TODO: Set a pickup delay here.
+            }
         }
     }
 
@@ -98,30 +98,30 @@ public class ArtifactEvents {
 
         Player player = playerTickEvent.getEntity();
 
-        if (player instanceof ServerPlayer) {
-            Inventory inv = player.getInventory();
+        if (player instanceof ServerPlayer serverPlayer) {
+            Inventory inv = serverPlayer.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
             for (ItemStack armorStack : armorItems) {
                 if(armorStack.isEmpty()) continue;
                 AttunementService.checkAndUpdateAttunementComponents(armorStack);
 
-                AttunementService.applyEffectsToPlayer(player, armorStack, true);
+                AttunementService.applyEffectsToPlayer(serverPlayer, armorStack, true);
             }
 
-            List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
+            List<ItemStack> handItems= List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
             for(ItemStack handStack : handItems) {
                 if(handStack.isEmpty()) continue;
                 AttunementService.checkAndUpdateAttunementComponents(handStack);
 
-                AttunementService.applyEffectsToPlayer(player, handStack, false);
+                AttunementService.applyEffectsToPlayer(serverPlayer, handStack, false);
             }
         }
     }
 
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent entityJoinLevelEvent) {
-        if(!entityJoinLevelEvent.getLevel().isClientSide() && entityJoinLevelEvent.getEntity() instanceof ItemEntity itemEntity) {
+        if(entityJoinLevelEvent.getEntity() instanceof ItemEntity itemEntity && !entityJoinLevelEvent.getLevel().isClientSide()) {
             ItemStack stack = itemEntity.getItem();
             if(AttunementUtil.isValidAttunementItem(stack) && AttunementUtil.isItemAttunedToAPlayer(stack)) {
                 itemEntity.setUnlimitedLifetime();

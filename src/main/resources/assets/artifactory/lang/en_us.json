@@ -3,7 +3,7 @@
   "container.artifactory.attunement_nexus": "Attunement Nexus",
   "block.artifactory.attunement_nexus": "Attunement Nexus",
 
-  "hovertext.artifactory.attunement_unknown": "Attuned",
+  "hovertext.artifactory.attunement_unknown": "Attunable (?)",
   "hovertext.artifactory.attuned_item": "Attuned",
   "hovertext.artifactory.use_without_attunement": "Attunable",
   "hovertext.artifactory.use_with_attunement": "Attunable (Required)",

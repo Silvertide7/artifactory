@@ -4,9 +4,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.ServerConfigs;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
@@ -28,7 +28,7 @@ public final class AttunementUtil {
         Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
-            numAttunementSlotsUsed += AttunementDataSourceUtil.getAttunementDataSource(attunedItem.getResourceLocation()).map(AttunementDataSource::attunementSlotsUsed).orElse(0);
+            numAttunementSlotsUsed += AttunementSchemaUtil.getAttunementSchema(attunedItem).map(AttunementSchema::attunementSlotsUsed).orElse(0);
         }
         return numAttunementSlotsUsed;
     }
@@ -151,7 +151,9 @@ public final class AttunementUtil {
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
-        return !stack.isEmpty() && AttunementSchemaUtil.getAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
+        if(stack.isEmpty()) return false;
+        boolean attunementFlagSet = DataComponentUtil.getAttunementFlag(stack).map(AttunementFlag::isAttunable).orElse(false);
+        return attunementFlagSet && AttunementSchemaUtil.getAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
@@ -171,8 +173,8 @@ public final class AttunementUtil {
         if(attunedItems.isEmpty()) return 0;
 
         int numUniques = 0;
-        for(AttunedItem item : attunedItems) {
-            if(AttunementDataSourceUtil.isUniqueAttunement(item.getResourceLocation())) {
+        for(AttunedItem attunedItem : attunedItems) {
+            if(AttunementSchemaUtil.isUniqueAttunement(attunedItem)) {
                 numUniques++;
             }
         }

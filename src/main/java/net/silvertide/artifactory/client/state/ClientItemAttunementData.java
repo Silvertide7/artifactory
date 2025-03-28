@@ -1,16 +1,13 @@
 package net.silvertide.artifactory.client.state;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
-import net.silvertide.artifactory.util.AttunementDataSourceUtil;
-import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.services.PlayerMessenger;
-import net.silvertide.artifactory.util.DataComponentUtil;
-import net.silvertide.artifactory.util.ResourceLocationUtil;
+import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -33,42 +30,38 @@ public class ClientItemAttunementData {
         return Optional.empty();
     }
 
-    public static Optional<AttunementDataSource> getClientAttunementDataSource(ResourceLocation resourceLocation) {
+    public static Optional<AttunementSchema> getClientAttunementSchema(AttunedItem attunedItem) {
+        if(attunedItem.getAttunementOverrideOpt().isPresent()) return Optional.of(attunedItem.getAttunementOverrideOpt().get());
+
+        Optional<AttunementDataSource> clientSource = getClientAttunementDataSource(attunedItem.getResourceLocation());
+        if(clientSource.isPresent()) return Optional.of(clientSource.get());
+
+        return Optional.empty();
+    }
+
+    public static boolean isValidAttunementItem(ItemStack stack) {
+        if(stack.isEmpty()) return false;
+        boolean attunementFlagSet = DataComponentUtil.getAttunementFlag(stack).map(AttunementFlag::isAttunable).orElse(false);
+        return attunementFlagSet && getClientAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
+    }
+
+    public static boolean isUseRestricted(ItemStack stack) {
+        return getClientAttunementSchema(stack).filter(AttunementSchema::isValidSchema).map(attunementSchema -> !attunementSchema.useWithoutAttunement()).orElse(false);
+    }
+
+    private static Optional<AttunementDataSource> getClientAttunementDataSource(ResourceLocation resourceLocation) {
         if(itemAttunementData == null) return Optional.empty();
         return Optional.ofNullable(itemAttunementData.get(resourceLocation));
     }
 
-    public static Optional<AttunementDataSource> getClientAttunementDataSource(ItemStack stack) {
+    private static Optional<AttunementDataSource> getClientAttunementDataSource(ItemStack stack) {
         if(itemAttunementData == null) return Optional.empty();
         ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
         return getClientAttunementDataSource(stackResourceLocation);
     }
 
-    public static Optional<AttunementDataSource> getClientAttunementDataSource(String resourceLocation) {
+    private static Optional<AttunementDataSource> getClientAttunementDataSource(String resourceLocation) {
         if(itemAttunementData == null) return Optional.empty();
         return getClientAttunementDataSource(ResourceLocation.parse(resourceLocation));
-    }
-
-    public static boolean isValidAttunementItem(ItemStack stack) {
-        return !stack.isEmpty() && getClientAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
-    }
-
-    public static boolean isUseRestricted(Player player, ItemStack stack) {
-        if(!isValidAttunementItem(stack)) return false;
-        return getClientAttunementDataSource(stack).map(itemAttunementData -> {
-
-            if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
-                if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
-                }
-                return true;
-            } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !itemAttunementData.useWithoutAttunement()) {
-                if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
-                }
-                return true;
-            }
-            return false;
-        }).orElse(false);
     }
 }

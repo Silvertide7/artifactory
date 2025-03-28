@@ -31,7 +31,7 @@ public class CuriosEvents {
                     event.setEquipResult(TriState.FALSE);
                 }
                 // If a player tries to equip an item they are not attuned to and that item must be attuned to use to ANY slot, deny it.
-                else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !AttunementDataSourceUtil.canUseWithoutAttunement(stack)) {
+                else if (!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack) && !AttunementSchemaUtil.canUseWithoutAttunement(stack)) {
                     PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                     event.setEquipResult(TriState.FALSE);
                 }

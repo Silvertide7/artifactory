@@ -31,10 +31,6 @@ public final class DataComponentUtil {
         return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_OVERRIDE));
     }
 
-    public static void setAttunementOverride(ItemStack stack, AttunementOverride attunementOverride) {
-        stack.set(DataComponentRegistry.ATTUNEMENT_OVERRIDE, attunementOverride);
-    }
-
     // PLAYER ATTUNEMENT DATA METHODS
     public static Optional<PlayerAttunementData> getPlayerAttunementData(ItemStack stack) {
         return Optional.ofNullable(stack.get(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA));

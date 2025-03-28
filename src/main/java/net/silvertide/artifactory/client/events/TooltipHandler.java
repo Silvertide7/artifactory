@@ -10,6 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
@@ -25,44 +26,37 @@ public class TooltipHandler {
     @SubscribeEvent
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-//        if(!stack.isEmpty()) {
-//            // If a player is attuned to an item then display that information
-//            Optional<PlayerAttunementData> playerAttunementData = DataComponentUtil.getPlayerAttunementData(stack);
-//            if(playerAttunementData.isPresent()) {
-//                Optional<AttunementOverride> attunementSchema = DataComponentUtil.getAttunementOverride(stack);
-//
-//            } else {
-//                Optional<AttunementFlag> attunementFlag = DataComponentUtil.getAttunementFlag(stack);
-//                if(attunementFlag.isEmpty()) {
-//                    addUnknownAttunementState(event.getToolTip());
-//                } else {
-//                    Optional<AttunementOverride> attunementOverride = DataComponentUtil.getAttunementOverride(stack);
-//                }
-//            }
-//        }
+        if(stack.isEmpty()) return;
 
-        if(!stack.isEmpty() && ClientItemAttunementData.isValidAttunementItem(stack)) {
-            ClientItemAttunementData.getClientAttunementDataSource(stack).ifPresent(itemAttunementData -> {
-                addTraitTooltips(event.getToolTip(), stack);
-                createAttunementHoverComponent(event.getToolTip(), itemAttunementData, stack);
-                addUniqueTooltip(event.getToolTip(), itemAttunementData);
-            });
-        }
+        ClientItemAttunementData.getClientAttunementSchema(stack).ifPresent(attunementSchema -> {
+            if(ClientItemAttunementData.isValidAttunementItem(stack)) {
+                    addTraitTooltips(event.getToolTip(), stack);
+                    createAttunementHoverComponent(event.getToolTip(), attunementSchema, stack);
+                    addUniqueTooltip(event.getToolTip(), attunementSchema);
+            } else {
+                DataComponentUtil.getAttunementFlag(stack).ifPresent(attunementFlag -> {
+                    if(!attunementFlag.discovered()) {
+                        addUnknownAttunementState(event.getToolTip());
+                    }
+                });
+            }
+        });
+
     }
 
     private static void addUnknownAttunementState(List<Component> toolTips) {
         toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown"));
     }
 
-    private static void createAttunementHoverComponent(List<Component> toolTips, AttunementDataSource itemAttunementData, ItemStack stack) {
+    private static void createAttunementHoverComponent(List<Component> toolTips, AttunementSchema attunementSchema, ItemStack stack) {
         MutableComponent toolTip;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             toolTip = createAttunedHoverText(stack);
         } else {
-            toolTip = createUnattunedHoverText(itemAttunementData.useWithoutAttunement());
-            if(itemAttunementData.getAttunementSlotsUsed() > 0) {
-                String tooltipText = " - " + itemAttunementData.getAttunementSlotsUsed() + " slot";
-                if(itemAttunementData.getAttunementSlotsUsed() > 1) tooltipText += "s";
+            toolTip = createUnattunedHoverText(attunementSchema.useWithoutAttunement());
+            if(attunementSchema.attunementSlotsUsed() > 0) {
+                String tooltipText = " - " + attunementSchema.attunementSlotsUsed() + " slot";
+                if(attunementSchema.attunementSlotsUsed() > 1) tooltipText += "s";
                 toolTip.append(Component.literal(tooltipText).withStyle(unAttunedFormatting));
             }
         }
@@ -104,8 +98,8 @@ public class TooltipHandler {
         traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.BLUE)));
     }
 
-    private static void addUniqueTooltip(List<Component> toolTips, AttunementDataSource itemAttunementData) {
-        if(itemAttunementData.unique()) {
+    private static void addUniqueTooltip(List<Component> toolTips, AttunementSchema attunementSchema) {
+        if(attunementSchema.unique()) {
             toolTips.add(Component.translatable("hovertext.artifactory.unique").withStyle(ChatFormatting.GOLD));
         }
     }

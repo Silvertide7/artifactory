@@ -77,7 +77,7 @@ public final class AttunementService {
         boolean hasNoFlagData = DataComponentUtil.getAttunementFlag(stack).isEmpty();
         DataComponentUtil.getPlayerAttunementData(stack).ifPresentOrElse(playerAttunementData -> {
             if(hasNoFlagData) {
-                DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0));
+                DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0D));
             }
 
             if (playerAttunementData.attunedToUUID() != null
@@ -92,7 +92,12 @@ public final class AttunementService {
             if(hasNoFlagData) {
                 AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {
                     if(attunementSchema instanceof AttunementDataSource source) {
-                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, source.chance()));
+                        if(source.chance() == 0.0D) {
+                            DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, true, 0.0D));
+                        } else {
+                            DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.max(Math.min(source.chance(), 1.0D), 0.0D)));
+
+                        }
                     } else if(attunementSchema instanceof AttunementOverride) {
                         DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0D));
                     }
@@ -111,7 +116,7 @@ public final class AttunementService {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
-            } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementDataSourceUtil.canUseWithoutAttunement(stack)) {
+            } else if (wearable && !AttunementUtil.isItemAttunedToPlayer(player, stack) && !AttunementSchemaUtil.canUseWithoutAttunement(stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.WEAR_EFFECTS_WHEN_USE_RESTRICTED.get());
             }
         }

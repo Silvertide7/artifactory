@@ -15,7 +15,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientItemAttunementData;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
+import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
@@ -87,12 +87,13 @@ public class ManageAttunementsScreen extends Screen {
         attunedItems.sort(Comparator.comparingInt(AttunedItem::getOrder));
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
-            Optional<AttunementDataSource> attunementData = ClientItemAttunementData.getClientAttunementDataSource(attunedItem.getResourceLocation());
 
-            attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementData.orElse(null), this));
+            Optional<AttunementSchema> attunementSchema = ClientItemAttunementData.getClientAttunementSchema(attunedItem);
 
-            if(attunementData.isPresent() && attunementData.get().unique()) numUniqueAttunements++;
-            numSlotsUsed += attunementData.map(AttunementDataSource::attunementSlotsUsed).orElse(0);
+            attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementSchema.orElse(null), this));
+
+            if(attunementSchema.isPresent() && attunementSchema.get().unique()) numUniqueAttunements++;
+            numSlotsUsed += attunementSchema.map(AttunementSchema::attunementSlotsUsed).orElse(0);
         }
     }
 
@@ -342,7 +343,7 @@ public class ManageAttunementsScreen extends Screen {
 
         private int index;
         private final AttunedItem attunedItem;
-        private final AttunementDataSource attunementData;
+        private final AttunementSchema attunementSchema;
         private final ItemStack itemToRender;
         private final List<String> modificationDescPerLevel;
         private boolean isDeleteButtonDown = false;
@@ -350,10 +351,10 @@ public class ManageAttunementsScreen extends Screen {
         private boolean isOffScreen = false;
         ManageAttunementsScreen manageScreen;
 
-        private AttunementCard(int index, AttunedItem attunedItem, AttunementDataSource attunementData, ManageAttunementsScreen manageScreen) {
+        private AttunementCard(int index, AttunedItem attunedItem, AttunementSchema attunementSchema, ManageAttunementsScreen manageScreen) {
             this.index = index;
             this.attunedItem = attunedItem;
-            this.attunementData = attunementData;
+            this.attunementSchema = attunementSchema;
             this.manageScreen = manageScreen;
             this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.getResourceLocation());
             this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(this.attunedItem.getResourceLocation());
@@ -385,7 +386,7 @@ public class ManageAttunementsScreen extends Screen {
             renderItemImage(guiGraphics);
             renderDisplayName(guiGraphics, (int) mouseX, (int) mouseY);
 
-            if(attunementData != null) {
+            if(attunementSchema != null) {
                 renderAttunementLevel(guiGraphics);
                 renderSlotsUsed(guiGraphics);
                 renderInformationIcon(guiGraphics, mouseX, mouseY);
@@ -428,15 +429,15 @@ public class ManageAttunementsScreen extends Screen {
         }
 
         private int getItemBorderOffset() {
-            if(attunementData != null) {
-                double progress = (double) attunedItem.getAttunementLevel() / attunementData.attunementLevels().size();
+            if(attunementSchema != null) {
+                double progress = (double) attunedItem.getAttunementLevel() / attunementSchema.attunementLevels().size();
                 if(progress >= 0.0 && progress < 0.33) {
                     return 169;
                 } else if (progress >= 0.33 && progress < 0.65) {
                     return 188;
                 } else if (progress >= 0.66 && progress < 1.00) {
                     return 207;
-                } else if (attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
+                } else if (attunedItem.getAttunementLevel() == attunementSchema.attunementLevels().size()) {
                     return 226;
                 } else {
                     return 169;
@@ -486,15 +487,15 @@ public class ManageAttunementsScreen extends Screen {
         private void renderAttunementLevel(GuiGraphics guiGraphics) {
             MutableComponent attunementLevel = Component.translatable("screen.text.artifactory.manage.attunement_level", this.attunedItem.getAttunementLevel());
 
-            if(this.attunedItem.getAttunementLevel() == attunementData.attunementLevels().size()) {
+            if(this.attunedItem.getAttunementLevel() == attunementSchema.attunementLevels().size()) {
                 attunementLevel.append(Component.translatable("screen.text.artifactory.manage.attunement_level_max"));
             }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, attunementLevel, getAttunementCardX() + 40, getAttunementCardY() + 11, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
         }
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
-            MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementData.getAttunementSlotsUsed());
-                if(attunementData.unique()) {
+            MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementSchema.attunementSlotsUsed());
+                if(attunementSchema.unique()) {
                     slotsUsed.append(Component.translatable("screen.text.artifactory.manage.slots_used_unique"));
                 }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
