@@ -14,9 +14,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -60,15 +61,13 @@ public class ManageAttunementsScreen extends Screen {
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
     private int numSlotsUsed = 0;
-    private final int numUniqueAttunementsAllowed;
     private int numUniqueAttunements;
     private final List<AttunementCard> attunementCards = new ArrayList<>();
     private final LocalPlayer player;
 
-    public ManageAttunementsScreen(int numUniqueAttunementsAllowed) {
+    public ManageAttunementsScreen() {
         super(Component.literal(""));
         this.player = Minecraft.getInstance().player;
-        this.numUniqueAttunementsAllowed = numUniqueAttunementsAllowed;
     }
 
     @Override
@@ -80,7 +79,6 @@ public class ManageAttunementsScreen extends Screen {
     // Need to allow no attunement data
     public void createAttunementCards() {
         numSlotsUsed = 0;
-        numUniqueAttunements = 0;
         attunementCards.clear();
 
         List<AttunedItem> attunedItems = ClientAttunedItems.getAttunedItemsAsList();
@@ -88,11 +86,10 @@ public class ManageAttunementsScreen extends Screen {
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
 
-            Optional<AttunementSchema> attunementSchema = ClientItemAttunementData.getClientAttunementSchema(attunedItem);
+            Optional<AttunementSchema> attunementSchema = AttunementSchemaUtil.getAttunementSchema(attunedItem);
 
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementSchema.orElse(null), this));
 
-            if(attunementSchema.isPresent() && attunementSchema.get().unique()) numUniqueAttunements++;
             numSlotsUsed += attunementSchema.map(AttunementSchema::attunementSlotsUsed).orElse(0);
         }
     }
@@ -124,7 +121,6 @@ public class ManageAttunementsScreen extends Screen {
         renderButtons(guiGraphics, mouseX, mouseY);
         renderSlider(guiGraphics, mouseX, mouseY);
         renderSlotInformation(guiGraphics, mouseX, mouseY);
-        renderUniqueInformation(guiGraphics, mouseX, mouseY);
 
         guiGraphics.pose().popPose();
     }
@@ -198,30 +194,6 @@ public class ManageAttunementsScreen extends Screen {
 
             guiGraphics.renderComponentTooltip(this.font, List.of(Component.translatable("screen.text.artifactory.manage.slots")), mouseX, mouseY);
             guiGraphics.pose().popPose();
-        }
-    }
-
-    private void renderUniqueInformation(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(numUniqueAttunementsAllowed > 0) {
-            int infoPanelX = getScreenLeftPos() + UNIQUE_INFO_X;
-            int infoPanelY = getScreenTopPos() + UNIQUE_INFO_Y;
-
-            guiGraphics.blit(TEXTURE, infoPanelX, infoPanelY, 190, 64, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT);
-            guiGraphics.blit(TEXTURE, infoPanelX + 2, infoPanelY + 11, 190, 90, 11, 1);
-
-            Component numerator = Component.literal(String.valueOf(numUniqueAttunements));
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, numerator, infoPanelX + 8, infoPanelY + 7, 40, 0xFFAA00);
-
-            Component denominator = Component.literal(String.valueOf(numUniqueAttunementsAllowed));
-            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.5F, this.font, denominator, infoPanelX + 8, infoPanelY + 15, 40, 0xFFAA00);
-
-            if(isHovering(UNIQUE_INFO_X, UNIQUE_INFO_Y, SLOT_INFO_WIDTH, SLOT_INFO_HEIGHT, mouseX, mouseY)) {
-                guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(0F, 0F, 500F);
-
-                guiGraphics.renderComponentTooltip(this.font, List.of(Component.translatable("screen.text.artifactory.manage.unique_attunements")), mouseX, mouseY);
-                guiGraphics.pose().popPose();
-            }
         }
     }
 
@@ -495,9 +467,6 @@ public class ManageAttunementsScreen extends Screen {
 
         private void renderSlotsUsed(GuiGraphics guiGraphics) {
             MutableComponent slotsUsed = Component.translatable("screen.text.artifactory.manage.slots_used", this.attunementSchema.attunementSlotsUsed());
-                if(attunementSchema.unique()) {
-                    slotsUsed.append(Component.translatable("screen.text.artifactory.manage.slots_used_unique"));
-                }
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.48F, manageScreen.font, slotsUsed, getAttunementCardX() + 40, getAttunementCardY() + 16, ATTUNEMENT_CARD_WIDTH * 7 / 10, 0xE1E1E1);
         }
 

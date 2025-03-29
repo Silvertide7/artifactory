@@ -40,7 +40,7 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementRequirements;
-import net.silvertide.artifactory.storage.ItemRequirements;
+import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -181,8 +181,15 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     private Map<ResourceLocation, AttunementDataSource> sanitizeItemRequirements(Map<ResourceLocation, AttunementDataSource> data) {
         Map<ResourceLocation, AttunementDataSource> sanitizedData = new HashMap<>();
         for(Map.Entry<ResourceLocation, AttunementDataSource> entry : data.entrySet()) {
+            AttunementDataSource dataSource = entry.getValue();
+            if(!dataSource.useWithoutAttunement() && dataSource.chance() != 1.0D){
+                dataSource = dataSource.withChance(1.0D);
+                Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - chance is not valid, must have a chance of 1.0D if use_without_attunement is false. Setting to 1.0D.");
+            }
+
+            // Sanitize items in attunement levels
             List<AttunementLevel> sanitizedAttunementLevels = new ArrayList<>();
-            for(AttunementLevel attunementLevel : entry.getValue().attunementLevels()) {
+            for(AttunementLevel attunementLevel : dataSource.attunementLevels()) {
                 List<String> items = attunementLevel.requirements().items();
                 List<String> sanitizedItems = new ArrayList<>();
                 if(!items.isEmpty()) {
@@ -199,7 +206,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                 AttunementRequirements sanitizedAttunementRequirements = attunementLevel.requirements().withItems(sanitizedItems);
                 sanitizedAttunementLevels.add(attunementLevel.withRequirements(sanitizedAttunementRequirements));
             }
-            sanitizedData.put(entry.getKey(), entry.getValue().withAttunementLevels(sanitizedAttunementLevels));
+            sanitizedData.put(entry.getKey(), dataSource.withAttunementLevels(sanitizedAttunementLevels));
         }
         return sanitizedData;
     }

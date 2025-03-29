@@ -7,7 +7,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public record CB_SyncDatapackData(Map<ResourceLocation, AttunementDataSource> da
     }
 
     public static void handle(CB_SyncDatapackData packet, IPayloadContext ctx) {
-        ctx.enqueueWork(() -> ClientItemAttunementData.setAttunementData(packet.dataMap()));
+        ctx.enqueueWork(() -> ClientAttunementDataSource.setClientAttunementDataSource(packet.dataMap()));
     }
 
     @Override

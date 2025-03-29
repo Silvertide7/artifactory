@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement, boolean unique) implements AttunementSchema {
+public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement) implements AttunementSchema {
     public static final Codec<AttunementOverride> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementOverride> STREAM_CODEC;
 
@@ -17,8 +17,7 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                         Codec.INT.fieldOf("slots_used").forGetter(AttunementOverride::attunementSlotsUsed),
                         Codec.list(AttunementLevel.CODEC).fieldOf("attunement_levels").forGetter(AttunementOverride::attunementLevels),
-                        Codec.BOOL.fieldOf("use_without_attunement").forGetter(AttunementOverride::useWithoutAttunement),
-                        Codec.BOOL.fieldOf("unique").forGetter(AttunementOverride::unique))
+                        Codec.BOOL.fieldOf("use_without_attunement").forGetter(AttunementOverride::useWithoutAttunement))
                 .apply(instance, AttunementOverride::new)
         );
 
@@ -34,8 +33,7 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
                 }
 
                 boolean useWithoutAttunement = buf.readBoolean();
-                boolean unique = buf.readBoolean();
-                return new AttunementOverride(attunementSlotsUsed, attunementLevels, useWithoutAttunement, unique);
+                return new AttunementOverride(attunementSlotsUsed, attunementLevels, useWithoutAttunement);
             }
 
             @Override
@@ -48,7 +46,6 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
                 }
 
                 buf.writeBoolean(attunementOverride.useWithoutAttunement());
-                buf.writeBoolean(attunementOverride.unique());
             }
         };
     }

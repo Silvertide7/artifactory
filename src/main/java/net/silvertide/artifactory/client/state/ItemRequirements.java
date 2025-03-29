@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.storage;
+package net.silvertide.artifactory.client.state;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;

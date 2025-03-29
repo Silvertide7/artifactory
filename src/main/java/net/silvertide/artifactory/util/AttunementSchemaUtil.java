@@ -67,13 +67,4 @@ public final class AttunementSchemaUtil {
     public static boolean canUseWithoutAttunement(ItemStack stack) {
         return getAttunementSchema(stack).map(AttunementSchema::useWithoutAttunement).orElse(false);
     }
-
-    public static boolean isUniqueAttunement(ItemStack stack) {
-        return getAttunementSchema(stack).map(AttunementSchema::unique).orElse(false);
-    }
-
-    public static boolean isUniqueAttunement(AttunedItem attunedItem) {
-        return getAttunementSchema(attunedItem).map(AttunementSchema::unique).orElse(false);
-    }
-
 }

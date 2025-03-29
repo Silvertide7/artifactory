@@ -17,7 +17,8 @@ import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
 import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
+import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.util.*;
@@ -68,7 +69,7 @@ public class ArtifactEvents {
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
         return switch(FMLEnvironment.dist) {
-            case CLIENT -> ClientItemAttunementData.isUseRestricted(stack);
+            case CLIENT -> ClientAttunementUtil.isUseRestricted(stack);
             case DEDICATED_SERVER -> AttunementUtil.isUseRestricted(player, stack);
         };
     }
@@ -154,7 +155,7 @@ public class ArtifactEvents {
         ItemStack stack = attributeModifierEvent.getItemStack();
 
         boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
-            case CLIENT -> ClientItemAttunementData.isValidAttunementItem(stack);
+            case CLIENT -> ClientAttunementUtil.isValidAttunementItem(stack);
             case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
         };
 

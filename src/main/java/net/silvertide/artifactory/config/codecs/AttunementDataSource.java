@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, boolean unique, boolean replace) implements AttunementSchema {
+public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, boolean replace) implements AttunementSchema {
     public static final Codec<AttunementDataSource> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementDataSource> STREAM_CODEC;
 
@@ -22,7 +22,6 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
                         Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", getDefaultAttunementLevels()).forGetter(AttunementDataSource::attunementLevels),
                         Codec.DOUBLE.optionalFieldOf("chance", 1.0).forGetter(AttunementDataSource::chance),
                         Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(AttunementDataSource::useWithoutAttunement),
-                        Codec.BOOL.optionalFieldOf("unique", false).forGetter(AttunementDataSource::unique),
                         Codec.BOOL.optionalFieldOf("replace", false).forGetter(AttunementDataSource::replace))
                 .apply(instance, AttunementDataSource::new)
         );
@@ -40,9 +39,8 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
 
                 double chance = buf.readDouble();
                 boolean useWithoutAttunement = buf.readBoolean();
-                boolean unique = buf.readBoolean();
                 boolean replace = buf.readBoolean();
-                return new AttunementDataSource(attunementSlotsUsed, attunementLevels, chance, useWithoutAttunement, unique, replace);
+                return new AttunementDataSource(attunementSlotsUsed, attunementLevels, chance, useWithoutAttunement, replace);
             }
 
             @Override
@@ -56,14 +54,17 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
 
                 buf.writeDouble(attunementDataSource.chance());
                 buf.writeBoolean(attunementDataSource.useWithoutAttunement());
-                buf.writeBoolean(attunementDataSource.unique());
                 buf.writeBoolean(attunementDataSource.replace());
             }
         };
     }
 
     public AttunementDataSource withAttunementLevels(List<AttunementLevel> attunementLevels) {
-        return new AttunementDataSource(this.attunementSlotsUsed(), attunementLevels, this.chance(), this.useWithoutAttunement(), this.unique(), this.replace());
+        return new AttunementDataSource(this.attunementSlotsUsed(), attunementLevels, this.chance(), this.useWithoutAttunement(), this.replace());
+    }
+
+    public AttunementDataSource withChance(double chance) {
+        return new AttunementDataSource(this.attunementSlotsUsed(), this.attunementLevels(), chance, this.useWithoutAttunement(), this.replace());
     }
 
     public int getAttunementSlotsUsed() {
@@ -76,7 +77,7 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
     }
 
     public AttunementOverride asAttunementSchema() {
-        return new AttunementOverride(this.attunementSlotsUsed(), this.attunementLevels(), useWithoutAttunement(), unique());
+        return new AttunementOverride(this.attunementSlotsUsed(), this.attunementLevels(), useWithoutAttunement());
     }
 //    public String toString() {
 //        StringBuilder attunementString = new StringBuilder();

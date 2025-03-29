@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.gui;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,8 +13,8 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
-import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
@@ -25,11 +26,13 @@ import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class AttunementMenu extends AbstractContainerMenu {
     public final int MAX_PROGRESS = 120;
     private final ContainerLevelAccess access;
     private final Player player;
-    private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
+    private AttunementNexusSlotInformation attunementNexusSlotInformation = null;
 
     // Data Slot Fields
     protected final SimpleContainerData data;
@@ -72,7 +75,7 @@ public class AttunementMenu extends AbstractContainerMenu {
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
 
-        this.data = new SimpleContainerData(8);
+        this.data = new SimpleContainerData(7);
         this.addDataSlots(this.data);
 
         this.attunementInputSlot = getAttunementInputSlot();
@@ -97,6 +100,10 @@ public class AttunementMenu extends AbstractContainerMenu {
         setItemRequirementThreeState(0);
     }
 
+    public Optional<AttunementNexusSlotInformation> getAttunementNexusSlotInformation() {
+        return Optional.ofNullable(this.attunementNexusSlotInformation);
+    }
+
     // Container Data Getters / Setters
     public int getProgress() { return this.data.get(PROGRESS_INDEX); }
     private void setProgress(int value) { this.data.set(PROGRESS_INDEX, value); }
@@ -119,6 +126,9 @@ public class AttunementMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 if(getIsActive()) return false;
+
+                AttunementService.checkAndUpdateAttunementComponents(stack);
+                AttunementService.discoverAttunementItem(stack);
                 boolean isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
 
                 // Check if the item is unbreakable from artifactory but it is no longer a
@@ -128,8 +138,6 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
                     DataComponentUtil.removeUnbreakable(stack);
                 }
-                AttunementService.checkAndUpdateAttunementComponents(attunementInputSlot.getItem());
-
 
                 return isValidAttunementItem;
             }
@@ -159,14 +167,15 @@ public class AttunementMenu extends AbstractContainerMenu {
         };
     }
 
+    public Optional<ItemStack> getAttunementSlotItemStack() {
+        if(!attunementInputSlot.hasItem()) return Optional.empty();
+        return Optional.of(this.attunementInputSlot.getItem());
+    }
 
     // This method looks at the item in the attunement slot and syncs attunement data
     // from data packs or updates the items NBT if the attunement has been broken
     public void updateAttunementItemDataComponent() {
-        if(attunementInputSlot.hasItem()) {
-            ItemStack attunementItemStack = attunementInputSlot.getItem();
-            ModificationService.applyAttunementModifications(attunementItemStack);
-        }
+        getAttunementSlotItemStack().ifPresent(ModificationService::applyAttunementModifications);
     }
 
     private ItemRequirementSlot getItemRequirementOneSlot() {
@@ -263,8 +272,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             setProgress(0);
             setIsActive(false);
 
-            int numUnique = ServerConfigs.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
-            PacketDistributor.sendToPlayer(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
+            PacketDistributor.sendToPlayer(serverPlayer, new CB_OpenManageAttunementsScreen());
         }
         return super.clickMenuButton(player, pId);
     }
@@ -363,21 +371,19 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     public void updateAttunementState() {
-        if(this.player.level().isClientSide()) return;
-        clearItemDataSlotData();
-        setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(this.player.getUUID()).isEmpty());
-
-        if(!attunementInputContainer.isEmpty()) {
-            ItemStack stack = attunementInputContainer.getItem(0);
-            if(this.player instanceof ServerPlayer serverPlayer) {
-                this.attunementNexusSlotInformation = AttunementNexusSlotInformation.createAttunementNexusSlotInformation(serverPlayer, stack);
-                if(this.attunementNexusSlotInformation != null) {
-                    updateItemSlotRequirements(this.attunementNexusSlotInformation);
-                    NetworkUtil.syncClientAttunementNexusSlotInformation(serverPlayer, this.attunementNexusSlotInformation);
-                }
-            }
+        if(this.player instanceof ServerPlayer serverPlayer) {
+            clearItemDataSlotData();
+            setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID()).isEmpty());
+            getAttunementSlotItemStack().ifPresent(stack -> {
+                this.attunementNexusSlotInformation = AttunementUtil.createAttunementNexusSlotInformation(serverPlayer, stack);
+            });
+            updateAscensionCanStart();
+        } else if (this.player instanceof LocalPlayer localPlayer) {
+            this.attunementNexusSlotInformation = null;
+            getAttunementSlotItemStack().ifPresent(stack -> {
+                this.attunementNexusSlotInformation = ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack);
+            });
         }
-        updateAscensionCanStart();
     }
 
     private void updateAscensionCanStart() {

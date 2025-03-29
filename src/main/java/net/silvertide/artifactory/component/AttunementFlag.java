@@ -31,4 +31,12 @@ public record AttunementFlag(boolean isAttunable, boolean discovered, double cha
             }
         };
     }
+
+    public static AttunementFlag getAttunableFlag() {
+        return new AttunementFlag(true, true, 1.0D);
+    }
+
+    public static AttunementFlag getNonAttunableFlag() {
+        return new AttunementFlag(false, true, 0.0D);
+    }
 }

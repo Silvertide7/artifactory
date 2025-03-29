@@ -32,6 +32,7 @@ public class SystemEvents {
             // Sync attuned items and information to player
             Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
             NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
+            NetworkUtil.syncServerConfigs(serverPlayer);
             ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
         }
     }

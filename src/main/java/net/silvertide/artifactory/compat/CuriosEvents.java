@@ -4,7 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
-import net.silvertide.artifactory.client.state.ClientItemAttunementData;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
+import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
@@ -59,7 +60,7 @@ public class CuriosEvents {
             // Check the artifactory attributes data and apply attribute modifiers
             ItemStack stack = event.getItemStack();
             boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
-                case CLIENT -> ClientItemAttunementData.isValidAttunementItem(stack);
+                case CLIENT -> ClientAttunementUtil.isValidAttunementItem(stack);
                 case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
             };
 

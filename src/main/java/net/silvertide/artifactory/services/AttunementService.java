@@ -93,13 +93,15 @@ public final class AttunementService {
                 AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {
                     if(attunementSchema instanceof AttunementDataSource source) {
                         if(source.chance() == 0.0D) {
-                            DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, true, 0.0D));
+                            DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getNonAttunableFlag());
+                        } else if (source.chance() >= 1.0D) {
+                            DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
                         } else {
                             DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.max(Math.min(source.chance(), 1.0D), 0.0D)));
 
                         }
                     } else if(attunementSchema instanceof AttunementOverride) {
-                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(true, true, 1.0D));
+                        DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
                     }
                 });
             }
@@ -110,6 +112,19 @@ public final class AttunementService {
         if (playerAttunementData.isUnbreakable() && stack.get(DataComponents.UNBREAKABLE) != null) {
             DataComponentUtil.removeUnbreakable(stack);
         }
+    }
+
+    public static void discoverAttunementItem(ItemStack stack) {
+
+        DataComponentUtil.getAttunementFlag(stack).ifPresent(attunementFlag -> {
+            if(!attunementFlag.discovered()) {
+                if(Math.random() <= attunementFlag.chance()) {
+                    DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
+                } else {
+                    DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getNonAttunableFlag());
+                }
+            }
+        });
     }
 
     public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {

@@ -15,19 +15,17 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientAttunementNexusSlotInformation;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
-import net.silvertide.artifactory.data.UniqueStatus;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
-public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> implements ClientAttunementNexusSlotInformation.ClientSlotInformationListener {
+public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
     private static final float TEXT_SCALE = 0.85F;
     private static final int BUTTON_TEXT_COLOR = 0xFFFFFF;
     private static final int ATTUNE_BUTTON_X = 22;
@@ -52,10 +50,10 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
     private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
     private final LocalPlayer player;
+    private AttunementNexusSlotInformation slotInformation = null;
 
-    public AttunementScreen(AttunementMenu pMenu, Inventory playerInventory, Component pTitle) {
-        super(pMenu, playerInventory, pTitle);
-        ClientAttunementNexusSlotInformation.registerListener(this);
+    public AttunementScreen(AttunementMenu attunementMenu, Inventory playerInventory, Component title) {
+        super(attunementMenu, playerInventory, title);
         this.player = Minecraft.getInstance().player;
     }
 
@@ -89,8 +87,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
 
         renderTitle(guiGraphics);
 
-        AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-        if(slotInformation != null && slotInformation.levelAchievedByPlayer() == 0 && !"".equals(slotInformation.attunedToName())) {
+        this.slotInformation = getMenu().getAttunementNexusSlotInformation().orElse(null);
+        if(this.slotInformation != null && this.slotInformation.levelAchievedByPlayer() == 0 && !"".equals(this.slotInformation.attunedToName())) {
             renderAttunedToAnotherPlayerText(guiGraphics, backgroundX, backgroundY, slotInformation);
         } else {
             renderItemRequirementSlots(guiGraphics, mouseX, mouseY);
@@ -153,11 +151,10 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         if(getMenu().hasAttunableItemInSlot()) {
-            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-            if(slotInformation != null) {
-                if(slotInformation.isPlayerAtMaxAttuneLevel()) {
+            if(this.slotInformation != null) {
+                if(this.slotInformation.isPlayerAtMaxAttuneLevel()) {
                     return Component.translatable("screen.button.artifactory.attune.max_attunement_reached");
-                } else if(slotInformation.levelAchievedByPlayer() > 0){
+                } else if(this.slotInformation.levelAchievedByPlayer() > 0){
                     return Component.translatable("screen.button.artifactory.attune.ascend_not_in_progress");
                 } else {
                     return Component.translatable("screen.button.artifactory.attune.attune_not_in_progress");
@@ -192,11 +189,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     }
 
     private void renderAttunementInformation(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY) {
-        AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-        if(slotInformation != null && this.getMenu().hasAttunableItemInSlot()) {
+        if(this.slotInformation != null && this.getMenu().hasAttunableItemInSlot()) {
             renderItemName(guiGraphics, backgroundX, backgroundY, mouseX, mouseY, slotInformation);
             renderCurrentAttunementLevel(guiGraphics, backgroundX, backgroundY, slotInformation);
-            renderUniqueInfo(guiGraphics, backgroundX, backgroundY, slotInformation);
             renderAttunementSlotInfo(guiGraphics, backgroundX, backgroundY, slotInformation);
             renderAttunementSlotRatio(guiGraphics, backgroundX, backgroundY, mouseX, mouseY, slotInformation);
 
@@ -232,14 +227,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.current_level", String.valueOf(slotInformation.levelAchievedByPlayer()));
         }
         GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevel, x + 92, y + 32, 75, 0x9dbef2);
-    }
-
-
-    private void renderUniqueInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if(slotInformation.uniqueStatus() != null && !"".equals(slotInformation.uniqueStatus())) {
-            Component attunementLevelComponent = Component.translatable("screen.text.artifactory.attunement.unique");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, attunementLevelComponent, x + 165, y + 32, 30, 0xFFAA00);
-        }
     }
 
     private void renderAttunementSlotInfo(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
@@ -442,22 +429,12 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         if(getMenu().hasAttunableItemInSlot()) {
             requirementsList = new ArrayList<>();
 
-            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
-            if(slotInformation != null) {
+            if(this.slotInformation != null) {
                 if(slotInformation.attunedByAnotherPlayer()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.attuned_by_another_player", slotInformation.attunedToName()));
                 } else if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
-                } else if(!slotInformation.uniqueStatus().isEmpty()) {
-                    if (UniqueStatus.ALREADY_ATTUNED_BY_THIS_PLAYER.equals(slotInformation.uniqueStatus())) {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.self"));
-                    } else if (UniqueStatus.ATTUNED_BY_ANOTHER_PLAYER.equals(slotInformation.uniqueStatus())) {
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.known", slotInformation.attunedToName()));
-                    } else if(UniqueStatus.REACHED_UNIQUE_CAPACITY.equals(slotInformation.uniqueStatus())){
-                        requirementsList.add(Component.translatable("screen.tooltip.artifactory.unique_owner.reached_unique_limit"));
-                    }
-                }
-                else {
+                } else {
                     if(slotInformation.levelAchievedByPlayer() == 0 && slotInformation.numSlotsUsedByPlayer() + slotInformation.slotsUsed() > AttunementUtil.getMaxAttunementSlots(this.player)) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.not_enough_slots_available"));
 
@@ -481,7 +458,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
     }
 
-    @Override
+    //TODO Link this up
     public void onSlotInformationUpdated(AttunementNexusSlotInformation newSlotInformation) {
         if(newSlotInformation.hasItemRequirement(0)) {
             this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
@@ -595,8 +572,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
     @Override
     public void onClose() {
         super.onClose();
-        ClientAttunementNexusSlotInformation.removeListener(this);
-        ClientAttunementNexusSlotInformation.clearSlotInformation();
+        this.slotInformation = null;
     }
 
     private class ItemRequirementSlotRenderer {
@@ -655,20 +631,18 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
         }
 
         private void updateItemToRender() {
-            AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
             if(slotInformation != null && slotInformation.hasItemRequirement(index)) {
                 try {
-                    this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(index));
+                    this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(slotInformation.getItemRequirement(index));
                     if(!this.itemToRender.isEmpty()) this.itemToRender.setCount(slotInformation.getItemRequirementQuantity(index));
                 } catch (ResourceLocationException exception) {
-                    Artifactory.LOGGER.warn("Artifactory - Attunement Nexus - Couldn't create resource location from item requirement string " + ClientAttunementNexusSlotInformation.getSlotInformation().getItemRequirement(index));
+                    Artifactory.LOGGER.warn("Artifactory - Attunement Nexus - Couldn't create resource location from item requirement string " + slotInformation.getItemRequirement(index));
                 }
             }
         }
 
         private void renderSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
             if(isHoveringItemRequirementSlot(mouseX, mouseY)) {
-                AttunementNexusSlotInformation slotInformation = ClientAttunementNexusSlotInformation.getSlotInformation();
                 if(slotInformation != null) {
                     List<Component> list = Lists.newArrayList();
                     list.add(Component.literal("Requires " + slotInformation.getItemRequirementText(index)));

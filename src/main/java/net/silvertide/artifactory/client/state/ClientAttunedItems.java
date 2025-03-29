@@ -7,12 +7,25 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import java.util.*;
 
 public class ClientAttunedItems {
-    private ClientAttunedItems(){};
+    private ClientAttunedItems() {};
     private static Map<UUID, AttunedItem> myAttunedItems = new HashMap<>();
     private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
         myAttunedItems.put(attunedItem.getItemUUID(), attunedItem);
+    }
+
+    public static Map<UUID, AttunedItem> getMyAttunedItems() {
+        return myAttunedItems;
+    }
+
+    public static Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
+        if(playerUUID == null || attunedItemId == null) return Optional.empty();
+        return Optional.ofNullable(myAttunedItems.get(attunedItemId));
+    }
+
+    public static List<AttunedItem> getAttunedItemsAsList() {
+        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
     }
 
     public static void setModification(String resourceLocation, String description) {
@@ -76,9 +89,5 @@ public class ClientAttunedItems {
 
     public static void removeAttunedItem(UUID itemUUIDToRemove) {
         myAttunedItems.remove(itemUUIDToRemove);
-    }
-
-    public static List<AttunedItem> getAttunedItemsAsList() {
-        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
     }
 }
