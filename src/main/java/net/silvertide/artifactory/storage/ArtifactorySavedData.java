@@ -34,6 +34,7 @@ public class ArtifactorySavedData extends SavedData {
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
     private Map<UUID, String> attunedPlayers = new HashMap<>();
 
+    public ArtifactorySavedData() {}
     public Map<UUID, Map<UUID, AttunedItem>> getAttunedItemsMap() {
         return this.attunedItems;
     }
@@ -78,7 +79,6 @@ public class ArtifactorySavedData extends SavedData {
                 ServerPlayer player = minecraftServer.getPlayerList().getPlayer(playerUUID);
                 if(player != null){
                     PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItem(attunedItem));
-                    NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
                 }
             }
             return true;
@@ -95,7 +95,6 @@ public class ArtifactorySavedData extends SavedData {
         setPlayerName(attunedItem.getItemUUID(), serverPlayer.getDisplayName().toString());
         this.setDirty();
         PacketDistributor.sendToPlayer(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
-        NetworkUtil.updateAttunedItemModificationDescription(serverPlayer, attunedItem);
     }
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
@@ -120,7 +119,6 @@ public class ArtifactorySavedData extends SavedData {
         }
     }
 
-    public ArtifactorySavedData() {}
 
     public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
         attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY)).result().orElse(new HashMap<>()));
