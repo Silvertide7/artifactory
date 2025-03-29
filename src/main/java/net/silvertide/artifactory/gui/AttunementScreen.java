@@ -46,15 +46,18 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
     private boolean attuneButtonDown = false;
     private boolean manageButtonDown = false;
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "textures/gui/gui_attunement_nexus_attune.png");
-    private ItemRequirementSlotRenderer itemRequirementSlotOneRenderer = null;
-    private ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer = null;
-    private ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer = null;
+    private final ItemRequirementSlotRenderer itemRequirementSlotOneRenderer;
+    private final ItemRequirementSlotRenderer itemRequirementSlotTwoRenderer;
+    private final ItemRequirementSlotRenderer itemRequirementSlotThreeRenderer;
     private final LocalPlayer player;
     private AttunementNexusSlotInformation slotInformation = null;
 
     public AttunementScreen(AttunementMenu attunementMenu, Inventory playerInventory, Component title) {
         super(attunementMenu, playerInventory, title);
         this.player = Minecraft.getInstance().player;
+        itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
+        itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
+        itemRequirementSlotThreeRenderer = new ItemRequirementSlotRenderer(2);
     }
 
     @Override
@@ -64,6 +67,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
         this.inventoryLabelX = 10000;
+
     }
 
     @Override
@@ -80,14 +84,13 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        this.slotInformation = getMenu().getAttunementNexusSlotInformation().orElse(null);
+
         int backgroundX = getBackgroundX();
         int backgroundY = getBackgroundY();
-
         guiGraphics.blit(TEXTURE, backgroundX, backgroundY, 0, 0, imageWidth, imageHeight);
-
         renderTitle(guiGraphics);
 
-        this.slotInformation = getMenu().getAttunementNexusSlotInformation().orElse(null);
         if(this.slotInformation != null && this.slotInformation.levelAchievedByPlayer() == 0 && !"".equals(this.slotInformation.attunedToName())) {
             renderAttunedToAnotherPlayerText(guiGraphics, backgroundX, backgroundY, slotInformation);
         } else {
@@ -107,15 +110,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
     }
 
     private void renderItemRequirementSlots(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(this.itemRequirementSlotOneRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
-            this.itemRequirementSlotOneRenderer.render(guiGraphics, mouseX, mouseY);
-        }
-        if(this.itemRequirementSlotTwoRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
-            this.itemRequirementSlotTwoRenderer.render(guiGraphics, mouseX, mouseY);
-        }
-        if(this.itemRequirementSlotThreeRenderer != null && getMenu().getItemRequirementOneState() != ItemRequirementState.NOT_REQUIRED.getValue()) {
-            this.itemRequirementSlotThreeRenderer.render(guiGraphics, mouseX, mouseY);
-        }
+        this.itemRequirementSlotOneRenderer.render(guiGraphics, mouseX, mouseY);
+        this.itemRequirementSlotTwoRenderer.render(guiGraphics, mouseX, mouseY);
+        this.itemRequirementSlotThreeRenderer.render(guiGraphics, mouseX, mouseY);
     }
 
     private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -446,8 +443,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                             requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                         }
                         boolean itemOneSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
-                        boolean itemTwoSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
-                        boolean itemThreeSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemTwoSlotNeedsItems = slotInformation.hasItemRequirement(1) && getMenu().getItemRequirementTwoState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemThreeSlotNeedsItems = slotInformation.hasItemRequirement(2) && getMenu().getItemRequirementThreeState() != ItemRequirementState.FULFILLED.getValue();
 
                         if(itemOneSlotNeedsItems || itemTwoSlotNeedsItems || itemThreeSlotNeedsItems) {
                             requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));
@@ -455,27 +452,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                     }
                 }
             }
-        }
-    }
-
-    //TODO Link this up
-    public void onSlotInformationUpdated(AttunementNexusSlotInformation newSlotInformation) {
-        if(newSlotInformation.hasItemRequirement(0)) {
-            this.itemRequirementSlotOneRenderer = new ItemRequirementSlotRenderer(0);
-        } else {
-            this.itemRequirementSlotOneRenderer = null;
-        }
-
-        if(newSlotInformation.hasItemRequirement(1)) {
-            this.itemRequirementSlotTwoRenderer = new ItemRequirementSlotRenderer(1);
-        } else {
-            this.itemRequirementSlotTwoRenderer = null;
-        }
-
-        if(newSlotInformation.hasItemRequirement(2)) {
-            this.itemRequirementSlotThreeRenderer = new ItemRequirementSlotRenderer(2);
-        } else {
-            this.itemRequirementSlotThreeRenderer = null;
         }
     }
 
@@ -578,34 +554,34 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
     private class ItemRequirementSlotRenderer {
         private final int SLOT_WIDTH = 18;
         private final int SLOT_HEIGHT = 18;
-        ItemStack itemToRender = null;
+        ItemStack itemToRender = ItemStack.EMPTY;
+        int itemRequirementState;
         int index;
         public ItemRequirementSlotRenderer(int index) {
             this.index = index;
+            updateItemRequirementState();
         }
 
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-            int itemRequirementState = getItemRequirementState();
-            if(itemRequirementState != ItemRequirementState.NOT_REQUIRED.getValue()) {
+            updateItemRequirementState();
+            if(this.itemRequirementState != ItemRequirementState.NOT_REQUIRED.getValue()) {
+                updateItemToRender();
+
                 int backgroundX = getBackgroundX();
                 int backgroundY = getBackgroundY();
 
-                // Render background for item
-                guiGraphics.blit(TEXTURE, backgroundX + getItemRequirementSlotOffsetX(index), backgroundY + getItemRequirementSlotOffsetY(index), 177, getBackgroundOffsetY(), SLOT_WIDTH, SLOT_HEIGHT);
-
-                // Render the required item if no item is in the slot
-                if(itemToRender != null && getItemRequirementState() == ItemRequirementState.EMPTY.getValue()) {
-                    renderItem(guiGraphics, backgroundX, backgroundY);
-                } else {
-                    if(itemToRender == null) updateItemToRender();
-                }
-
+                renderBackground(guiGraphics, backgroundX, backgroundY);
+                renderItem(guiGraphics, backgroundX, backgroundY);
                 renderSlotTooltip(guiGraphics, mouseX, mouseY);
             }
         }
 
+        private void renderBackground(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
+            guiGraphics.blit(TEXTURE, backgroundX + getItemRequirementSlotOffsetX(index), backgroundY + getItemRequirementSlotOffsetY(index), 177, getBackgroundOffsetY(), SLOT_WIDTH, SLOT_HEIGHT);
+        }
+
         private int getBackgroundOffsetY() {
-            if(getItemRequirementState() == ItemRequirementState.FULFILLED.getValue()) {
+            if(this.itemRequirementState == ItemRequirementState.FULFILLED.getValue()) {
                 return 123;
             } else {
                 return 104;
@@ -613,31 +589,13 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
 
         private void renderItem(GuiGraphics guiGraphics, int backgroundX, int backgroundY) {
-            int itemX = backgroundX + this.getItemRequirementSlotOffsetX(index) + 1;
-            int itemY = backgroundY + this.getItemRequirementSlotOffsetY(index) + 1;
+            if(this.itemRequirementState == ItemRequirementState.EMPTY.getValue()) {
+                int itemX = backgroundX + this.getItemRequirementSlotOffsetX(index) + 1;
+                int itemY = backgroundY + this.getItemRequirementSlotOffsetY(index) + 1;
 
-            guiGraphics.renderFakeItem(itemToRender, itemX, itemY);
-            guiGraphics.renderItemDecorations(font, itemToRender, itemX, itemY);
-            guiGraphics.fill(RenderType.guiGhostRecipeOverlay(), itemX, itemY, itemX + 16, itemY + 16, 0x80888888);
-        }
-
-        public int getItemRequirementState() {
-            return switch (index) {
-                case 0 -> getMenu().getItemRequirementOneState();
-                case 1 -> getMenu().getItemRequirementTwoState();
-                case 2 -> getMenu().getItemRequirementThreeState();
-                default -> 0;
-            };
-        }
-
-        private void updateItemToRender() {
-            if(slotInformation != null && slotInformation.hasItemRequirement(index)) {
-                try {
-                    this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(slotInformation.getItemRequirement(index));
-                    if(!this.itemToRender.isEmpty()) this.itemToRender.setCount(slotInformation.getItemRequirementQuantity(index));
-                } catch (ResourceLocationException exception) {
-                    Artifactory.LOGGER.warn("Artifactory - Attunement Nexus - Couldn't create resource location from item requirement string " + slotInformation.getItemRequirement(index));
-                }
+                guiGraphics.renderFakeItem(itemToRender, itemX, itemY);
+                guiGraphics.renderItemDecorations(font, itemToRender, itemX, itemY);
+                guiGraphics.fill(RenderType.guiGhostRecipeOverlay(), itemX, itemY, itemX + 16, itemY + 16, 0x80888888);
             }
         }
 
@@ -649,6 +607,27 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                     guiGraphics.renderComponentTooltip(font, list, mouseX, mouseY);
                 }
             }
+        }
+
+        private void updateItemRequirementState() {
+            itemRequirementState = getItemRequirementState();
+        }
+
+        private void updateItemToRender() {
+            if(slotInformation != null) {
+                this.itemToRender = slotInformation.getItemRequirement(index);
+            } else {
+                this.itemToRender = ItemStack.EMPTY;
+            }
+        }
+
+        private int getItemRequirementState() {
+            return switch (index) {
+                case 0 -> getMenu().getItemRequirementOneState();
+                case 1 -> getMenu().getItemRequirementTwoState();
+                case 2 -> getMenu().getItemRequirementThreeState();
+                default -> 0;
+            };
         }
 
         private int getItemRequirementSlotOffsetX(int requirementSlotIndex) {

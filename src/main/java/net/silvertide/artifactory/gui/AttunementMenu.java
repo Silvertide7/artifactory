@@ -188,7 +188,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -196,7 +196,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -214,7 +214,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -222,7 +222,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -240,7 +240,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -248,7 +248,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -384,6 +384,9 @@ public class AttunementMenu extends AbstractContainerMenu {
                 this.attunementNexusSlotInformation = ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack);
             });
         }
+        if(this.attunementNexusSlotInformation != null) {
+            updateItemSlotRequirements();
+        }
     }
 
     private void updateAscensionCanStart() {
@@ -396,25 +399,27 @@ public class AttunementMenu extends AbstractContainerMenu {
         setCanAscensionStart(ascensionCanStart);
     }
 
-    private void updateItemSlotRequirements(AttunementNexusSlotInformation attunementNexusSlotInformation) {
-        if(attunementNexusSlotInformation.hasItemRequirement(0)) {
-            this.itemRequirementOneSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(0), attunementNexusSlotInformation.getItemRequirementQuantity(0));
-        } else {
-            this.itemRequirementOneSlot.clearItemRequired();
-        }
+    private void updateItemSlotRequirements() {
+        if(attunementNexusSlotInformation != null) {
+            if(attunementNexusSlotInformation.hasItemRequirement(0)) {
+                this.itemRequirementOneSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(0));
+            } else {
+                this.itemRequirementOneSlot.clearItemRequired();
+            }
 
-        if(attunementNexusSlotInformation.hasItemRequirement(1)) {
-            this.itemRequirementTwoSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(1), attunementNexusSlotInformation.getItemRequirementQuantity(1));
-        } else {
-            this.itemRequirementTwoSlot.clearItemRequired();
-        }
+            if(attunementNexusSlotInformation.hasItemRequirement(1)) {
+                this.itemRequirementTwoSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(1));
+            } else {
+                this.itemRequirementTwoSlot.clearItemRequired();
+            }
 
-        if(attunementNexusSlotInformation.hasItemRequirement(2)) {
-            this.itemRequirementThreeSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(2), attunementNexusSlotInformation.getItemRequirementQuantity(2));
-        } else {
-            this.itemRequirementThreeSlot.clearItemRequired();
+            if(attunementNexusSlotInformation.hasItemRequirement(2)) {
+                this.itemRequirementThreeSlot.setItemRequired(attunementNexusSlotInformation.getItemRequirement(2));
+            } else {
+                this.itemRequirementThreeSlot.clearItemRequired();
+            }
+            updateItemRequirementDataSlots();
         }
-        updateItemRequirementDataSlots();
     }
 
 

@@ -190,16 +190,15 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
             // Sanitize items in attunement levels
             List<AttunementLevel> sanitizedAttunementLevels = new ArrayList<>();
             for(AttunementLevel attunementLevel : dataSource.attunementLevels()) {
-                List<String> items = attunementLevel.requirements().items();
+                List<String> itemCodes = attunementLevel.requirements().items();
                 List<String> sanitizedItems = new ArrayList<>();
-                if(!items.isEmpty()) {
-                    for(int i = 0; i < items.size(); i++) {
-                        String item = items.get(i);
-                        Pair<String, Integer> parsedRequirements = ItemRequirements.parseItemRequirementInformation(item);
-                        if(parsedRequirements != null) {
-                            sanitizedItems.add(item);
+                if(!itemCodes.isEmpty()) {
+                    for (String itemCode : itemCodes) {
+                        ItemStack stack = ItemRequirements.parseItemStack(itemCode);
+                        if (stack != null && !stack.isEmpty()) {
+                            sanitizedItems.add(itemCode);
                         } else {
-                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + item + " removed.");
+                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + itemCode + " removed.");
                         }
                     }
                 }
