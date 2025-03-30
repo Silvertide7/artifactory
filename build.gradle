@@ -134,7 +134,7 @@ configurations {
 }
 
 dependencies {
-    implementation "curse.maven:curios-${projectid_curios}:${version_curios}"
+    compileOnly "curse.maven:curios-${projectid_curios}:${version_curios}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

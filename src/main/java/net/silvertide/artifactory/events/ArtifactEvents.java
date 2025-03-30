@@ -70,7 +70,7 @@ public class ArtifactEvents {
         if(player instanceof ServerPlayer) {
             return AttunementUtil.isUseRestricted(player, stack);
         } else {
-            return ClientAttunementUtil.isUseRestricted(stack);
+            return ClientAttunementUtil.isUseRestricted(player, stack);
         }
     }
 

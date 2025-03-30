@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.client.state;
 
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
@@ -45,8 +46,14 @@ public final class ClientAttunementUtil {
         return attunementFlagSet && getClientAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
     }
 
-    public static boolean isUseRestricted(ItemStack stack) {
-        return getClientAttunementSchema(stack).filter(AttunementSchema::isValidSchema).map(attunementSchema -> !attunementSchema.useWithoutAttunement()).orElse(false);
+    public static boolean isUseRestricted(Player player, ItemStack stack) {
+        return getClientAttunementSchema(stack)
+                .filter(AttunementSchema::isValidSchema)
+                .map(attunementSchema ->
+                        DataComponentUtil.getPlayerAttunementData(stack)
+                                .map(playerAttunementData -> !player.getUUID().equals(playerAttunementData.attunedToUUID()))
+                        .orElse(!attunementSchema.useWithoutAttunement()))
+                .orElse(false);
     }
     public static int getLevelOfAttunementAchievedByPlayer(LocalPlayer player, ItemStack stack) {
         return DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
