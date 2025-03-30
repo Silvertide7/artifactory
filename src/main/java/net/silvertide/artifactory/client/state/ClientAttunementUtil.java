@@ -81,7 +81,7 @@ public final class ClientAttunementUtil {
         Map<UUID, AttunedItem> attunedItems = ClientAttunedItems.getMyAttunedItems();
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
-            numAttunementSlotsUsed += AttunementSchemaUtil.getAttunementSchema(attunedItem).map(AttunementSchema::attunementSlotsUsed).orElse(0);
+            numAttunementSlotsUsed += ClientAttunementUtil.getClientAttunementSchema(attunedItem).map(AttunementSchema::attunementSlotsUsed).orElse(0);
         }
         return numAttunementSlotsUsed;
     }

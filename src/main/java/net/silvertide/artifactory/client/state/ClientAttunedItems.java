@@ -13,7 +13,7 @@ public class ClientAttunedItems {
     private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
-        String description = AttunementSchemaUtil.getAttunementSchema(attunedItem)
+        String description = ClientAttunementUtil.getClientAttunementSchema(attunedItem)
                     .map(AttunementSchemaUtil::getAttunementLevelDescriptions)
                     .orElse("");
 

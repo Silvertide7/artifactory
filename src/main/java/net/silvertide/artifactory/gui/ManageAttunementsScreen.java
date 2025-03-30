@@ -14,10 +14,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
+import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -51,8 +50,6 @@ public class ManageAttunementsScreen extends Screen {
     // SLOT INFO CONSTANTS
     private static final int SLOT_INFO_X = 6;
     private static final int SLOT_INFO_Y = 22;
-    private static final int UNIQUE_INFO_X = 6;
-    private static final int UNIQUE_INFO_Y = 47;
     private static final int SLOT_INFO_WIDTH = 15;
     private static final int SLOT_INFO_HEIGHT = 23;
 
@@ -61,7 +58,6 @@ public class ManageAttunementsScreen extends Screen {
     private boolean sliderButtonDown = false;
     private float sliderProgress = 0.0F;
     private int numSlotsUsed = 0;
-    private int numUniqueAttunements;
     private final List<AttunementCard> attunementCards = new ArrayList<>();
     private final LocalPlayer player;
 
@@ -86,7 +82,7 @@ public class ManageAttunementsScreen extends Screen {
         for(int i = 0; i < attunedItems.size(); i++) {
             AttunedItem attunedItem = attunedItems.get(i);
 
-            Optional<AttunementSchema> attunementSchema = AttunementSchemaUtil.getAttunementSchema(attunedItem);
+            Optional<AttunementSchema> attunementSchema = ClientAttunementUtil.getClientAttunementSchema(attunedItem);
 
             attunementCards.add(new AttunementCard(i, attunedItems.get(i), attunementSchema.orElse(null), this));
 

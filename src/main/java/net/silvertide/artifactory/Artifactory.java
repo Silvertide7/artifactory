@@ -26,6 +26,10 @@ import java.util.Optional;
 
 // TODO: Test curios with attuned items from other players - remove curios implementation gradle
 // TODO: Test to make sure attuned items are only usable in any way by their wielder
+
+// TODO: Playtest
+// TODO: When breaking a block it shows the block broken then denies it
+
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
