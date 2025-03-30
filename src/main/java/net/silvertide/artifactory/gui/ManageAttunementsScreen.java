@@ -249,6 +249,16 @@ public class ManageAttunementsScreen extends Screen {
         return GUIUtil.isHovering(this.getScreenLeftPos(), this.getScreenTopPos(), pX, pY, pWidth, pHeight, pMouseX, pMouseY);
     }
 
+    public void updateSliderProgress(float newSliderProgressValue) {
+        this.sliderProgress = Mth.clamp(newSliderProgressValue, 0.0F, 1.0F);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        updateSliderProgress(this.sliderProgress - (float) scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if(closeButtonDown && isHoveringCloseButton(mouseX, mouseY)) {
@@ -285,8 +295,7 @@ public class ManageAttunementsScreen extends Screen {
         if (sliderButtonDown &&  this.canScroll()) {
             int i = this.getScreenTopPos() + 24 + (int) (SLIDER_HEIGHT*sliderProgress);
             int j = i + SLIDER_MAX_DISTANCE_Y;
-            this.sliderProgress = ((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F);
-            this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
+            updateSliderProgress(((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F));
             return true;
         } else {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -442,15 +451,21 @@ public class ManageAttunementsScreen extends Screen {
                 guiGraphics.pose().translate(0F, 0F, 700F);
 
                 List<Component> list = Lists.newArrayList();
-                for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
-                    MutableComponent modDesc = Component.literal(this.modificationDescPerLevel.get(i));
-                    if(i < this.attunedItem.getAttunementLevel()) {
-                        modDesc.withStyle(ChatFormatting.GREEN);
-                    } else {
-                        modDesc.withStyle(ChatFormatting.GRAY);
+                if(this.modificationDescPerLevel.isEmpty()) {
+                    list.add(Component.literal("No Enhancements"));
+
+                } else {
+                    for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
+                        MutableComponent modDesc = Component.literal(this.modificationDescPerLevel.get(i));
+                        if(i < this.attunedItem.getAttunementLevel()) {
+                            modDesc.withStyle(ChatFormatting.GREEN);
+                        } else {
+                            modDesc.withStyle(ChatFormatting.GRAY);
+                        }
+                        list.add(modDesc);
                     }
-                    list.add(modDesc);
                 }
+
                 guiGraphics.renderComponentTooltip(this.manageScreen.font, list, (int) mouseX, (int) mouseY);
                 guiGraphics.pose().popPose();
             }

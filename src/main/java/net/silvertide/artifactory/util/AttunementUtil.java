@@ -119,22 +119,12 @@ public final class AttunementUtil {
         }).orElse(false);
     }
 
-    public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
-        return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
-    }
-
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
         if(stack.isEmpty()) return false;
         return DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
             if(attunementData.attunedToUUID() == null) return false;
             return attunementData.attunedToUUID().equals(player.getUUID());
         }).orElse(false);
-    }
-
-    private static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
-        return DataComponentUtil.getPlayerAttunementData(stack).map(attunementData ->
-            ArtifactorySavedData.get().getAttunedItem(player.getUUID(), attunementData.attunementUUID()).isPresent())
-                .orElse(false);
     }
 
     public static boolean doesPlayerHaveAttunedItem(Player player) {
@@ -156,24 +146,6 @@ public final class AttunementUtil {
         return GUIUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
     }
 
-    public static Optional<String> getSavedDataAttunedItemOwnerDisplayName(ItemStack stack) {
-        return DataComponentUtil.getPlayerAttunementData(stack).flatMap(attunementData -> ArtifactorySavedData.get().getPlayerName(attunementData.attunedToUUID()));
-    }
-
-    public static List<UUID> getPlayerUUIDsWithAttunementToItem(ResourceLocation resourceLocation) {
-        List<UUID> results = new ArrayList<>();
-        Map<UUID, Map<UUID, AttunedItem>> allAttunedItems = ArtifactorySavedData.get().getAttunedItemsMap();
-
-        for(Map.Entry<UUID, Map<UUID, AttunedItem>> entry : allAttunedItems.entrySet()) {
-            for(AttunedItem attunedItem : entry.getValue().values()) {
-                if(resourceLocation.toString().equals(attunedItem.getResourceLocation())) {
-                    results.add(entry.getKey());
-                }
-            }
-        }
-        return results;
-    }
-
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {
         if (!isValidAttunementItem(stack)) return null;
 
@@ -192,7 +164,10 @@ public final class AttunementUtil {
 
             // If the player and item are at max level we only need to send a few of the values.
             // If not lets get all of the relevant data
-            if (levelOfAttunementAchievedByPlayer < numLevels) {
+            if(numLevels == 0 && levelOfAttunementAchievedByPlayer == 0) {
+                xpThreshold = ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get();
+                xpConsumed = ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get();
+            } else if (levelOfAttunementAchievedByPlayer < numLevels) {
                 // Get the next levels information.
                 AttunementLevel nextAttunementLevel = AttunementSchemaUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {

@@ -103,7 +103,11 @@ public final class ClientAttunementUtil {
 
             // If the player and item are at max level we only need to send a few of the values.
             // If not lets get all of the relevant data
-            if (levelOfAttunementAchievedByPlayer < numLevels) {
+            if(numLevels == 0 && levelOfAttunementAchievedByPlayer == 0) {
+                xpThreshold = ClientSyncedConfig.getXpAttuneThreshold();
+                xpConsumed = ClientSyncedConfig.getXpAttuneConsumed();
+            }
+            else if (levelOfAttunementAchievedByPlayer < numLevels) {
                 // Get the next levels information.
                 AttunementLevel nextAttunementLevel = AttunementSchemaUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {

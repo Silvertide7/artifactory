@@ -63,10 +63,6 @@ public record AttunementLevel(AttunementRequirements requirements, List<String> 
         return new AttunementLevel(requirements, this.modifications());
     }
 
-    public static AttunementLevel getDefault() {
-        return new AttunementLevel(AttunementRequirements.getDefault(), List.of("unbreakable", "invulnerable", "soulbound"));
-    }
-
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("AttunementLevel: \n" +

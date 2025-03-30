@@ -6,19 +6,14 @@ import net.silvertide.artifactory.client.state.ItemRequirements;
 
 public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
     public boolean isPlayerAtMaxAttuneLevel() {
+        if(numAttunementLevels() == 0) {
+            return levelAchievedByPlayer() >= 1;
+        }
         return levelAchievedByPlayer() >= numAttunementLevels();
     }
 
     public ItemStack getItemRequirement(int index) {
         return itemRequirements.getItemRequired(index);
-    }
-
-    public boolean matchesItemRequirement(int index, ItemStack stack) {
-        ItemStack requiredStack = getItemRequirement(index);
-        if (requiredStack.isEmpty() || stack.isEmpty()) {
-            return requiredStack.isEmpty() && stack.isEmpty();
-        }
-        return requiredStack.is(stack.getItem()) && requiredStack.getCount() == stack.getCount();
     }
 
     public boolean hasItemRequirement(int index) {

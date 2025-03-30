@@ -8,6 +8,6 @@ public interface AttunementSchema {
     boolean useWithoutAttunement();
 
     default boolean isValidSchema() {
-        return attunementSlotsUsed() >= 0 && !attunementLevels().isEmpty();
+        return attunementSlotsUsed() >= 0;
     }
 }

@@ -30,11 +30,13 @@ public final class ModificationService {
                 List<AttunementLevel> attunementLevels = attunementSchema.attunementLevels();
 
                 int levelsToApply = Math.min(levelOfAttunement, attunementLevels.size());
-                attunementLevels.subList(0, levelsToApply).stream()
-                        .flatMap(attunementLevel -> attunementLevel.modifications().stream())
-                        .forEach(modification -> {
-                            applyAttunementModification(stack, modification);
-                        });
+                if(levelsToApply > 0) {
+                    attunementLevels.subList(0, levelsToApply).stream()
+                            .flatMap(attunementLevel -> attunementLevel.modifications().stream())
+                            .forEach(modification -> {
+                                applyAttunementModification(stack, modification);
+                            });
+                }
             });
         }
     }

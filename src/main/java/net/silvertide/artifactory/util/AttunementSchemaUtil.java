@@ -33,14 +33,17 @@ public final class AttunementSchemaUtil {
     }
 
     public static AttunementLevel getAttunementLevel(ItemStack stack, int level) {
-        return getAttunementSchema(stack).map(attunementData -> attunementData.attunementLevels().get(level - 1)).orElse(null);
+        return getAttunementSchema(stack).map(attunementData -> {
+            if(attunementData.attunementLevels().isEmpty()) return null;
+            return attunementData.attunementLevels().get(level - 1);
+        }).orElse(null);
     }
 
     public static int getNumAttunementLevels(ItemStack stack) {
         return getAttunementSchema(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
     }
 
-    public static String getAttunementLevelDescriptions(AttunementSchema attunementSchema, String resourceLocation) {
+    public static String getAttunementLevelDescriptions(AttunementSchema attunementSchema) {
         // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
         StringBuilder stringBuilder = new StringBuilder();
 

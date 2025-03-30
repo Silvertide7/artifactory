@@ -19,7 +19,7 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                         Codec.INT.optionalFieldOf("slots_used", -1).forGetter(AttunementDataSource::attunementSlotsUsed),
-                        Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", getDefaultAttunementLevels()).forGetter(AttunementDataSource::attunementLevels),
+                        Codec.list(AttunementLevel.CODEC).optionalFieldOf("attunement_levels", List.of()).forGetter(AttunementDataSource::attunementLevels),
                         Codec.DOUBLE.optionalFieldOf("chance", 1.0).forGetter(AttunementDataSource::chance),
                         Codec.BOOL.optionalFieldOf("use_without_attunement", true).forGetter(AttunementDataSource::useWithoutAttunement),
                         Codec.BOOL.optionalFieldOf("replace", false).forGetter(AttunementDataSource::replace))
@@ -70,10 +70,6 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
     public int getAttunementSlotsUsed() {
         if(attunementSlotsUsed < 0) return 0;
         return attunementSlotsUsed;
-    }
-
-    private static List<AttunementLevel> getDefaultAttunementLevels() {
-        return List.of(AttunementLevel.getDefault());
     }
 
     public AttunementOverride asAttunementSchema() {

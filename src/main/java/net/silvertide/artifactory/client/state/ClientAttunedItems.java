@@ -14,7 +14,7 @@ public class ClientAttunedItems {
 
     public static void setAttunedItem(AttunedItem attunedItem) {
         String description = AttunementSchemaUtil.getAttunementSchema(attunedItem)
-                    .map(attunementSchema -> AttunementSchemaUtil.getAttunementLevelDescriptions(attunementSchema, attunedItem.getResourceLocation()))
+                    .map(AttunementSchemaUtil::getAttunementLevelDescriptions)
                     .orElse("");
 
         attunedItemModifications.put(attunedItem.getResourceLocation(), description);
@@ -44,6 +44,8 @@ public class ClientAttunedItems {
         // We need to break this apart into usable information by each level.
 
         ArrayList<String> results = new ArrayList<>();
+
+        if("".equals(modificationSerialization)) return results;
         // "1#soulbound,invulnerable~2#unbreakable"
 
         // Break the encoding up by level
