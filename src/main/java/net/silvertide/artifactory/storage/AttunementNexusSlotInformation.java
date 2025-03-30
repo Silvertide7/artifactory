@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.storage;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.client.state.ItemRequirements;
 
@@ -25,9 +26,10 @@ public record AttunementNexusSlotInformation(String itemName, String attunedToNa
         return stack != null && !stack.isEmpty();
     }
 
-    public String getItemRequirementText(int index) {
+    public Component getItemRequirementText(int index) {
         ItemStack stack = getItemRequirement(index);
-        if (stack.isEmpty()) return "";
-        return stack.getCount() + " " + stack.getDisplayName();
+        if (stack.isEmpty()) return Component.empty();
+        return Component.literal("Requires " + stack.getCount() + " ")
+                .append(stack.getHoverName());
     }
 }

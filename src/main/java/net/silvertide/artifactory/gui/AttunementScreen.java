@@ -600,10 +600,10 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
 
         private void renderSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-            if(isHoveringItemRequirementSlot(mouseX, mouseY)) {
+            if(this.itemRequirementState == ItemRequirementState.EMPTY.getValue() && isHoveringItemRequirementSlot(mouseX, mouseY)) {
                 if(slotInformation != null) {
                     List<Component> list = Lists.newArrayList();
-                    list.add(Component.literal("Requires " + slotInformation.getItemRequirementText(index)));
+                    list.add(slotInformation.getItemRequirementText(index));
                     guiGraphics.renderComponentTooltip(font, list, mouseX, mouseY);
                 }
             }

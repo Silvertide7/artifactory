@@ -52,10 +52,4 @@ public class ItemRequirements {
         if(index >= requirements.size()) return ItemStack.EMPTY;
         return requirements.get(index);
     }
-
-    public int getItemQuantity(int index) {
-        if(index >= requirements.size()) return 0;
-        return requirements.get(index).getCount();
-    }
-
 }
