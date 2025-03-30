@@ -21,11 +21,11 @@ public final class ClientAttunementUtil {
     private ClientAttunementUtil() {}
 
     public static Optional<AttunementSchema> getClientAttunementSchema(ItemStack stack) {
-        Optional<AttunementOverride> override = DataComponentUtil.getAttunementOverride(stack);
-        if(override.isPresent()) return Optional.of(override.get());
+        AttunementOverride override = DataComponentUtil.getAttunementOverride(stack);
+        if(override.isValidSchema()) return Optional.of(override);
 
         Optional<AttunementDataSource> clientSource = ClientAttunementDataSource.getClientAttunementDataSource(stack);
-        if(clientSource.isPresent()) return Optional.of(clientSource.get());
+        if(clientSource.isPresent() && clientSource.get().isValidSchema()) return Optional.of(clientSource.get());
 
         return Optional.empty();
     }
@@ -34,7 +34,7 @@ public final class ClientAttunementUtil {
         if(attunedItem.getAttunementOverrideOpt().isPresent()) return Optional.of(attunedItem.getAttunementOverrideOpt().get());
 
         Optional<AttunementDataSource> clientSource = ClientAttunementDataSource.getClientAttunementDataSource(attunedItem.getResourceLocation());
-        if(clientSource.isPresent()) return Optional.of(clientSource.get());
+        if(clientSource.isPresent() && clientSource.get().isValidSchema()) return Optional.of(clientSource.get());
 
         return Optional.empty();
     }

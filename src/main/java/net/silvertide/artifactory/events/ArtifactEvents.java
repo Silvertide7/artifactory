@@ -14,17 +14,12 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
-import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.services.AttunementService;
-import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -36,10 +31,10 @@ public class ArtifactEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.isCanceled()) return;
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            List<ItemStack> itemsInHand = List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
+        if (event.getEntity() instanceof Player player) {
+            List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack stack : itemsInHand) {
-                if(AttunementUtil.isUseRestricted(serverPlayer, stack)) {
+                if(AttunementUtil.isUseRestricted(player, stack)) {
                     event.setCanceled(true);
                     break;
                 }
@@ -54,7 +49,7 @@ public class ArtifactEvents {
 
         ItemStack stack = event.getItemStack();
 
-        if(sidedIsUseRestricted(player, stack)){
+        if(sidedIsUseRestricted(player, stack)) {
             event.setCanceled(true);
         }
     }
@@ -72,17 +67,16 @@ public class ArtifactEvents {
     }
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
-        return switch(FMLEnvironment.dist) {
-            case CLIENT -> ClientAttunementUtil.isUseRestricted(stack);
-            case DEDICATED_SERVER -> AttunementUtil.isUseRestricted(player, stack);
-        };
+        if(player instanceof ServerPlayer) {
+            return AttunementUtil.isUseRestricted(player, stack);
+        } else {
+            return ClientAttunementUtil.isUseRestricted(stack);
+        }
     }
 
     @SubscribeEvent
     public static void onItemPickup(ItemEntityPickupEvent.Pre itemPickupEvent) {
         if(itemPickupEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
-
-
             ItemStack stack = itemPickupEvent.getItemEntity().getItem();
             AttunementService.checkAndUpdateAttunementComponents(stack);
             if(AttunementUtil.isValidAttunementItem(stack)
@@ -93,32 +87,29 @@ public class ArtifactEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void throwItem(ItemTossEvent itemTossEvent) {
-        if(itemTossEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
-            //TODO REMOVE THIS
-            ArtifactorySavedData.get().logAttunedItems(serverPlayer);
-        } else {
-            Artifactory.LOGGER.info("Client Items:");
-            for(AttunedItem attunedItem : ClientAttunedItems.getAttunedItemsAsList()) {
-                Artifactory.LOGGER.info(attunedItem.toString());
-            }
-        }
-    }
+//    @SubscribeEvent
+//    public static void throwItem(ItemTossEvent itemTossEvent) {
+//        if(itemTossEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
+//            ArtifactorySavedData.get().logAttunedItems(serverPlayer);
+//        } else {
+//            Artifactory.LOGGER.info("Client Items:");
+//            for(AttunedItem attunedItem : ClientAttunedItems.getAttunedItemsAsList()) {
+//                Artifactory.LOGGER.info(attunedItem.toString());
+//            }
+//        }
+//    }
 
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
     // was adapted from Project MMO
     // https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
     private static short ticksIgnoredSinceLastProcess = 0;
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Pre playerTickEvent) {
-        ticksIgnoredSinceLastProcess++;
-        if (ticksIgnoredSinceLastProcess < 18) return;
-        ticksIgnoredSinceLastProcess = 0;
+    public static void onPlayerTick(PlayerTickEvent.Post playerTickEvent) {
+        if (playerTickEvent.getEntity() instanceof ServerPlayer serverPlayer) {
+            ticksIgnoredSinceLastProcess++;
+            if (ticksIgnoredSinceLastProcess < 18) return;
+            ticksIgnoredSinceLastProcess = 0;
 
-        Player player = playerTickEvent.getEntity();
-
-        if (player instanceof ServerPlayer serverPlayer) {
             Inventory inv = serverPlayer.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 

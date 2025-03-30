@@ -27,8 +27,13 @@ public final class DataComponentUtil {
     }
 
     // ATTUNEMENT OVERRIDE METHODS
-    public static Optional<AttunementOverride> getAttunementOverride(ItemStack stack) {
-        return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_OVERRIDE));
+    public static AttunementOverride getAttunementOverride(ItemStack stack) {
+        AttunementOverride attunementOverride = stack.get(DataComponentRegistry.ATTUNEMENT_OVERRIDE);
+        if(attunementOverride != null && attunementOverride.isValidSchema()) {
+            return attunementOverride;
+        } else {
+            return AttunementOverride.NULL_ATTUNEMENT_OVERRIDE;
+        }
     }
 
     // PLAYER ATTUNEMENT DATA METHODS

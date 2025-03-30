@@ -34,18 +34,11 @@ public class AttunedItem {
         STREAM_CODEC = new StreamCodec<>() {
             @Override
             public AttunedItem decode(RegistryFriendlyByteBuf buf) {
-                AttunementOverride attunementOverride = AttunementOverride.NULL_ATTUNEMENT_OVERRIDE;
-                if(buf.readBoolean()) {
-                    attunementOverride = AttunementOverride.STREAM_CODEC.decode(buf);
-                }
-                return new AttunedItem(attunementOverride, buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
+                return new AttunedItem(AttunementOverride.STREAM_CODEC.decode(buf), buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
             }
             @Override
             public void encode(RegistryFriendlyByteBuf buf, AttunedItem attunedItem) {
-                Optional<AttunementOverride> attunementOverride = attunedItem.getAttunementOverrideOpt();
-                buf.writeBoolean(attunementOverride.isPresent());
-                attunementOverride.ifPresent(override -> AttunementOverride.STREAM_CODEC.encode(buf, override));
-
+                AttunementOverride.STREAM_CODEC.encode(buf, attunedItem.getAttunementOverride());
                 buf.writeUUID(attunedItem.getItemUUID());
                 buf.writeUtf(attunedItem.getResourceLocation());
                 buf.writeUtf(attunedItem.getDisplayName());
@@ -76,7 +69,7 @@ public class AttunedItem {
     }
 
     public Optional<AttunementOverride> getAttunementOverrideOpt() {
-        if(AttunementOverride.NULL_ATTUNEMENT_OVERRIDE.equals(this.attunementOverride)) return Optional.empty();
+        if(AttunementOverride.NULL_ATTUNEMENT_OVERRIDE.equals(this.attunementOverride) || !this.attunementOverride.isValidSchema()) return Optional.empty();
         return Optional.of(this.attunementOverride);
     }
 
@@ -117,7 +110,7 @@ public class AttunedItem {
         int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
         String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
 
-        AttunementOverride attunementOverride = DataComponentUtil.getAttunementOverride(stack).orElse(null);
+        AttunementOverride attunementOverride = DataComponentUtil.getAttunementOverride(stack);
         return new AttunedItem(attunementOverride, UUID.randomUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
     }
 

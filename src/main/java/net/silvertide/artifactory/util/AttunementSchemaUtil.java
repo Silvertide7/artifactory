@@ -14,11 +14,11 @@ public final class AttunementSchemaUtil {
     private AttunementSchemaUtil() {}
 
     public static Optional<AttunementSchema> getAttunementSchema(ItemStack stack) {
-        Optional<AttunementOverride> override = DataComponentUtil.getAttunementOverride(stack);
-        if(override.isPresent()) return Optional.of(override.get());
+        AttunementOverride override = DataComponentUtil.getAttunementOverride(stack);
+        if(override.isValidSchema()) return Optional.of(override);
 
         Optional<AttunementDataSource> source = AttunementDataSourceUtil.getAttunementDataSource(stack);
-        if(source.isPresent()) return Optional.of(source.get());
+        if(source.isPresent() && source.get().isValidSchema()) return Optional.of(source.get());
 
         return Optional.empty();
     }
@@ -27,7 +27,7 @@ public final class AttunementSchemaUtil {
         if(attunedItem.getAttunementOverrideOpt().isPresent()) return Optional.of(attunedItem.getAttunementOverrideOpt().get());
 
         Optional<AttunementDataSource> source = AttunementDataSourceUtil.getAttunementDataSource(attunedItem.getResourceLocation());
-        if(source.isPresent()) return Optional.of(source.get());
+        if(source.isPresent() && source.get().isValidSchema()) return Optional.of(source.get());
 
         return Optional.empty();
     }
