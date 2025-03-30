@@ -4,7 +4,6 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
-import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 

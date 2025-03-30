@@ -14,8 +14,6 @@ import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.*;
 
-import java.util.Optional;
-
 public final class AttunementService {
     private AttunementService() {}
 

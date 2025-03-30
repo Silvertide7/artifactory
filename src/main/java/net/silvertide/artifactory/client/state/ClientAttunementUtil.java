@@ -86,13 +86,24 @@ public final class ClientAttunementUtil {
         return numAttunementSlotsUsed;
     }
 
+    public static int getNumAttunementLevels(ItemStack stack) {
+        return getClientAttunementSchema(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
+    }
+
+    public static AttunementLevel getAttunementLevel(ItemStack stack, int level) {
+        return getClientAttunementSchema(stack).map(attunementData -> {
+            if(attunementData.attunementLevels().isEmpty()) return null;
+            return attunementData.attunementLevels().get(level - 1);
+        }).orElse(null);
+    }
+
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(LocalPlayer localPlayer, ItemStack stack) {
         if (!ClientAttunementUtil.isValidAttunementItem(stack)) return null;
 
         return ClientAttunementUtil.getClientAttunementSchema(stack).map(attunementSchema -> {
             // Get the level of attunement achieved by the player.
             int levelOfAttunementAchievedByPlayer = ClientAttunementUtil.getLevelOfAttunementAchievedByPlayer(localPlayer, stack);
-            int numLevels = AttunementSchemaUtil.getNumAttunementLevels(stack);
+            int numLevels = getNumAttunementLevels(stack);
 
             // Set default values. These are used if the player has maxed out the attunement to the item.
             int xpThreshold = -1;
@@ -109,7 +120,7 @@ public final class ClientAttunementUtil {
             }
             else if (levelOfAttunementAchievedByPlayer < numLevels) {
                 // Get the next levels information.
-                AttunementLevel nextAttunementLevel = AttunementSchemaUtil.getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
+                AttunementLevel nextAttunementLevel = getAttunementLevel(stack, levelOfAttunementAchievedByPlayer + 1);
                 if (nextAttunementLevel != null) {
                     xpThreshold = nextAttunementLevel.requirements().xpLevelThreshold() >= 0 ? nextAttunementLevel.requirements().xpLevelThreshold() : ClientSyncedConfig.getXpAttuneThreshold();
                     xpConsumed = nextAttunementLevel.requirements().xpLevelsConsumed() >= 0 ? nextAttunementLevel.requirements().xpLevelsConsumed() : ClientSyncedConfig.getXpAttuneConsumed();
