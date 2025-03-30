@@ -40,29 +40,17 @@ public final class AttunementSchemaUtil {
         return getAttunementSchema(stack).map(attunementData -> attunementData.attunementLevels().size()).orElse(0);
     }
 
-//    public static String getAttunementLevelDescriptions(AttunementSchema attunementSchema, String resourceLocation, int currentAttunementLevel) {
-//        // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
-//        StringBuilder stringBuilder = new StringBuilder(resourceLocation + ";");
-//
-//        for(int i = 0; i < attunementSchema.attunementLevels().size(); i++) {
-//            AttunementLevel attunementLevel = attunementSchema.attunementLevels().get(i);
-//            if(shouldSendAttunementLevelInformation(i, currentAttunementLevel)){
-//                stringBuilder.append(i+1).append("#").append(attunementLevel.getModificationsStringList());
-//                if (i != attunementSchema.attunementLevels().size() - 1) stringBuilder.append("~");
-//            }
-//        }
-//        return stringBuilder.toString();
-//    }
-//
-//    private static boolean shouldSendAttunementLevelInformation(int level, int currentAttunementLevel) {
-//        String currentInformationLevel = ServerConfigs.ATTUNEMENT_INFORMATION_EXTENT.get();
-//        if("all".equals(currentInformationLevel)) return true;
-//        else {
-//            if("next".equals(currentInformationLevel)) return level < currentAttunementLevel + 1;
-//            if("current".equals(currentInformationLevel)) return level <= currentAttunementLevel;
-//        }
-//        return false;
-//    }
+    public static String getAttunementLevelDescriptions(AttunementSchema attunementSchema, String resourceLocation) {
+        // "minecraft:diamond_sword;1#soulbound,invulnerable,attack~2#unbreakable"
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(int i = 0; i < attunementSchema.attunementLevels().size(); i++) {
+            AttunementLevel attunementLevel = attunementSchema.attunementLevels().get(i);
+            stringBuilder.append(i+1).append("#").append(attunementLevel.getModificationsStringList());
+            if (i != attunementSchema.attunementLevels().size() - 1) stringBuilder.append("~");
+        }
+        return stringBuilder.toString();
+    }
 
     public static boolean canUseWithoutAttunement(ItemStack stack) {
         return getAttunementSchema(stack).map(AttunementSchema::useWithoutAttunement).orElse(false);

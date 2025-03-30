@@ -3,6 +3,7 @@ package net.silvertide.artifactory.client.state;
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.ModificationFactory;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
 
 import java.util.*;
 
@@ -12,6 +13,11 @@ public class ClientAttunedItems {
     private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
+        String description = AttunementSchemaUtil.getAttunementSchema(attunedItem)
+                    .map(attunementSchema -> AttunementSchemaUtil.getAttunementLevelDescriptions(attunementSchema, attunedItem.getResourceLocation()))
+                    .orElse("");
+
+        attunedItemModifications.put(attunedItem.getResourceLocation(), description);
         myAttunedItems.put(attunedItem.getItemUUID(), attunedItem);
     }
 
@@ -26,10 +32,6 @@ public class ClientAttunedItems {
 
     public static List<AttunedItem> getAttunedItemsAsList() {
         return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
-    }
-
-    public static void setModification(String resourceLocation, String description) {
-        attunedItemModifications.put(resourceLocation, description);
     }
 
     public static List<String> getModifications(String resourceLocation) {

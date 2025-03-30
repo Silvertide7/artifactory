@@ -22,8 +22,9 @@ public class ItemRequirements {
         ItemStack stack = parseItemStack(itemRequirementString);
         if(stack != null && !stack.isEmpty()) {
             this.requirements.add(stack);
+        } else {
+            Artifactory.LOGGER.warn("Artifactory - ItemRequirement not valid, invalid item - " + itemRequirementString);
         }
-        Artifactory.LOGGER.warn("Artifactory - ItemRequirement not valid, invalid item - " + itemRequirementString);
     }
 
     public static ItemStack parseItemStack(String itemRequirementString) {

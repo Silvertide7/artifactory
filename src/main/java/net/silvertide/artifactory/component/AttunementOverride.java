@@ -8,8 +8,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement) implements AttunementSchema {
+    public static final AttunementOverride NULL_ATTUNEMENT_OVERRIDE = new AttunementOverride(-1, List.of(), true);
     public static final Codec<AttunementOverride> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementOverride> STREAM_CODEC;
 
@@ -50,5 +52,19 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
         };
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, boolean withoutAttunement)) {
+            return this.attunementSlotsUsed() == slotsUsed &&
+                    this.useWithoutAttunement() == withoutAttunement &&
+                    this.attunementLevels().equals(levels);
+        }
+        return false;
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.attunementSlotsUsed(), this.attunementLevels(), this.useWithoutAttunement());
+    }
 }

@@ -14,13 +14,17 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.services.AttunementService;
+import net.silvertide.artifactory.storage.ArtifactorySavedData;
+import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.*;
 
 import java.util.List;
@@ -77,12 +81,27 @@ public class ArtifactEvents {
     @SubscribeEvent
     public static void onItemPickup(ItemEntityPickupEvent.Pre itemPickupEvent) {
         if(itemPickupEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
+
+
             ItemStack stack = itemPickupEvent.getItemEntity().getItem();
             AttunementService.checkAndUpdateAttunementComponents(stack);
             if(AttunementUtil.isValidAttunementItem(stack)
                     && AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
                 itemPickupEvent.setCanPickup(TriState.FALSE);
                 //TODO: Set a pickup delay here.
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void throwItem(ItemTossEvent itemTossEvent) {
+        if(itemTossEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
+            //TODO REMOVE THIS
+            ArtifactorySavedData.get().logAttunedItems(serverPlayer);
+        } else {
+            Artifactory.LOGGER.info("Client Items:");
+            for(AttunedItem attunedItem : ClientAttunedItems.getAttunedItemsAsList()) {
+                Artifactory.LOGGER.info(attunedItem.toString());
             }
         }
     }

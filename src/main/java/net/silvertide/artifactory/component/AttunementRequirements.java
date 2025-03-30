@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold, int kills, List<String> items, List<String> feats) {
     public static final Codec<AttunementRequirements> CODEC;
@@ -68,27 +69,45 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
         return new AttunementRequirements(this.xpLevelsConsumed(), this.xpLevelThreshold(), kills(), items, this.feats());
     }
 
-
-//    public String toString() {
-//        StringBuilder result = new StringBuilder("AttunementRequirements: \n" +
-//                "\txpLevelsThreshold : " + xpLevelThreshold() + "\n" +
-//                "\txpLevelsConsumed : " + xpLevelsConsumed() + "\n" +
-//                "\tkills: " + this.kills() + "\n" +
-//                "\titems: {\n");
-//
-//        for(String item : items) {
-//            result.append("\t").append(item).append(" \n");
-//        }
-//
-//        result.append("\tfeats: {");
-//        for(String feat : feats) {
-//            result.append("\t").append(feat).append(" \n");
-//        }
-//
-//        return result.append("}").toString();
-//    }
-
     public static AttunementRequirements getDefault() {
         return new AttunementRequirements(-1, -1, 0, new ArrayList<>(), new ArrayList<>());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("AttunementRequirements: \n" +
+                "\txpLevelsThreshold : " + xpLevelThreshold() + "\n" +
+                "\txpLevelsConsumed : " + xpLevelsConsumed() + "\n" +
+                "\tkills: " + this.kills() + "\n" +
+                "\titems: {\n");
+
+        for(String item : items) {
+            result.append("\t").append(item).append(" \n");
+        }
+
+        result.append("\tfeats: {");
+        for(String feat : feats) {
+            result.append("\t").append(feat).append(" \n");
+        }
+
+        return result.append("}").toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj instanceof AttunementRequirements attunementRequirements) {
+            return this.xpLevelsConsumed() == attunementRequirements.xpLevelsConsumed() &&
+                    this.xpLevelThreshold() == attunementRequirements.xpLevelThreshold() &&
+                    this.kills() == attunementRequirements.kills() &&
+                    this.items().equals(attunementRequirements.items()) &&
+                    this.feats().equals(attunementRequirements.feats());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.xpLevelsConsumed(), this.xpLevelThreshold(), this.kills(), this.items(), this.feats());
     }
 }

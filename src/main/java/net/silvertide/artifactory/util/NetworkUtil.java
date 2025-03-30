@@ -23,20 +23,4 @@ public final class NetworkUtil {
     public static void syncServerConfigs(ServerPlayer serverPlayer) {
         PacketDistributor.sendToPlayer(serverPlayer, new CB_SyncServerConfigs(ServerConfigs.XP_LEVELS_TO_ATTUNE_THRESHOLD.get(), ServerConfigs.XP_LEVELS_TO_ATTUNE_CONSUMED.get()));
     }
-
-//    public static void updateAttunedItemModificationDescription(ServerPlayer player, AttunedItem attunedItem) {
-//        String description;
-//        if(attunedItem.getAttunementOverride() != null) {
-//            description = AttunementSchemaUtil.getAttunementLevelDescriptions(attunedItem.getAttunementOverride(), attunedItem.getResourceLocation(), attunedItem.getAttunementLevel());
-//        } else {
-//            description = AttunementSchemaUtil.getAttunementSchema(attunedItem)
-//                    .map(attunementSchema -> AttunementSchemaUtil.getAttunementLevelDescriptions(attunementSchema, attunedItem.getResourceLocation(), attunedItem.getAttunementLevel()))
-//                    .orElse("");
-//        }
-//        PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItemModifications(description));
-//    }
-
-//    public static void syncClientAttunementNexusSlotInformation(ServerPlayer serverPlayer, AttunementNexusSlotInformation attunementNexusSlotInformation) {
-//        PacketDistributor.sendToPlayer(serverPlayer, new CB_UpdateAttunementNexusSlotInformation(attunementNexusSlotInformation));
-//    }
 }

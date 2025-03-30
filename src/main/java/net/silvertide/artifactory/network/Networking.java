@@ -23,7 +23,6 @@ public class Networking {
                 .playToClient(CB_UpdateAttunedItem.TYPE, CB_UpdateAttunedItem.STREAM_CODEC, CB_UpdateAttunedItem::handle)
                 .playToClient(CB_SyncDatapackData.TYPE, CB_SyncDatapackData.STREAM_CODEC, CB_SyncDatapackData::handle)
                 .playToClient(CB_SyncServerConfigs.TYPE, CB_SyncServerConfigs.STREAM_CODEC, CB_SyncServerConfigs::handle)
-                .playToClient(CB_UpdateAttunedItemModifications.TYPE, CB_UpdateAttunedItemModifications.STREAM_CODEC, CB_UpdateAttunedItemModifications::handle)
                 // SERVER BOUND PACKETS
                 .playToServer(SB_RemoveAttunedItem.TYPE, SB_RemoveAttunedItem.STREAM_CODEC, SB_RemoveAttunedItem::handle)
                 .playToServer(SB_ToggleManageAttunementsScreen.TYPE, SB_ToggleManageAttunementsScreen.STREAM_CODEC, SB_ToggleManageAttunementsScreen::handle);

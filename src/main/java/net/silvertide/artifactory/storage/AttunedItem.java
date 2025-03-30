@@ -18,6 +18,43 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AttunedItem {
+    public static final Codec<AttunedItem> CODEC;
+    public static final StreamCodec<RegistryFriendlyByteBuf, AttunedItem> STREAM_CODEC;
+
+    static {
+        CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                AttunementOverride.CODEC.optionalFieldOf("attunement_override", AttunementOverride.NULL_ATTUNEMENT_OVERRIDE).forGetter(AttunedItem::getAttunementOverride),
+                CodecTypes.UUID_CODEC.fieldOf("item_uuid").forGetter(AttunedItem::getItemUUID),
+                Codec.STRING.fieldOf("resource_location").forGetter(AttunedItem::getResourceLocation),
+                Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::getDisplayName),
+                Codec.INT.fieldOf("attunement_level").forGetter(AttunedItem::getAttunementLevel),
+                Codec.INT.fieldOf("order").forGetter(AttunedItem::getOrder)
+        ).apply(instance, AttunedItem::new));
+
+        STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public AttunedItem decode(RegistryFriendlyByteBuf buf) {
+                AttunementOverride attunementOverride = AttunementOverride.NULL_ATTUNEMENT_OVERRIDE;
+                if(buf.readBoolean()) {
+                    attunementOverride = AttunementOverride.STREAM_CODEC.decode(buf);
+                }
+                return new AttunedItem(attunementOverride, buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
+            }
+            @Override
+            public void encode(RegistryFriendlyByteBuf buf, AttunedItem attunedItem) {
+                Optional<AttunementOverride> attunementOverride = attunedItem.getAttunementOverrideOpt();
+                buf.writeBoolean(attunementOverride.isPresent());
+                attunementOverride.ifPresent(override -> AttunementOverride.STREAM_CODEC.encode(buf, override));
+
+                buf.writeUUID(attunedItem.getItemUUID());
+                buf.writeUtf(attunedItem.getResourceLocation());
+                buf.writeUtf(attunedItem.getDisplayName());
+                buf.writeInt(attunedItem.getAttunementLevel());
+                buf.writeInt(attunedItem.getOrder());
+            }
+        };
+    }
+
     private AttunementOverride attunementOverride;
     private UUID itemUUID;
     private String resourceLocation;
@@ -39,27 +76,16 @@ public class AttunedItem {
     }
 
     public Optional<AttunementOverride> getAttunementOverrideOpt() {
-        return Optional.ofNullable(this.attunementOverride);
-    }
-
-    public void setAttunementOverride(AttunementOverride attunementOverride) {
-        this.attunementOverride = attunementOverride;
+        if(AttunementOverride.NULL_ATTUNEMENT_OVERRIDE.equals(this.attunementOverride)) return Optional.empty();
+        return Optional.of(this.attunementOverride);
     }
 
     public UUID getItemUUID() {
         return itemUUID;
     }
 
-    public void setItemUUID(UUID itemUUID) {
-        this.itemUUID = itemUUID;
-    }
-
     public String getResourceLocation() {
         return resourceLocation;
-    }
-
-    public void setResourceLocation(String resourceLocation) {
-        this.resourceLocation = resourceLocation;
     }
 
     public String getDisplayName() {
@@ -82,44 +108,6 @@ public class AttunedItem {
         return order;
     }
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public static final Codec<AttunedItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AttunementOverride.CODEC.optionalFieldOf("attunement_override", null).forGetter(AttunedItem::getAttunementOverride),
-            CodecTypes.UUID_CODEC.fieldOf("item_uuid").forGetter(AttunedItem::getItemUUID),
-            Codec.STRING.fieldOf("resource_location").forGetter(AttunedItem::getResourceLocation),
-            Codec.STRING.fieldOf("display_name").forGetter(AttunedItem::getDisplayName),
-            Codec.INT.fieldOf("attunement_level").forGetter(AttunedItem::getAttunementLevel),
-            Codec.INT.fieldOf("order").forGetter(AttunedItem::getOrder)
-    ).apply(instance, AttunedItem::new));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, AttunedItem> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public AttunedItem decode(RegistryFriendlyByteBuf buf) {
-            AttunementOverride attunementOverride = null;
-            if(buf.readBoolean()) {
-                attunementOverride = AttunementOverride.STREAM_CODEC.decode(buf);
-            }
-            return new AttunedItem(attunementOverride, buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
-        }
-        @Override
-        public void encode(RegistryFriendlyByteBuf buf, AttunedItem attunedItem) {
-            AttunementOverride attunementOverride = attunedItem.getAttunementOverride();
-            buf.writeBoolean(attunementOverride != null);
-            if(attunementOverride != null) {
-                AttunementOverride.STREAM_CODEC.encode(buf, attunementOverride);
-            }
-
-            buf.writeUUID(attunedItem.getItemUUID());
-            buf.writeUtf(attunedItem.getResourceLocation());
-            buf.writeUtf(attunedItem.getDisplayName());
-            buf.writeInt(attunedItem.getAttunementLevel());
-            buf.writeInt(attunedItem.getOrder());
-        }
-    };
-
     public void incremenetAttunementLevel() {
         setAttunementLevel(getAttunementLevel() + 1);
     }
@@ -131,6 +119,17 @@ public class AttunedItem {
 
         AttunementOverride attunementOverride = DataComponentUtil.getAttunementOverride(stack).orElse(null);
         return new AttunedItem(attunementOverride, UUID.randomUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("attunement override: " + attunementOverride + "\n");
+        stringBuilder.append("itemUUID: " + itemUUID + "\n");
+        stringBuilder.append("resourceLocation: " + resourceLocation + "\n");
+        stringBuilder.append("displayName: " + displayName + "\n");
+        stringBuilder.append("attunementLevel: " + attunementLevel + "\n");
+        stringBuilder.append("order: " + order + "\n");
+        return stringBuilder.toString();
     }
 }

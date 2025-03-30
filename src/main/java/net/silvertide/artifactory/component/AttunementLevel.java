@@ -63,20 +63,36 @@ public record AttunementLevel(AttunementRequirements requirements, List<String> 
         return new AttunementLevel(requirements, this.modifications());
     }
 
-//    public String toString() {
-//        StringBuilder result = new StringBuilder("AttunementLevel: \n" +
-//                " modifications: [");
-//
-//        for (String modification : modifications) {
-//            result.append("\t").append(modification).append("\n");
-//        }
-//
-//        result.append("requirements:").append(requirements);
-//
-//        return result.toString();
-//    }
-
     public static AttunementLevel getDefault() {
         return new AttunementLevel(AttunementRequirements.getDefault(), List.of("unbreakable", "invulnerable", "soulbound"));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("AttunementLevel: \n" +
+                " modifications: [");
+
+        for (String modification : modifications) {
+            result.append("\t").append(modification).append("\n");
+        }
+
+        result.append("requirements:").append(requirements);
+
+        return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj instanceof AttunementLevel attunementLevel) {
+            return this.requirements() == attunementLevel.requirements() &&
+                    this.modifications().equals(attunementLevel.modifications());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.requirements(), this.modifications());
     }
 }
