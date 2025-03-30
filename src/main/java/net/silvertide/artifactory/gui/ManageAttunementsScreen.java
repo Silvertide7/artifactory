@@ -452,7 +452,7 @@ public class ManageAttunementsScreen extends Screen {
 
                 List<Component> list = Lists.newArrayList();
                 if(this.modificationDescPerLevel.isEmpty()) {
-                    list.add(Component.literal("No Enhancements"));
+                    list.add(Component.literal("No enhancements"));
 
                 } else {
                     for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {
