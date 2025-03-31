@@ -4,16 +4,11 @@ import com.mojang.logging.LogUtils;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackLocationInfo;
-import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.repository.BuiltInPackSource;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
@@ -22,12 +17,6 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.setup.CuriosSetup;
 import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.util.Optional;
-
-// TODO: Playtest
-// TODO: Test overrides - So far so good
-// TODO: Implement AddPack from discord
 // Clean up files
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
