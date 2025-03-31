@@ -105,7 +105,6 @@ public final class AttunementService {
     }
 
     public static void discoverAttunementItem(ItemStack stack) {
-
         DataComponentUtil.getAttunementFlag(stack).ifPresent(attunementFlag -> {
             if(!attunementFlag.discovered()) {
                 if(Math.random() <= attunementFlag.chance()) {
