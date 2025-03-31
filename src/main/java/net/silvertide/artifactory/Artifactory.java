@@ -17,7 +17,6 @@ import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.setup.CuriosSetup;
 import org.slf4j.Logger;
 
-// Clean up files
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {
