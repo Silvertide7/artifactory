@@ -21,7 +21,6 @@ public final class ModificationService {
         applyAttunementModifications(stack, AttunementUtil.getLevelOfAttunementAchieved(stack));
     }
 
-    //TODO Might want to refactor this to look at sources only, and also use the data component to check if it has player attunement data, thats equivalent to having a level > 0
     public static void applyAttunementModifications(ItemStack stack, int levelOfAttunement) {
         if(levelOfAttunement > 0) {
             AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {

@@ -82,7 +82,6 @@ public class ArtifactEvents {
             if(AttunementUtil.isValidAttunementItem(stack)
                     && AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
                 itemPickupEvent.setCanPickup(TriState.FALSE);
-                //TODO: Set a pickup delay here.
             }
         }
     }
