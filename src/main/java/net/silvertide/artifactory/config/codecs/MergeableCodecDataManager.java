@@ -30,28 +30,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.storage.ItemRequirements;
+import net.silvertide.artifactory.component.AttunementLevel;
+import net.silvertide.artifactory.component.AttunementRequirements;
+import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import oshi.util.tuples.Pair;
 
 import java.io.Reader;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -150,9 +145,9 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         // If they are not they are removed and warning is logged.
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
         Map<ResourceLocation, AttunementDataSource> filteredData = filterItems(processedData);
-        sanitizeItemRequirements(filteredData);
+        Map<ResourceLocation, AttunementDataSource> sanitizedData = sanitizeItemRequirements(filteredData);
 
-        this.data.putAll(filteredData);
+        this.data.putAll(sanitizedData);
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Complete");
     }
 
@@ -182,25 +177,35 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * in the game. If it can't create an ItemStack of them then it will remove it.
      * @param data - The data to search for item requirements in
      */
-    private void sanitizeItemRequirements(Map<ResourceLocation, AttunementDataSource> data) {
+    private Map<ResourceLocation, AttunementDataSource> sanitizeItemRequirements(Map<ResourceLocation, AttunementDataSource> data) {
+        Map<ResourceLocation, AttunementDataSource> sanitizedData = new HashMap<>();
         for(Map.Entry<ResourceLocation, AttunementDataSource> entry : data.entrySet()) {
-            for(AttunementLevel attunementLevel : entry.getValue().attunementLevels()) {
-                List<String> items = attunementLevel.getRequirements().getItems();
-                List<String> sanitizedItems = new ArrayList<>();
-                if(!items.isEmpty()) {
-                    for(int i = 0; i < items.size(); i++) {
-                        String item = items.get(i);
-                        Pair<String, Integer> parsedRequirements = ItemRequirements.parseItemRequirementInformation(item);
-                        if(parsedRequirements != null) {
-                            sanitizedItems.add(item);
-                        } else {
-                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + item + " removed.");
+            AttunementDataSource dataSource = entry.getValue();
+            if(!dataSource.useWithoutAttunement() && dataSource.chance() != 1.0D){
+                dataSource = dataSource.withChance(1.0D);
+                Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - chance is not valid, must have a chance of 1.0D if use_without_attunement is false. Setting to 1.0D.");
+            }
 
+            // Sanitize items in attunement levels
+            List<AttunementLevel> sanitizedAttunementLevels = new ArrayList<>();
+            for(AttunementLevel attunementLevel : dataSource.attunementLevels()) {
+                List<String> itemCodes = attunementLevel.requirements().items();
+                List<String> sanitizedItems = new ArrayList<>();
+                if(!itemCodes.isEmpty()) {
+                    for (String itemCode : itemCodes) {
+                        ItemStack stack = ItemRequirements.parseItemStack(itemCode);
+                        if (stack != null && !stack.isEmpty()) {
+                            sanitizedItems.add(itemCode);
+                        } else {
+                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + itemCode + " removed.");
                         }
                     }
-                    attunementLevel.getRequirements().setItems(sanitizedItems);
                 }
+                AttunementRequirements sanitizedAttunementRequirements = attunementLevel.requirements().withItems(sanitizedItems);
+                sanitizedAttunementLevels.add(attunementLevel.withRequirements(sanitizedAttunementRequirements));
             }
+            sanitizedData.put(entry.getKey(), dataSource.withAttunementLevels(sanitizedAttunementLevels));
         }
+        return sanitizedData;
     }
 }

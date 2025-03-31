@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.gui.AttunementMenu;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
-import net.silvertide.artifactory.util.AttunementService;
+import net.silvertide.artifactory.services.AttunementService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

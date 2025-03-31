@@ -25,7 +25,7 @@ public final class GUIUtil {
     }
 
     public static void drawScaledString(GuiGraphics guiGraphics, float textScale, Font font, String text, int textX, int textY, int color) {
-        if(text == null || textScale == 0.0F || "".equals(text)) return;
+        if(text == null || textScale == 0.0F || text.isEmpty()) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(textScale, textScale, textScale);
@@ -49,7 +49,7 @@ public final class GUIUtil {
     }
 
     public static void drawScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
-        if("".equals(buttonTextComp.getString())) return;
+        if(buttonTextComp.getString().isEmpty()) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(textScale, textScale, textScale);
@@ -62,7 +62,7 @@ public final class GUIUtil {
     }
 
     public static void drawScaledCenteredWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
-        if("".equals(buttonTextComp.getString())) return;
+        if(buttonTextComp.getString().isEmpty()) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(textScale, textScale, textScale);
@@ -81,7 +81,7 @@ public final class GUIUtil {
 
 
     public static void drawLeftAlignedScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
-        if("".equals(buttonTextComp.getString())) return;
+        if(buttonTextComp.getString().isEmpty()) return;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(textScale, textScale, textScale);
@@ -93,6 +93,11 @@ public final class GUIUtil {
         guiGraphics.drawWordWrap(font, buttonTextComp, scaledTextX, scaledTextY, (int) (lineWidth / textScale), color);
 
         guiGraphics.pose().popPose();
+    }
+
+    public static String convertToPercentage(double percent) {
+        double roundedValue =  Math.round(percent * 100D) / 100D;
+        return roundedValue * 100 +"%";
     }
 
     public static String prettifyName(String resourceLocation) {

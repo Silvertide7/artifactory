@@ -4,7 +4,7 @@
     {
       "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/head"],
       "requirements": {
-        "items": ["minecraft:scute#5"]
+        "items": ["minecraft:turtle_scute#5"]
       }
     },
     {

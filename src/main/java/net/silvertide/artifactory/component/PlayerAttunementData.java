@@ -10,24 +10,24 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String attunedToName, boolean isSoulbound, boolean isInvulnerable, boolean isUnbreakable, List<AttributeModification> attributeModifications) {
-    public static final Codec<AttunementData> CODEC;
-    public static final StreamCodec<RegistryFriendlyByteBuf, AttunementData> STREAM_CODEC;
+public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, String attunedToName, boolean isSoulbound, boolean isInvulnerable, boolean isUnbreakable, List<AttributeModification> attributeModifications) {
+    public static final Codec<PlayerAttunementData> CODEC;
+    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerAttunementData> STREAM_CODEC;
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                CodecTypes.UUID_CODEC.fieldOf("attunement_uuid").forGetter(AttunementData::attunementUUID),
-                CodecTypes.UUID_CODEC.fieldOf("attuned_to_uuid").forGetter(AttunementData::attunedToUUID),
-                Codec.STRING.fieldOf("attuned_to_name").forGetter(AttunementData::attunedToName),
-                Codec.BOOL.fieldOf("is_soulbound").forGetter(AttunementData::isSoulbound),
-                Codec.BOOL.fieldOf("is_invulnerable").forGetter(AttunementData::isInvulnerable),
-                Codec.BOOL.fieldOf("is_unbreakable").forGetter(AttunementData::isUnbreakable),
-                Codec.list(AttributeModification.CODEC).fieldOf("attribute_modifications").forGetter(AttunementData::attributeModifications))
-            .apply(instance, AttunementData::new));
+                CodecTypes.UUID_CODEC.fieldOf("attunement_uuid").forGetter(PlayerAttunementData::attunementUUID),
+                CodecTypes.UUID_CODEC.fieldOf("attuned_to_uuid").forGetter(PlayerAttunementData::attunedToUUID),
+                Codec.STRING.fieldOf("attuned_to_name").forGetter(PlayerAttunementData::attunedToName),
+                Codec.BOOL.fieldOf("is_soulbound").forGetter(PlayerAttunementData::isSoulbound),
+                Codec.BOOL.fieldOf("is_invulnerable").forGetter(PlayerAttunementData::isInvulnerable),
+                Codec.BOOL.fieldOf("is_unbreakable").forGetter(PlayerAttunementData::isUnbreakable),
+                Codec.list(AttributeModification.CODEC).fieldOf("attribute_modifications").forGetter(PlayerAttunementData::attributeModifications))
+            .apply(instance, PlayerAttunementData::new));
 
         STREAM_CODEC = new StreamCodec<>() {
             @Override
-            public @NotNull AttunementData decode(@NotNull RegistryFriendlyByteBuf buf) {
+            public @NotNull PlayerAttunementData decode(@NotNull RegistryFriendlyByteBuf buf) {
                 UUID attunementUUID = buf.readUUID();
                 UUID attunedToUUID = buf.readUUID();
                 String attunedToName = buf.readUtf();
@@ -42,28 +42,28 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                     attributeModifications.add(AttributeModification.STREAM_CODEC.decode(buf));
                 }
 
-                return new AttunementData(attunementUUID, attunedToUUID, attunedToName, isSoulbound, isInvulnerable, isUnbreakable, attributeModifications);
+                return new PlayerAttunementData(attunementUUID, attunedToUUID, attunedToName, isSoulbound, isInvulnerable, isUnbreakable, attributeModifications);
             }
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementData attunementData) {
-                buf.writeUUID(attunementData.attunementUUID());
-                buf.writeUUID(attunementData.attunedToUUID());
-                buf.writeUtf(attunementData.attunedToName());
-                buf.writeBoolean(attunementData.isSoulbound());
-                buf.writeBoolean(attunementData.isInvulnerable());
-                buf.writeBoolean(attunementData.isUnbreakable());
+            public void encode(RegistryFriendlyByteBuf buf, PlayerAttunementData playerAttunementData) {
+                buf.writeUUID(playerAttunementData.attunementUUID());
+                buf.writeUUID(playerAttunementData.attunedToUUID());
+                buf.writeUtf(playerAttunementData.attunedToName());
+                buf.writeBoolean(playerAttunementData.isSoulbound());
+                buf.writeBoolean(playerAttunementData.isInvulnerable());
+                buf.writeBoolean(playerAttunementData.isUnbreakable());
 
-                buf.writeVarInt(attunementData.attributeModifications.size());
-                for(int i = 0; i < attunementData.attributeModifications.size(); i++) {
-                    AttributeModification.STREAM_CODEC.encode(buf, attunementData.attributeModifications().get(i));
+                buf.writeVarInt(playerAttunementData.attributeModifications.size());
+                for(int i = 0; i < playerAttunementData.attributeModifications.size(); i++) {
+                    AttributeModification.STREAM_CODEC.encode(buf, playerAttunementData.attributeModifications().get(i));
                 }
             }
         };
     }
 
     // Builder Methods
-    public AttunementData withAttunedToUUID(UUID attunedToUUID) {
-        return new AttunementData(
+    public PlayerAttunementData withAttunedToUUID(UUID attunedToUUID) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 attunedToUUID,
                 this.attunedToName(),
@@ -73,8 +73,8 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                 this.attributeModifications());
     }
 
-    public AttunementData withAttunedToName(String attunedToName) {
-        return new AttunementData(
+    public PlayerAttunementData withAttunedToName(String attunedToName) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 this.attunedToUUID(),
                 attunedToName,
@@ -84,8 +84,8 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                 this.attributeModifications());
     }
 
-    public AttunementData withIsSoulbound(boolean isSoulbound) {
-        return new AttunementData(
+    public PlayerAttunementData withIsSoulbound(boolean isSoulbound) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 this.attunedToUUID(),
                 this.attunedToName(),
@@ -95,8 +95,8 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                 this.attributeModifications());
     }
 
-    public AttunementData withIsInvulnerable(boolean isInvulnerable) {
-        return new AttunementData(
+    public PlayerAttunementData withIsInvulnerable(boolean isInvulnerable) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 this.attunedToUUID(),
                 this.attunedToName(),
@@ -106,8 +106,8 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                 this.attributeModifications());
     }
 
-    public AttunementData withIsUnbreakable(boolean isUnbreakable) {
-        return new AttunementData(
+    public PlayerAttunementData withIsUnbreakable(boolean isUnbreakable) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 this.attunedToUUID(),
                 this.attunedToName(),
@@ -117,8 +117,8 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
                 this.attributeModifications());
     }
 
-    public AttunementData withAttributeModifications(List<AttributeModification> attributeModifications) {
-        return new AttunementData(
+    public PlayerAttunementData withAttributeModifications(List<AttributeModification> attributeModifications) {
+        return new PlayerAttunementData(
                 this.attunementUUID(),
                 this.attunedToUUID(),
                 this.attunedToName(),
@@ -136,7 +136,7 @@ public record AttunementData(UUID attunementUUID, UUID attunedToUUID, String att
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AttunementData other = (AttunementData) o;
+        PlayerAttunementData other = (PlayerAttunementData) o;
         return isSoulbound() == other.isSoulbound()
                 && isInvulnerable() == other.isInvulnerable()
                 && isUnbreakable() == other.isUnbreakable()

@@ -1,12 +1,9 @@
 package net.silvertide.artifactory.gui;
 
-import net.minecraft.ResourceLocationException;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 public abstract class ItemRequirementSlot extends Slot {
     private ItemStack stackRequired = ItemStack.EMPTY;
@@ -16,19 +13,8 @@ public abstract class ItemRequirementSlot extends Slot {
 
     public abstract boolean isAttunementActive();
 
-    public void setItemRequired(String resourceLocation, int quantity) {
-        if(quantity > 0) {
-            try {
-                Item item = ResourceLocationUtil.getItemFromResourceLocation(resourceLocation);
-                ItemStack stack = new ItemStack(item);
-                stack.setCount(quantity);
-                this.stackRequired = stack;
-            } catch( ResourceLocationException exception){
-                this.stackRequired = ItemStack.EMPTY;
-            }
-        } else {
-            this.stackRequired = ItemStack.EMPTY;
-        }
+    public void setItemRequired(ItemStack stack) {
+        this.stackRequired = stack;
     }
 
     public boolean hasRequiredItems() {

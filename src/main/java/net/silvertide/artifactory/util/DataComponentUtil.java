@@ -5,49 +5,68 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.AttunementFlag;
+import net.silvertide.artifactory.component.AttunementOverride;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.registry.DataComponentRegistry;
+import net.silvertide.artifactory.storage.AttunedItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
-import java.util.UUID;
 
 public final class DataComponentUtil {
     private DataComponentUtil() {}
 
-    // ACCESS METHODS
-    public static Optional<AttunementData> getAttunementData(ItemStack stack) {
-        return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_DATA));
+    // ATTUNEMENT FLAG METHODS
+    public static Optional<AttunementFlag> getAttunementFlag(ItemStack stack) {
+        return Optional.ofNullable(stack.get(DataComponentRegistry.ATTUNEMENT_FLAG));
     }
 
-    public static void setAttunementData(ItemStack stack, AttunementData attunementData) {
-        stack.set(DataComponentRegistry.ATTUNEMENT_DATA, attunementData);
+    public static void setAttunementFlag(ItemStack stack, AttunementFlag attunementFlag) {
+        stack.set(DataComponentRegistry.ATTUNEMENT_FLAG, attunementFlag);
     }
 
-    public static void clearAttunementData(ItemStack stack) {
-        setAttunementData(stack, null);
+    // ATTUNEMENT OVERRIDE METHODS
+    public static AttunementOverride getAttunementOverride(ItemStack stack) {
+        AttunementOverride attunementOverride = stack.get(DataComponentRegistry.ATTUNEMENT_OVERRIDE);
+        if(attunementOverride != null && attunementOverride.isValidSchema()) {
+            return attunementOverride;
+        } else {
+            return AttunementOverride.NULL_ATTUNEMENT_OVERRIDE;
+        }
+    }
+
+    public static void setAttunementOverride(ItemStack stack, AttunementOverride override) {
+        stack.set(DataComponentRegistry.ATTUNEMENT_OVERRIDE, override);
+    }
+
+    // PLAYER ATTUNEMENT DATA METHODS
+    public static Optional<PlayerAttunementData> getPlayerAttunementData(ItemStack stack) {
+        return Optional.ofNullable(stack.get(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA));
+    }
+
+    public static void setPlayerAttunementData(ItemStack stack, PlayerAttunementData playerAttunementData) {
+        stack.set(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA, playerAttunementData);
+    }
+
+    public static void clearPlayerAttunementData(ItemStack stack) {
+        setPlayerAttunementData(stack, null);
     }
 
     // LIFECYCLE METHODS
-    public static void setupAttunementData(ItemStack stack) {
-        setAttunementData(stack,
-                new AttunementData(
-                        UUID.randomUUID(),
-                    null,
-                    null,
-                    false,
-                    false,
-                    false,
-                    new ArrayList<>()
+
+    public static void configurePlayerAttunementData(ServerPlayer player, ItemStack stack, AttunedItem attunedItem) {
+        setPlayerAttunementData(stack,
+                new PlayerAttunementData(
+                        attunedItem.getItemUUID(),
+                        player.getUUID(),
+                        player.getDisplayName().getString(),
+                        false,
+                        false,
+                        false,
+                        new ArrayList<>()
                 )
         );
-    }
-
-    public static void configureAttunementData(ServerPlayer player, ItemStack stack) {
-        getAttunementData(stack).ifPresent(attunementData -> {
-            setAttunementData(stack, attunementData.withAttunedToUUID(player.getUUID()).withAttunedToName(player.getDisplayName().getString()));
-        });
     }
 
     // EXISTING DATACOMPONENT METHODS
@@ -59,8 +78,8 @@ public final class DataComponentUtil {
 
             // Turn on the unbreakable flag because we only hit this code if it wasn't unbreakable
             // before hand. This will remove unbreakable in the future if they break the attunement.
-            getAttunementData(stack).ifPresent(attunementData -> {
-                setAttunementData(stack, attunementData.withIsUnbreakable(true));
+            getPlayerAttunementData(stack).ifPresent(attunementData -> {
+                setPlayerAttunementData(stack, attunementData.withIsUnbreakable(true));
             });
         }
     }

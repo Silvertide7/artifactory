@@ -9,7 +9,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.services.PlayerMessenger;
 
 public class CmdNodeGeneral {
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {

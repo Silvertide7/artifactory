@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.services;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -6,9 +6,6 @@ import net.minecraft.world.entity.player.Player;
 public final class PlayerMessenger {
     private PlayerMessenger() {}
 
-    public static void displayClientMessage(Player player, String message) {
-        player.displayClientMessage(Component.literal(message), true);
-    }
     public static void displayTranslatabelClientMessage(Player player, String translationKey) {
         player.displayClientMessage(Component.translatable(translationKey), true);
     }
@@ -18,9 +15,5 @@ public final class PlayerMessenger {
     }
     public static void sendSystemMessage(Player player, String message) {
         player.sendSystemMessage(Component.literal(message));
-    }
-
-    public static void sendTranslatableSystemMessage(Player player, String translationKey) {
-        player.sendSystemMessage(Component.translatable(translationKey));
     }
 }

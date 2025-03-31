@@ -3,25 +3,36 @@ package net.silvertide.artifactory.client.state;
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.ModificationFactory;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
 
 import java.util.*;
 
 public class ClientAttunedItems {
-    private ClientAttunedItems(){};
+    private ClientAttunedItems() {}
     private static Map<UUID, AttunedItem> myAttunedItems = new HashMap<>();
-    private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
         myAttunedItems.put(attunedItem.getItemUUID(), attunedItem);
     }
 
-    public static void setModification(String resourceLocation, String description) {
-        attunedItemModifications.put(resourceLocation, description);
+    public static Map<UUID, AttunedItem> getMyAttunedItems() {
+        return myAttunedItems;
     }
 
-    public static List<String> getModifications(String resourceLocation) {
-        String modifications = attunedItemModifications.get(resourceLocation);
-        return modifications != null ? getModificationDescriptions(modifications) : new ArrayList<>();
+    public static Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
+        if(playerUUID == null || attunedItemId == null) return Optional.empty();
+        return Optional.ofNullable(myAttunedItems.get(attunedItemId));
+    }
+
+    public static List<AttunedItem> getAttunedItemsAsList() {
+        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
+    }
+
+    public static List<String> getModifications(AttunedItem attunedItem) {
+        String description = ClientAttunementUtil.getClientAttunementSchema(attunedItem)
+                .map(AttunementSchemaUtil::getAttunementLevelDescriptions)
+                .orElse("");
+        return !description.isEmpty() ? getModificationDescriptions(description) : new ArrayList<>();
     }
 
     private static List<String> getModificationDescriptions(String modificationSerialization) {
@@ -29,6 +40,8 @@ public class ClientAttunedItems {
         // We need to break this apart into usable information by each level.
 
         ArrayList<String> results = new ArrayList<>();
+
+        if("".equals(modificationSerialization)) return results;
         // "1#soulbound,invulnerable~2#unbreakable"
 
         // Break the encoding up by level
@@ -71,14 +84,9 @@ public class ClientAttunedItems {
 
     public static void clearAllAttunedItems() {
         myAttunedItems = new HashMap<>();
-        attunedItemModifications = new HashMap<>();
     }
 
     public static void removeAttunedItem(UUID itemUUIDToRemove) {
         myAttunedItems.remove(itemUUIDToRemove);
-    }
-
-    public static List<AttunedItem> getAttunedItemsAsList() {
-        return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
     }
 }

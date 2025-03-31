@@ -1,12 +1,9 @@
 package net.silvertide.artifactory.config.codecs;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
-import net.silvertide.artifactory.modifications.AttributeModification;
 
-import java.util.List;
 import java.util.UUID;
 
 //  This was taken from Project MMO CodecTypes
@@ -24,8 +21,6 @@ public class CodecTypes {
         @Override
         public String toString() { return "uuid";}
     };
-
-    public static final Codec<List<AttributeModification>> ATTRIBUTE_MODIFICATION_CODEC = AttributeModification.CODEC.listOf();
 }
 
 

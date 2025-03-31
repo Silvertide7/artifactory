@@ -11,16 +11,21 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.component.AttunementData;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.network.client_packets.CB_RemoveAttunedItem;
 import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
 
 import java.util.*;
 
 public class ArtifactorySavedData extends SavedData {
+    private static final String ATTUNED_ITEMS_KEY = "attuned_items";
+    private static final String ATTUNED_PLAYERS_KEY = "attuned_players";
+
+    // CODEC
     private static final Codec<Map<UUID, Map<UUID, AttunedItem>>> ATTUNED_ITEMS_CODEC =
             Codec.unboundedMap(CodecTypes.UUID_CODEC,
                     Codec.unboundedMap(CodecTypes.UUID_CODEC, AttunedItem.CODEC)
@@ -32,6 +37,29 @@ public class ArtifactorySavedData extends SavedData {
 
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
     private Map<UUID, String> attunedPlayers = new HashMap<>();
+
+    public ArtifactorySavedData() {}
+    public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
+        attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY)).result().orElse(new HashMap<>()));
+    }
+
+    public static Factory<ArtifactorySavedData> dataFactory() {
+        return new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
+    }
+
+    @Override
+    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
+        nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
+        nbt.put(ATTUNED_PLAYERS_KEY, ATTUNED_PLAYERS_CODEC.encodeStart(NbtOps.INSTANCE, attunedPlayers).result().orElse(new CompoundTag()));
+        return nbt;
+    }
+
+    public static ArtifactorySavedData get() {
+        if (ServerLifecycleHooks.getCurrentServer() != null)
+            return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
+        else
+            return new ArtifactorySavedData();
+    }
 
     public Map<UUID, Map<UUID, AttunedItem>> getAttunedItemsMap() {
         return this.attunedItems;
@@ -49,18 +77,20 @@ public class ArtifactorySavedData extends SavedData {
         return getAttunedItems(playerUUID).size();
     }
 
-    public Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
-        if(playerUUID == null || attunedItemId == null) return Optional.empty();
-
-        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
-        return Optional.ofNullable(playerAttunedItems.get(attunedItemId));
+    public Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {
+        return attunedItems.getOrDefault(playerUUID, new HashMap<>());
     }
 
-    public Optional<AttunedItem> getAttunedItem(AttunementData attunementData) {
-        if(attunementData.attunedToUUID() == null || attunementData.attunementUUID() == null) return Optional.empty();
+    public Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
+        if(playerUUID == null || attunedItemId == null) return Optional.empty();
+        return Optional.ofNullable(getAttunedItems(playerUUID).get(attunedItemId));
+    }
 
-        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(attunementData.attunedToUUID(), new HashMap<>());
-        return Optional.ofNullable(playerAttunedItems.get(attunementData.attunementUUID()));
+    public Optional<AttunedItem> getAttunedItem(PlayerAttunementData playerAttunementData) {
+        if(playerAttunementData.attunedToUUID() == null || playerAttunementData.attunementUUID() == null) return Optional.empty();
+
+        Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerAttunementData.attunedToUUID(), new HashMap<>());
+        return Optional.ofNullable(playerAttunedItems.get(playerAttunementData.attunementUUID()));
     }
 
     // Returns true if the items level was increased successfully, and false if not.
@@ -77,7 +107,6 @@ public class ArtifactorySavedData extends SavedData {
                 ServerPlayer player = minecraftServer.getPlayerList().getPlayer(playerUUID);
                 if(player != null){
                     PacketDistributor.sendToPlayer(player, new CB_UpdateAttunedItem(attunedItem));
-                    NetworkUtil.updateAttunedItemModificationDescription(player, attunedItem);
                 }
             }
             return true;
@@ -85,16 +114,11 @@ public class ArtifactorySavedData extends SavedData {
         return false;
     }
 
-    public Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {
-        return attunedItems.getOrDefault(playerUUID, new HashMap<>());
-    }
-
     public void setAttunedItem(ServerPlayer serverPlayer, AttunedItem attunedItem) {
         attunedItems.computeIfAbsent(serverPlayer.getUUID(), i -> new HashMap<>()).put(attunedItem.getItemUUID(), attunedItem);
         setPlayerName(attunedItem.getItemUUID(), serverPlayer.getDisplayName().toString());
         this.setDirty();
         PacketDistributor.sendToPlayer(serverPlayer, new CB_UpdateAttunedItem(attunedItem));
-        NetworkUtil.updateAttunedItemModificationDescription(serverPlayer, attunedItem);
     }
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
@@ -119,35 +143,8 @@ public class ArtifactorySavedData extends SavedData {
         }
     }
 
-    public ArtifactorySavedData() {}
-
-    public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
-        attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY)).result().orElse(new HashMap<>()));
-    }
-
-    public static Factory<ArtifactorySavedData> dataFactory() {
-        return new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
-    }
-
-    @Override
-    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
-        nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
-        nbt.put(ATTUNED_PLAYERS_KEY, ATTUNED_PLAYERS_CODEC.encodeStart(NbtOps.INSTANCE, attunedPlayers).result().orElse(new CompoundTag()));
-        return nbt;
-    }
-
-    private static final String ATTUNED_ITEMS_KEY = "attuned_items";
-    private static final String ATTUNED_PLAYERS_KEY = "attuned_players";
-
-    public static ArtifactorySavedData get() {
-        if (ServerLifecycleHooks.getCurrentServer() != null)
-            return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
-        else
-            return new ArtifactorySavedData();
-    }
-
     public void updateDisplayName(ItemStack stack) {
-        DataComponentUtil.getAttunementData(stack).ifPresent(attunementData -> {
+        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             this.getAttunedItem(attunementData).ifPresent(attunedItem -> {
                 String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
                 if (!attunedItem.getDisplayName().equals(displayName)) {
@@ -169,6 +166,13 @@ public class ArtifactorySavedData extends SavedData {
         } else {
             setPlayerName(serverPlayer.getUUID(), serverPlayer.getDisplayName().getString());
             this.setDirty();
+        }
+    }
+
+    public void logAttunedItems(ServerPlayer serverPlayer) {
+        Artifactory.LOGGER.info(serverPlayer.getName() + "'s Server Attuned Items:");
+        for(Map.Entry<UUID, AttunedItem> entry : getAttunedItems(serverPlayer.getUUID()).entrySet()) {
+            Artifactory.LOGGER.info(entry.getValue().toString());
         }
     }
 }

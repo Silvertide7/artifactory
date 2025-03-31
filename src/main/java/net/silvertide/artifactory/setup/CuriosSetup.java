@@ -8,7 +8,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.silvertide.artifactory.compat.CuriosEvents;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.PlayerMessenger;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 

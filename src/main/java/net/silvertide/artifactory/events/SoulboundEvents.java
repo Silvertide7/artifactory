@@ -66,9 +66,9 @@ public class SoulboundEvents {
             }
         }
 
-        ItemStack offhandStack = serverPlayer.getInventory().offhand.get(0);
+        ItemStack offhandStack = serverPlayer.getInventory().offhand.getFirst();
         if (AttunementUtil.isSoulboundActive(serverPlayer, offhandStack)) {
-            keepInventory.offhand.set(0, serverPlayer.getInventory().offhand.get(0).copy());
+            keepInventory.offhand.set(0, serverPlayer.getInventory().offhand.getFirst().copy());
             serverPlayer.getInventory().offhand.set(0, ItemStack.EMPTY);
         }
 
