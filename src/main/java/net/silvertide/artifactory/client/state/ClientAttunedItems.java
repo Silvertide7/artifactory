@@ -8,7 +8,7 @@ import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import java.util.*;
 
 public class ClientAttunedItems {
-    private ClientAttunedItems() {};
+    private ClientAttunedItems() {}
     private static Map<UUID, AttunedItem> myAttunedItems = new HashMap<>();
     private static Map<String, String> attunedItemModifications = new HashMap<>();
 

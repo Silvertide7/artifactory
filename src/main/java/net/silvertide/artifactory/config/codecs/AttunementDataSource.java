@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.silvertide.artifactory.component.AttunementLevel;
-import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,14 +66,6 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
         return new AttunementDataSource(this.attunementSlotsUsed(), this.attunementLevels(), chance, this.useWithoutAttunement(), this.replace());
     }
 
-    public int getAttunementSlotsUsed() {
-        if(attunementSlotsUsed < 0) return 0;
-        return attunementSlotsUsed;
-    }
-
-    public AttunementOverride asAttunementSchema() {
-        return new AttunementOverride(this.attunementSlotsUsed(), this.attunementLevels(), useWithoutAttunement());
-    }
 //    public String toString() {
 //        StringBuilder attunementString = new StringBuilder();
 //

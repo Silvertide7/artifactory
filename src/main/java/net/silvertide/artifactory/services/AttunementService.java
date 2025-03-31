@@ -5,11 +5,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.component.AttunementFlag;
-import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.*;
@@ -22,7 +20,6 @@ public final class AttunementService {
     public static void increaseLevelOfAttunement(ServerPlayer player, ItemStack stack) {
         int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
         boolean successfulAttunementIncrease = false;
-
         if(levelOfAttunementAchieved == 0 && !AttunementUtil.isItemAttunedToAPlayer(stack)) {
             successfulAttunementIncrease = attuneItemAndPlayer(player, stack);
         } else if(levelOfAttunementAchieved > 0 && AttunementUtil.isItemAttunedToPlayer(player, stack)) {
@@ -89,17 +86,12 @@ public final class AttunementService {
         () -> {
             if(hasNoFlagData) {
                 AttunementSchemaUtil.getAttunementSchema(stack).filter(AttunementSchema::isValidSchema).ifPresent(attunementSchema -> {
-                    if(attunementSchema instanceof AttunementDataSource source) {
-                        if(source.chance() == 0.0D) {
-                            DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getNonAttunableFlag());
-                        } else if (source.chance() >= 1.0D) {
-                            DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
-                        } else {
-                            DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.max(Math.min(source.chance(), 1.0D), 0.0D)));
-
-                        }
-                    } else if(attunementSchema instanceof AttunementOverride) {
+                    if(attunementSchema.chance() == 0.0D) {
+                        DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getNonAttunableFlag());
+                    } else if (attunementSchema.chance() >= 1.0D) {
                         DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
+                    } else {
+                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.max(Math.min(attunementSchema.chance(), 1.0D), 0.0D)));
                     }
                 });
             }

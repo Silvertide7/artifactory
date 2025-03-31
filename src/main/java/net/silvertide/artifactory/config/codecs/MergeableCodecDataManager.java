@@ -44,7 +44,6 @@ import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import oshi.util.tuples.Pair;
 
 import java.io.Reader;
 import java.util.*;

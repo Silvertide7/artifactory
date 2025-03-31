@@ -24,12 +24,10 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.util.Optional;
 
-// TODO: Test curios with attuned items from other players - remove curios implementation gradle
-// TODO: Test to make sure attuned items are only usable in any way by their wielder
-
 // TODO: Playtest
-// TODO: When breaking a block it shows the block broken then denies it
-
+// TODO: Test overrides
+// TODO: Implement AddPack from discord
+// Clean up files
 @Mod(Artifactory.MOD_ID)
 public class Artifactory
 {

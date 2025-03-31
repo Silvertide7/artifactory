@@ -4,7 +4,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.services.PlayerMessenger;

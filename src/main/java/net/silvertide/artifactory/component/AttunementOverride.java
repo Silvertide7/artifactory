@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, boolean useWithoutAttunement) implements AttunementSchema {
-    public static final AttunementOverride NULL_ATTUNEMENT_OVERRIDE = new AttunementOverride(-1, List.of(), true);
+public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement) implements AttunementSchema {
+    public static final AttunementOverride NULL_ATTUNEMENT_OVERRIDE = new AttunementOverride(-1, List.of(), 0.0D, true);
     public static final Codec<AttunementOverride> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementOverride> STREAM_CODEC;
 
@@ -19,6 +19,7 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                         Codec.INT.fieldOf("slots_used").forGetter(AttunementOverride::attunementSlotsUsed),
                         Codec.list(AttunementLevel.CODEC).fieldOf("attunement_levels").forGetter(AttunementOverride::attunementLevels),
+                        Codec.DOUBLE.fieldOf("chance").forGetter(AttunementOverride::chance),
                         Codec.BOOL.fieldOf("use_without_attunement").forGetter(AttunementOverride::useWithoutAttunement))
                 .apply(instance, AttunementOverride::new)
         );
@@ -34,8 +35,9 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
                     attunementLevels.add(AttunementLevel.STREAM_CODEC.decode(buf));
                 }
 
+                double chance = buf.readDouble();
                 boolean useWithoutAttunement = buf.readBoolean();
-                return new AttunementOverride(attunementSlotsUsed, attunementLevels, useWithoutAttunement);
+                return new AttunementOverride(attunementSlotsUsed, attunementLevels, chance, useWithoutAttunement);
             }
 
             @Override
@@ -47,6 +49,7 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
                     AttunementLevel.STREAM_CODEC.encode(buf, attunementOverride.attunementLevels.get(i));
                 }
 
+                buf.writeDouble(attunementOverride.chance());
                 buf.writeBoolean(attunementOverride.useWithoutAttunement());
             }
         };
@@ -55,9 +58,10 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
     @Override
     public boolean equals(Object obj) {
         if(this == obj) return true;
-        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, boolean withoutAttunement)) {
+        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, double chance, boolean withoutAttunement)) {
             return this.attunementSlotsUsed() == slotsUsed &&
                     this.useWithoutAttunement() == withoutAttunement &&
+                    this.chance() == chance &&
                     this.attunementLevels().equals(levels);
         }
         return false;
@@ -65,6 +69,6 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.attunementSlotsUsed(), this.attunementLevels(), this.useWithoutAttunement());
+        return Objects.hash(this.attunementSlotsUsed(), this.attunementLevels(), this.chance(), this.useWithoutAttunement());
     }
 }

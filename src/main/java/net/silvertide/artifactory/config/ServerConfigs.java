@@ -9,6 +9,7 @@ public class ServerConfigs {
     public static final ModConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
     public static final ModConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
     public static final ModConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
+    public static final ModConfigSpec.ConfigValue<Boolean> SHOW_UNIDENTIFIED_PERCENTAGE;
     public static final ModConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
 
     static {
@@ -30,11 +31,13 @@ public class ServerConfigs {
         BUILDER.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.worldRestart().define("holdingOtherPlayersItemEffects", "minecraft:slowness/4;minecraft:poison/2");
 
+        BUILDER.comment("If an attunement item has not been identified .");
+        SHOW_UNIDENTIFIED_PERCENTAGE = BUILDER.worldRestart().define("Show Unidentified Percentage", true);
+
         BUILDER.pop();
 
         BUILDER.push("Keybinds");
 
-        BUILDER.comment("");
         BUILDER.comment("Controls if a player can open the manage attunements screen from a keybind.");
         BUILDER.comment("If true the player can assign a keybind to the manage attunements screen and open it anywhere.");
         BUILDER.comment("If false it will not ope when the keybind is assigned and pressed.");

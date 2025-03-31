@@ -9,11 +9,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.AttunementSchema;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
+import net.silvertide.artifactory.util.GUIUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +36,20 @@ public class TooltipHandler {
             } else {
                 DataComponentUtil.getAttunementFlag(stack).ifPresentOrElse(attunementFlag -> {
                     if(!attunementFlag.discovered()) {
-                        addUnknownAttunementState(event.getToolTip());
+                        addUnknownAttunementState(event.getToolTip(), attunementSchema.chance());
                     }
                 },
-                    () -> addUnknownAttunementState(event.getToolTip()));
+                    () -> addUnknownAttunementState(event.getToolTip(), attunementSchema.chance()));
             }
         });
-
     }
 
-    private static void addUnknownAttunementState(List<Component> toolTips) {
-        toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown").withStyle(unAttunedFormatting));
+    private static void addUnknownAttunementState(List<Component> toolTips, double chance) {
+        if(ServerConfigs.SHOW_UNIDENTIFIED_PERCENTAGE.get() && chance < 1.0D) {
+            toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown_percentage", GUIUtil.convertToPercentage(chance)).withStyle(unAttunedFormatting));
+        } else {
+            toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown").withStyle(unAttunedFormatting));
+        }
     }
 
     private static void createAttunementHoverComponent(List<Component> toolTips, AttunementSchema attunementSchema, ItemStack stack) {

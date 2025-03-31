@@ -10,7 +10,7 @@ public class AttunableItems {
 
     public static AttunementDataSource processItemAttunements(final List<AttunementDataSource> raws) {
         // Simple merger function. Takes the latest AttunementDataSource with replace = true;
-        AttunementDataSource result = raws.get(0);
+        AttunementDataSource result = raws.getFirst();
         if(raws.size() > 1) {
             for(int i = 1; i < raws.size(); i++) {
                 AttunementDataSource curr = raws.get(i);

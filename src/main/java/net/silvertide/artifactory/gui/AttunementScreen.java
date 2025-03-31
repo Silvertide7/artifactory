@@ -1,7 +1,6 @@
 package net.silvertide.artifactory.gui;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -18,7 +17,6 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
-import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.ArrayList;

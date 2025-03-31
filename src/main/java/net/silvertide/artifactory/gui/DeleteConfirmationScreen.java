@@ -84,7 +84,7 @@ public class DeleteConfirmationScreen extends Screen {
         int buttonY = getButtonY();
 
         boolean isHovering = isHoveringConfirmButton(mouseX, mouseY);
-        int buttonOffset = getButtonOffsetToRender(confirmButtonDown, isHovering, mouseX, mouseY);
+        int buttonOffset = getButtonOffsetToRender(confirmButtonDown, isHovering);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 147, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
 
         Component buttonTextComp = Component.translatable("screen.button.artifactory.confirmation.confirm");
@@ -103,7 +103,7 @@ public class DeleteConfirmationScreen extends Screen {
         int buttonY = getButtonY();
 
         boolean isHovering = isHoveringCancelButton(mouseX, mouseY);
-        int buttonOffset = getButtonOffsetToRender(cancelButtonDown, isHovering, mouseX, mouseY);
+        int buttonOffset = getButtonOffsetToRender(cancelButtonDown, isHovering);
         guiGraphics.blit(TEXTURE, buttonX, buttonY, 147, buttonOffset, BUTTON_WIDTH, BUTTON_HEIGHT);
 
         int buttonTextX = buttonX + BUTTON_WIDTH / 2;
@@ -125,7 +125,7 @@ public class DeleteConfirmationScreen extends Screen {
         return getScreenStartY() + BUTTON_Y;
     }
 
-    private int getButtonOffsetToRender(boolean isButtonDown, boolean isHoveringButton, int mouseX, int mouseY) {
+    private int getButtonOffsetToRender(boolean isButtonDown, boolean isHoveringButton) {
         if(isButtonDown) {
             return 26;
         }

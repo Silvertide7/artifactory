@@ -5,6 +5,7 @@ import java.util.List;
 public interface AttunementSchema {
     int attunementSlotsUsed();
     List<AttunementLevel> attunementLevels();
+    double chance();
     boolean useWithoutAttunement();
 
     default boolean isValidSchema() {

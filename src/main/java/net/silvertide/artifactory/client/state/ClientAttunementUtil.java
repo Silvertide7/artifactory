@@ -10,7 +10,6 @@ import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
-import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 
@@ -120,7 +119,7 @@ public final class ClientAttunementUtil {
             ItemRequirements itemRequirements = new ItemRequirements();
 
             // If the player and item are at max level we only need to send a few of the values.
-            // If not lets get all of the relevant data
+            // If not lets get all the relevant data
             if(numLevels == 0 && levelOfAttunementAchievedByPlayer == 0) {
                 xpThreshold = ClientSyncedConfig.getXpAttuneThreshold();
                 xpConsumed = ClientSyncedConfig.getXpAttuneConsumed();

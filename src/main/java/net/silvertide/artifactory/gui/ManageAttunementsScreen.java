@@ -407,6 +407,8 @@ public class ManageAttunementsScreen extends Screen {
 
         private int getItemBorderOffset() {
             if(attunementSchema != null) {
+                if(attunementSchema.attunementLevels().isEmpty()) return 226;
+
                 double progress = (double) attunedItem.getAttunementLevel() / attunementSchema.attunementLevels().size();
                 if(progress >= 0.0 && progress < 0.33) {
                     return 169;

@@ -332,11 +332,7 @@ public class AttunementMenu extends AbstractContainerMenu {
         if(threshold > 0 && playerLevel < threshold){
             return false;
         }
-        if(cost > 0 && playerLevel < cost){
-            return false;
-        }
-
-        return true;
+        return cost <= 0 || playerLevel >= cost;
     }
 
     private void clearAllContainers() {
