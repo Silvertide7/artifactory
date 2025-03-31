@@ -333,7 +333,7 @@ public class ManageAttunementsScreen extends Screen {
             this.attunedItem = attunedItem;
             this.attunementSchema = attunementSchema;
             this.manageScreen = manageScreen;
-            this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem.getResourceLocation());
+            this.modificationDescPerLevel = ClientAttunedItems.getModifications(this.attunedItem);
             this.itemToRender = ResourceLocationUtil.getItemStackFromResourceLocation(this.attunedItem.getResourceLocation());
         }
 

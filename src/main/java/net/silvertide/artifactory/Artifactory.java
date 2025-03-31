@@ -3,6 +3,7 @@ package net.silvertide.artifactory;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
@@ -25,7 +26,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 // TODO: Playtest
-// TODO: Test overrides
+// TODO: Test overrides - So far so good
 // TODO: Implement AddPack from discord
 // Clean up files
 @Mod(Artifactory.MOD_ID)
@@ -40,36 +41,14 @@ public class Artifactory
         MenuRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
 
-        modEventBus.addListener(CuriosSetup::init);
         modEventBus.addListener(this::addPackFinders);
+        modEventBus.addListener(CuriosSetup::init);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfigs.SPEC, String.format("%s-server.toml", Artifactory.MOD_ID));
     }
 
-
     public void addPackFinders(AddPackFindersEvent event) {
-        Artifactory.LOGGER.debug("addPackFinders");
-        try {
-            if (event.getPackType() == PackType.SERVER_DATA) {
-                addBuiltinPack(event, "artifactory_default_data_pack", Component.literal("Artifactory Defaults"));
-            }
-        } catch (IOException ex) {
-            Artifactory.LOGGER.error("Failed to load a builtin data pack! If you are seeing this message, please report an issue to https://github.com/Silvertide7/artifactory/issues");
-        }
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "builtin_data_packs/artifactory_default_data_pack");
+            event.addPackFinders(location, PackType.SERVER_DATA,Component.literal("Artifactory Defaults"), PackSource.FEATURE,false, Pack.Position.TOP);
     }
-
-    private static void addBuiltinPack(AddPackFindersEvent event, String filename, Component displayName) throws IOException {
-        filename = "builtin_data_packs/" + filename;
-        String id = "builtin/" + filename;
-        var resourcePath = ModList.get().getModFileById(Artifactory.MOD_ID).getFile().findResource(filename);
-        var pack = Pack.readMetaAndCreate(
-                new PackLocationInfo(id, displayName, PackSource.BUILT_IN, Optional.empty()),
-                BuiltInPackSource.fromName((path) -> new PathPackResources(path, resourcePath)),
-                PackType.SERVER_DATA,
-                new PackSelectionConfig(false, Pack.Position.TOP, false)
-        );
-        event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
-    }
-
-
 }

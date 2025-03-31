@@ -10,14 +10,8 @@ import java.util.*;
 public class ClientAttunedItems {
     private ClientAttunedItems() {}
     private static Map<UUID, AttunedItem> myAttunedItems = new HashMap<>();
-    private static Map<String, String> attunedItemModifications = new HashMap<>();
 
     public static void setAttunedItem(AttunedItem attunedItem) {
-        String description = ClientAttunementUtil.getClientAttunementSchema(attunedItem)
-                    .map(AttunementSchemaUtil::getAttunementLevelDescriptions)
-                    .orElse("");
-
-        attunedItemModifications.put(attunedItem.getResourceLocation(), description);
         myAttunedItems.put(attunedItem.getItemUUID(), attunedItem);
     }
 
@@ -34,9 +28,11 @@ public class ClientAttunedItems {
         return myAttunedItems.isEmpty() ? new ArrayList<>() : new ArrayList<>(myAttunedItems.values());
     }
 
-    public static List<String> getModifications(String resourceLocation) {
-        String modifications = attunedItemModifications.get(resourceLocation);
-        return modifications != null ? getModificationDescriptions(modifications) : new ArrayList<>();
+    public static List<String> getModifications(AttunedItem attunedItem) {
+        String description = ClientAttunementUtil.getClientAttunementSchema(attunedItem)
+                .map(AttunementSchemaUtil::getAttunementLevelDescriptions)
+                .orElse("");
+        return !description.isEmpty() ? getModificationDescriptions(description) : new ArrayList<>();
     }
 
     private static List<String> getModificationDescriptions(String modificationSerialization) {
@@ -88,7 +84,6 @@ public class ClientAttunedItems {
 
     public static void clearAllAttunedItems() {
         myAttunedItems = new HashMap<>();
-        attunedItemModifications = new HashMap<>();
     }
 
     public static void removeAttunedItem(UUID itemUUIDToRemove) {
