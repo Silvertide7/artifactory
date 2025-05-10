@@ -180,7 +180,6 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                 }
             }
         }
-
         return processedData;
     }
 
