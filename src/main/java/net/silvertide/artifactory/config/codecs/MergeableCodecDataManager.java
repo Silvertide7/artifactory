@@ -145,15 +145,15 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final Map<ResourceLocation, ItemAttunementData> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected void apply(final Map<ResourceLocation, ItemAttunementData> data, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         // Sanitation is setup to check all item resource location codes and make sure they are valid within minecraft.
         // If they are not they are removed and warning is logged.
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
-        Map<ResourceLocation, ItemAttunementData> filteredData = filterItems(processedData);
-        sanitizeItemRequirements(filteredData);
+        Map<ResourceLocation, ItemAttunementData> processedData = processData(data);
+        sanitizeItemRequirements(processedData);
 
-        this.data.putAll(filteredData);
+        this.data.putAll(processedData);
         Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Complete");
     }
 
@@ -165,18 +165,47 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * @param data The data to filter
      * @return
      */
-    private Map<ResourceLocation,ItemAttunementData> filterItems(Map<ResourceLocation, ItemAttunementData> data) {
-        Map<ResourceLocation, ItemAttunementData> filteredData = new HashMap<>();
+    private Map<ResourceLocation, ItemAttunementData> processData(Map<ResourceLocation, ItemAttunementData> data) {
+        Map<ResourceLocation, ItemAttunementData> processedData = new HashMap<>();
         for(ResourceLocation key : data.keySet()) {
-            ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(key);
-            if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
-                filteredData.put(key, data.get(key));
+            ItemAttunementData dataSource = data.get(key);
+
+            // If the data source has a list of items to apply this config to then apply it to them.
+            if(!dataSource.applyToItems().isEmpty()) {
+                for(String itemPath : dataSource.applyToItems()) {
+                    // Just grab the item and make sure its valid before adding it to the data.
+                    ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(itemPath);
+                    if(isValidItem(resourceLocation)) {
+                        processedData.put(resourceLocation, dataSource);
+                    }
+                }
             } else {
-                Artifactory.LOGGER.warn("Artifactory - " + key + " - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.");
+                // If it doesn't then apply it to the item key instead, which should be the item
+                if(isValidItem(key)) {
+                    processedData.put(key, dataSource);
+                }
             }
         }
-        return filteredData;
+        return processedData;
     }
+
+    /**
+     * This goes through all resource locations and makes sure that the items given attunementLevels meet 3 critera:
+     * 1 - They are valid items and do not fail to find an item from the resource location
+     * 2 - They have a max stack size of 1. The functionality of this mod doesn't make sense with items that can stack
+     * 3 - It is not a block item, again that doesn't seem to fit the functionality of this mod.
+     * @param resourceLocation The data to filter
+     * @return
+     */
+    private boolean isValidItem(ResourceLocation resourceLocation) {
+        ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(resourceLocation);
+        if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
+            return true;
+        } else {
+            Artifactory.LOGGER.warn("Artifactory - " + resourceLocation.toString() + " - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.");
+            return false;
+        }
+        }
 
     /**
      * This method looks at all attunement level item requirements and makes sure they exist
