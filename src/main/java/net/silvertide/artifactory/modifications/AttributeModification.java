@@ -68,7 +68,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
                     return null;
                 }
 
-                EquipmentSlotGroup equipmentSlotGroup = EquipmentSlotGroup.bySlot(EquipmentSlot.byName(modification[4]));
+                EquipmentSlotGroup equipmentSlotGroup = equipmentSlotGroupFromString(modification[4]);
                 Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
                 String uniqueResourceLocation = attribute + "_" + equipmentSlotGroup.getSerializedName() + "_" + UUID.randomUUID();
                 return attributeToModify.map(attributeReference -> {
@@ -132,6 +132,15 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         AttributeModifier existingModifier = existingAttributeModification.modifier();
         AttributeModifier newModifier = new AttributeModifier(existingModifier.id(), this.modifier().amount() + existingModifier.amount(), existingModifier.operation());
         return new AttributeModification(existingAttributeModification.attribute(), newModifier, existingAttributeModification.slot());
+    }
+
+    public static EquipmentSlotGroup equipmentSlotGroupFromString(String name) {
+        for (EquipmentSlotGroup group : EquipmentSlotGroup.values()) {
+            if (group.getSerializedName().equals(name)) {
+                return group;
+            }
+        }
+        throw new IllegalArgumentException("Unknown EquipmentSlotGroup name: " + name);
     }
 
 
