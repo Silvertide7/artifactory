@@ -13,6 +13,5 @@ import java.util.Collection;
 public class ItemRegistry {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, Artifactory.MOD_ID);
     public static final DeferredHolder<Item, Item> ATTUNEMENT_NEXUS_BLOCK_ITEM = ITEMS.register("attunement_nexus", () -> new BlockItem(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get(), new Item.Properties()));
-    public static Collection<DeferredHolder<Item, ? extends Item>> getItems() { return ITEMS.getEntries(); }
     public static void register(IEventBus eventBus) { ITEMS.register(eventBus); }
 }

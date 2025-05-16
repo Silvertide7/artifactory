@@ -86,18 +86,6 @@ public class ArtifactEvents {
         }
     }
 
-//    @SubscribeEvent
-//    public static void throwItem(ItemTossEvent itemTossEvent) {
-//        if(itemTossEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
-//            ArtifactorySavedData.get().logAttunedItems(serverPlayer);
-//        } else {
-//            Artifactory.LOGGER.info("Client Items:");
-//            for(AttunedItem attunedItem : ClientAttunedItems.getAttunedItemsAsList()) {
-//                Artifactory.LOGGER.info(attunedItem.toString());
-//            }
-//        }
-//    }
-
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
     // was adapted from Project MMO
     // https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java

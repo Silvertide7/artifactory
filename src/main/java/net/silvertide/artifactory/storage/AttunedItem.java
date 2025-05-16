@@ -2,7 +2,6 @@ package net.silvertide.artifactory.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +12,7 @@ import net.silvertide.artifactory.config.codecs.CodecTypes;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,11 +33,11 @@ public class AttunedItem {
 
         STREAM_CODEC = new StreamCodec<>() {
             @Override
-            public AttunedItem decode(RegistryFriendlyByteBuf buf) {
+            public @NotNull AttunedItem decode(@NotNull RegistryFriendlyByteBuf buf) {
                 return new AttunedItem(AttunementOverride.STREAM_CODEC.decode(buf), buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readInt());
             }
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunedItem attunedItem) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunedItem attunedItem) {
                 AttunementOverride.STREAM_CODEC.encode(buf, attunedItem.getAttunementOverride());
                 buf.writeUUID(attunedItem.getItemUUID());
                 buf.writeUtf(attunedItem.getResourceLocation());
@@ -48,12 +48,12 @@ public class AttunedItem {
         };
     }
 
-    private AttunementOverride attunementOverride;
-    private UUID itemUUID;
-    private String resourceLocation;
+    private final AttunementOverride attunementOverride;
+    private final UUID itemUUID;
+    private final String resourceLocation;
     private String displayName;
     private int attunementLevel;
-    private int order;
+    private final int order;
 
     public AttunedItem(AttunementOverride attunementOverride, UUID itemUUID, String resourceLocation, String displayName, int attunementLevel, int order) {
         this.attunementOverride = attunementOverride;
@@ -116,13 +116,11 @@ public class AttunedItem {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("attunement override: " + attunementOverride + "\n");
-        stringBuilder.append("itemUUID: " + itemUUID + "\n");
-        stringBuilder.append("resourceLocation: " + resourceLocation + "\n");
-        stringBuilder.append("displayName: " + displayName + "\n");
-        stringBuilder.append("attunementLevel: " + attunementLevel + "\n");
-        stringBuilder.append("order: " + order + "\n");
-        return stringBuilder.toString();
+        return "attunement override: " + attunementOverride + "\n" +
+                "itemUUID: " + itemUUID + "\n" +
+                "resourceLocation: " + resourceLocation + "\n" +
+                "displayName: " + displayName + "\n" +
+                "attunementLevel: " + attunementLevel + "\n" +
+                "order: " + order + "\n";
     }
 }

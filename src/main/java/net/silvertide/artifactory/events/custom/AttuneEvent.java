@@ -21,10 +21,6 @@ public abstract class AttuneEvent extends PlayerEvent {
             this.stack = stack;
         }
 
-        public ItemStack getItemStack() {
-            return this.stack;
-        }
-
         public static class Pre extends AttuneEvent implements ICancellableEvent {
             public Pre(Player player, ItemStack item) {
                 super(player, item);

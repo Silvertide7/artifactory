@@ -47,7 +47,7 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
             }
 
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementRequirements attunementRequirements) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunementRequirements attunementRequirements) {
                 buf.writeInt(attunementRequirements.xpLevelsConsumed());
                 buf.writeInt(attunementRequirements.xpLevelThreshold());
                 buf.writeInt(attunementRequirements.kills());

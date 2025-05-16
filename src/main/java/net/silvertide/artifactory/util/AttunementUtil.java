@@ -156,7 +156,6 @@ public final class AttunementUtil {
             // Set default values. These are used if the player has maxed out the attunement to the item.
             int xpThreshold = -1;
             int xpConsumed = -1;
-            String uniqueStatus = "";
 
             // These are possible items required to attune to the item that are consumed.
             ItemRequirements itemRequirements = new ItemRequirements();

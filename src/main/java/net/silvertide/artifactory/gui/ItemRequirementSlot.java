@@ -4,6 +4,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ItemRequirementSlot extends Slot {
     private ItemStack stackRequired = ItemStack.EMPTY;
@@ -30,14 +31,14 @@ public abstract class ItemRequirementSlot extends Slot {
     }
 
     @Override
-    public boolean mayPlace(ItemStack stack) {
+    public boolean mayPlace(@NotNull ItemStack stack) {
         if(this.isAttunementActive()) return false;
         if(this.stackRequired.isEmpty()) return false;
         return stack.is(this.stackRequired.getItem());
     }
 
     @Override
-    public boolean mayPickup(Player player) {
+    public boolean mayPickup(@NotNull Player player) {
         if(this.isAttunementActive()) return false;
         return super.mayPickup(player);
     }

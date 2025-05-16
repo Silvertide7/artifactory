@@ -33,7 +33,7 @@ public record AttunementLevel(AttunementRequirements requirements, List<String> 
             }
 
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementLevel attunementLevel) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunementLevel attunementLevel) {
                 AttunementRequirements.STREAM_CODEC.encode(buf, attunementLevel.requirements());
 
                 buf.writeVarInt(attunementLevel.modifications().size());

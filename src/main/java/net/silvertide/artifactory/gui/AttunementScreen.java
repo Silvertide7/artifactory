@@ -18,6 +18,7 @@ import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         try {
             updateRequirementsList();
             renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
@@ -554,7 +555,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         private final int SLOT_HEIGHT = 18;
         ItemStack itemToRender = ItemStack.EMPTY;
         int itemRequirementState;
-        int index;
+        final int index;
         public ItemRequirementSlotRenderer(int index) {
             this.index = index;
             updateItemRequirementState();

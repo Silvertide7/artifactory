@@ -21,6 +21,7 @@ import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -91,7 +92,7 @@ public class ManageAttunementsScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         try {
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
         } catch (Exception ignore) {
@@ -100,7 +101,7 @@ public class ManageAttunementsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderTransparentBackground(guiGraphics);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0F, 0F, 200F);
@@ -317,15 +318,14 @@ public class ManageAttunementsScreen extends Screen {
         private final int INFORMATION_ICON_WIDTH = 10;
         private final int INFORMATION_ICON_HEIGHT = 10;
 
-        private int index;
+        private final int index;
         private final AttunedItem attunedItem;
         private final AttunementSchema attunementSchema;
         private final ItemStack itemToRender;
         private final List<String> modificationDescPerLevel;
         private boolean isDeleteButtonDown = false;
         private float distanceScrolledY = 0;
-        private boolean isOffScreen = false;
-        ManageAttunementsScreen manageScreen;
+        private final ManageAttunementsScreen manageScreen;
 
         private AttunementCard(int index, AttunedItem attunedItem, AttunementSchema attunementSchema, ManageAttunementsScreen manageScreen) {
             this.index = index;
@@ -344,10 +344,9 @@ public class ManageAttunementsScreen extends Screen {
             if(numCards >= 6) {
                 int maxDistanceScrollableY = numCards * ATTUNEMENT_CARD_HEIGHT - CARD_WINDOW_HEIGHT;
                 this.distanceScrolledY = maxDistanceScrollableY*sliderProgress;
-                this.isOffScreen = isOffScreenAboveWindow() || isOffscreenBelowWindow();
 
                 // Check if the card is above or below the scroll area entirely (offscreen) and don't render if so.
-                if (this.isOffScreen) {
+                if (isOffScreenAboveWindow() || isOffscreenBelowWindow()) {
                     guiGraphics.pose().popPose();
                     return;
                 }
@@ -355,7 +354,6 @@ public class ManageAttunementsScreen extends Screen {
                 guiGraphics.pose().translate(0, -this.distanceScrolledY, 0F);
             } else {
                 this.distanceScrolledY = 0;
-                this.isOffScreen = false;
             }
 
             renderBackground(guiGraphics);

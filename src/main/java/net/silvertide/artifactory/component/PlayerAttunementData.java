@@ -45,7 +45,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 return new PlayerAttunementData(attunementUUID, attunedToUUID, attunedToName, isSoulbound, isInvulnerable, isUnbreakable, attributeModifications);
             }
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, PlayerAttunementData playerAttunementData) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull PlayerAttunementData playerAttunementData) {
                 buf.writeUUID(playerAttunementData.attunementUUID());
                 buf.writeUUID(playerAttunementData.attunedToUUID());
                 buf.writeUtf(playerAttunementData.attunedToName());
@@ -62,28 +62,6 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
     }
 
     // Builder Methods
-    public PlayerAttunementData withAttunedToUUID(UUID attunedToUUID) {
-        return new PlayerAttunementData(
-                this.attunementUUID(),
-                attunedToUUID,
-                this.attunedToName(),
-                this.isSoulbound(),
-                this.isInvulnerable(),
-                this.isUnbreakable(),
-                this.attributeModifications());
-    }
-
-    public PlayerAttunementData withAttunedToName(String attunedToName) {
-        return new PlayerAttunementData(
-                this.attunementUUID(),
-                this.attunedToUUID(),
-                attunedToName,
-                this.isSoulbound(),
-                this.isInvulnerable(),
-                this.isUnbreakable(),
-                this.attributeModifications());
-    }
-
     public PlayerAttunementData withIsSoulbound(boolean isSoulbound) {
         return new PlayerAttunementData(
                 this.attunementUUID(),
@@ -126,10 +104,6 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 this.isInvulnerable(),
                 this.isUnbreakable(),
                 attributeModifications);
-    }
-
-    public boolean hasAttributeModifications() {
-        return !attributeModifications().isEmpty();
     }
 
     @Override

@@ -16,7 +16,7 @@ public class CmdNodeGeneral {
         return Commands.literal("slots").executes(CmdNodeGeneral::getPlayerSlots);
 
     }
-    public static int getPlayerSlots(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int getPlayerSlots(CommandContext<CommandSourceStack> ctx) {
         ServerPlayer player = ctx.getSource().getPlayer();
         if(player == null) return 0;
 

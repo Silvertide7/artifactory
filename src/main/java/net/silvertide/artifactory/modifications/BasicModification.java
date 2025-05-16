@@ -4,7 +4,7 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.util.DataComponentUtil;
 
 public class BasicModification implements AttunementModification {
-    BasicModificationType modificationType;
+    final BasicModificationType modificationType;
 
     public BasicModification(BasicModificationType modificationType){
         this.modificationType = modificationType;

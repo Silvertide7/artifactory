@@ -24,7 +24,7 @@ public record AttunementFlag(boolean isAttunable, boolean discovered, double cha
             }
 
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementFlag attunementFlag) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunementFlag attunementFlag) {
                 buf.writeBoolean(attunementFlag.isAttunable());
                 buf.writeBoolean(attunementFlag.discovered());
                 buf.writeDouble(attunementFlag.chance());

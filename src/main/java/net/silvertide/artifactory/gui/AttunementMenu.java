@@ -124,14 +124,14 @@ public class AttunementMenu extends AbstractContainerMenu {
     private Slot getAttunementInputSlot() {
         return new Slot(attunementInputContainer, 0, 41, 36) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean mayPlace(@NotNull ItemStack stack) {
                 if(getIsActive()) return false;
 
                 AttunementService.checkAndUpdateAttunementComponents(stack);
                 AttunementService.discoverAttunementItem(stack);
                 boolean isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
 
-                // Check if the item is unbreakable from artifactory but it is no longer a
+                // Check if the item is unbreakable from artifactory, but it is no longer a
                 // valid attunement item and remove unbreakable if so. We have to do it here
                 // instead of updateAttunementItemState because only valid attunement items can
                 // be placed in the slot and have that method run.
@@ -143,14 +143,14 @@ public class AttunementMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 clearItemDataSlotData();
                 clearAllContainers();
                 super.onTake(player, stack);
             }
 
             @Override
-            public void set(ItemStack stack) {
+            public void set(@NotNull ItemStack stack) {
                 super.set(stack);
                 if(!stack.isEmpty()) {
                     updateAttunementItemDataComponent();
@@ -160,7 +160,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public boolean mayPickup(Player player) {
+            public boolean mayPickup(@NotNull Player player) {
                 if(AttunementMenu.this.getIsActive()) return false;
                 return super.mayPickup(player);
             }
@@ -187,7 +187,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
@@ -213,7 +213,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
@@ -239,7 +239,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
@@ -446,7 +446,7 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return this.access.evaluate((level, blockPos) -> level.getBlockState(blockPos).is(BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get()) && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D, true);
     }
 
@@ -468,7 +468,7 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(@NotNull Player player) {
         clearItemDataSlotData();
         setPlayerHasAttunedItem(false);
         setProgress(0);
@@ -498,9 +498,9 @@ public class AttunementMenu extends AbstractContainerMenu {
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 4;  // must be the number of slots you have!
     @Override
-    public ItemStack quickMoveStack(Player playerIn, int pIndex) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int pIndex) {
         Slot sourceSlot = slots.get(pIndex);
-        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;  //EMPTY_ITEM
+        if (!sourceSlot.hasItem()) return ItemStack.EMPTY;  //EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 

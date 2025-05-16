@@ -18,6 +18,7 @@ import net.silvertide.artifactory.network.client_packets.CB_ResetAttunedItems;
 import net.silvertide.artifactory.network.client_packets.CB_UpdateAttunedItem;
 import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -36,7 +37,7 @@ public class ArtifactorySavedData extends SavedData {
     private static final String NAME = Artifactory.MOD_ID;
 
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
-    private Map<UUID, String> attunedPlayers = new HashMap<>();
+    private final Map<UUID, String> attunedPlayers = new HashMap<>();
 
     public ArtifactorySavedData() {}
     public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
@@ -48,7 +49,7 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
+    public @NotNull CompoundTag save(CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
         nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
         nbt.put(ATTUNED_PLAYERS_KEY, ATTUNED_PLAYERS_CODEC.encodeStart(NbtOps.INSTANCE, attunedPlayers).result().orElse(new CompoundTag()));
         return nbt;
@@ -59,14 +60,6 @@ public class ArtifactorySavedData extends SavedData {
             return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
         else
             return new ArtifactorySavedData();
-    }
-
-    public Map<UUID, Map<UUID, AttunedItem>> getAttunedItemsMap() {
-        return this.attunedItems;
-    }
-
-    public Optional<String> getPlayerName(UUID playerUUID) {
-        return Optional.ofNullable(attunedPlayers.get(playerUUID));
     }
 
     public void setPlayerName(UUID playerUUID, String playerName) {
@@ -123,7 +116,7 @@ public class ArtifactorySavedData extends SavedData {
 
     public void removeAttunedItem(UUID playerUUID, UUID attunedItemUUID) {
         AttunedItem removedItem = attunedItems.getOrDefault(playerUUID, new HashMap<>()).remove(attunedItemUUID);
-        if(removedItem != null) {
+        if(removedItem != null && ServerLifecycleHooks.getCurrentServer() != null) {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null) {
@@ -134,7 +127,7 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void removeAllAttunedItems(UUID playerUUID) {
-        if(attunedItems.remove(playerUUID) != null) {
+        if(attunedItems.remove(playerUUID) != null && ServerLifecycleHooks.getCurrentServer() != null) {
             this.setDirty();
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if (player != null) {
@@ -147,7 +140,7 @@ public class ArtifactorySavedData extends SavedData {
         DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             this.getAttunedItem(attunementData).ifPresent(attunedItem -> {
                 String displayName = AttunementUtil.getAttunedItemDisplayName(stack);
-                if (!attunedItem.getDisplayName().equals(displayName)) {
+                if (!attunedItem.getDisplayName().equals(displayName) && ServerLifecycleHooks.getCurrentServer() != null) {
                     attunedItem.setDisplayName(displayName);
                     this.setDirty();
 
@@ -161,18 +154,15 @@ public class ArtifactorySavedData extends SavedData {
     }
 
     public void updatePlayerDisplayName(ServerPlayer serverPlayer) {
+        String currentPlayerDisplayName = serverPlayer.getDisplayName().getString();
         if(attunedPlayers.containsKey(serverPlayer.getUUID())) {
-            if(attunedPlayers.get(serverPlayer.getUUID()).equals(serverPlayer.getDisplayName().getString()));
+            if(!attunedPlayers.get(serverPlayer.getUUID()).equals(currentPlayerDisplayName)) {
+                setPlayerName(serverPlayer.getUUID(), serverPlayer.getDisplayName().getString());
+                this.setDirty();
+            }
         } else {
             setPlayerName(serverPlayer.getUUID(), serverPlayer.getDisplayName().getString());
             this.setDirty();
-        }
-    }
-
-    public void logAttunedItems(ServerPlayer serverPlayer) {
-        Artifactory.LOGGER.info(serverPlayer.getName() + "'s Server Attuned Items:");
-        for(Map.Entry<UUID, AttunedItem> entry : getAttunedItems(serverPlayer.getUUID()).entrySet()) {
-            Artifactory.LOGGER.info(entry.getValue().toString());
         }
     }
 }

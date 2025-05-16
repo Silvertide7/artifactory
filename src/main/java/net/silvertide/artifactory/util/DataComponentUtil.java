@@ -36,10 +36,6 @@ public final class DataComponentUtil {
         }
     }
 
-    public static void setAttunementOverride(ItemStack stack, AttunementOverride override) {
-        stack.set(DataComponentRegistry.ATTUNEMENT_OVERRIDE, override);
-    }
-
     // PLAYER ATTUNEMENT DATA METHODS
     public static Optional<PlayerAttunementData> getPlayerAttunementData(ItemStack stack) {
         return Optional.ofNullable(stack.get(DataComponentRegistry.PLAYER_ATTUNEMENT_DATA));
@@ -77,7 +73,7 @@ public final class DataComponentUtil {
             if(damage != null && damage > 0) stack.set(DataComponents.DAMAGE, 0);
 
             // Turn on the unbreakable flag because we only hit this code if it wasn't unbreakable
-            // before hand. This will remove unbreakable in the future if they break the attunement.
+            // beforehand. This will remove unbreakable in the future if they break the attunement.
             getPlayerAttunementData(stack).ifPresent(attunementData -> {
                 setPlayerAttunementData(stack, attunementData.withIsUnbreakable(true));
             });

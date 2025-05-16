@@ -39,7 +39,8 @@ public final class EffectUtil {
     public static void applyMobEffectInstancesToPlayer(Player player, String serializedMobEffects) {
         List<MobEffectInstance> mobEffectInstances = getMobEffectInstancesFromConfig(serializedMobEffects);
         for(MobEffectInstance mobEffectInstance : mobEffectInstances) {
-            if (!player.hasEffect(mobEffectInstance.getEffect()) || player.getEffect(mobEffectInstance.getEffect()).getDuration() < 18) {
+            MobEffectInstance instanceOnPlayer = player.getEffect(mobEffectInstance.getEffect());
+            if (!player.hasEffect(mobEffectInstance.getEffect()) || ( instanceOnPlayer != null && instanceOnPlayer.getDuration() < 18)) {
                 player.addEffect(mobEffectInstance);
             }
         }

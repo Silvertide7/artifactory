@@ -44,6 +44,7 @@ import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Reader;
 import java.util.*;
@@ -65,7 +66,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     protected static final int JSON_EXTENSION_LENGTH = JSON_EXTENSION.length();
 
     /** the loaded data **/
-    protected Map<ResourceLocation, AttunementDataSource> data = new HashMap<>();
+    protected final Map<ResourceLocation, AttunementDataSource> data = new HashMap<>();
 
     private final String folderName;
     private final Codec<AttunementDataSource> codec;
@@ -101,7 +102,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
 
     /** Off-thread processing (can include reading files from hard drive) **/
     @Override
-    protected Map<ResourceLocation, AttunementDataSource> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected @NotNull Map<ResourceLocation, AttunementDataSource> prepare(final ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
     {
         LOGGER.info("Beginning loading of data for data loader: {}", this.folderName);
         final Map<ResourceLocation, AttunementDataSource> map = new HashMap<>();
@@ -139,7 +140,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final Map<ResourceLocation, AttunementDataSource> data, final ResourceManager resourceManager, final ProfilerFiller profiler)
+    protected void apply(final @NotNull Map<ResourceLocation, AttunementDataSource> data, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
     {
         // Sanitation is setup to check all item resource location codes and make sure they are valid within minecraft.
         // If they are not they are removed and warning is logged.

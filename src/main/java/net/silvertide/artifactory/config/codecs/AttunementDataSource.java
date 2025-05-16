@@ -51,7 +51,7 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
             }
 
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementDataSource attunementDataSource) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunementDataSource attunementDataSource) {
                 buf.writeInt(attunementDataSource.attunementSlotsUsed());
 
                 buf.writeVarInt(attunementDataSource.attunementLevels().size());
@@ -79,19 +79,4 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
     public AttunementDataSource withChance(double chance) {
         return new AttunementDataSource(this.attunementSlotsUsed(), this.attunementLevels(), chance, this.useWithoutAttunement(), this.applyToItems, this.replace());
     }
-
-//    public String toString() {
-//        StringBuilder attunementString = new StringBuilder();
-//
-//        for(int i = 0; i < attunementLevels().size(); i++) {
-//            attunementString.append("Level ").append(i + 1).append(": ").append(attunementLevels().get(i)).append(": \n");
-//
-//        }
-//
-//        return "replace: " + replace() + "\n" +
-//                "attunement_slots_used: " + getAttunementSlotsUsed() + "\n" +
-//                "use_without_attunement: " + useWithoutAttunement() + "\n" +
-//                "unique: " + unique() + "\n" +
-//                attunementString;
-//    }
 }

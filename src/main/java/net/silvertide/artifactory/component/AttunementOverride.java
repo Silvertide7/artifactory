@@ -41,7 +41,7 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
             }
 
             @Override
-            public void encode(RegistryFriendlyByteBuf buf, AttunementOverride attunementOverride) {
+            public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull AttunementOverride attunementOverride) {
                 buf.writeInt(attunementOverride.attunementSlotsUsed());
 
                 buf.writeVarInt(attunementOverride.attunementLevels().size());
@@ -58,10 +58,10 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
     @Override
     public boolean equals(Object obj) {
         if(this == obj) return true;
-        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, double chance, boolean withoutAttunement)) {
+        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, double chanceIn, boolean withoutAttunement)) {
             return this.attunementSlotsUsed() == slotsUsed &&
                     this.useWithoutAttunement() == withoutAttunement &&
-                    this.chance() == chance &&
+                    this.chance() == chanceIn &&
                     this.attunementLevels().equals(levels);
         }
         return false;

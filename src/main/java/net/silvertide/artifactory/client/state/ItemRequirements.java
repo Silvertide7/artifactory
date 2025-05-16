@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemRequirements {
-    List<ItemStack> requirements = new ArrayList<>();
+    final List<ItemStack> requirements = new ArrayList<>();
     public void addRequirements(List<String> rawRequirements) {
         List<String> itemRequirements = new ArrayList<>(rawRequirements);
         // There are only 3 available slots for items so this will only take

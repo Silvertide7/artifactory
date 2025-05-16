@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -97,12 +96,12 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
     }
 
     private static int getOperationInteger(String operation) {
-        switch(operation) {
-            case "add_value": return 0;
-            case "add_multiplied_base": return 1;
-            case "add_multiplied_total": return 2;
-            default: return -1;
-        }
+        return switch (operation) {
+            case "add_value" -> 0;
+            case "add_multiplied_base" -> 1;
+            case "add_multiplied_total" -> 2;
+            default -> -1;
+        };
     }
 
     @Override
