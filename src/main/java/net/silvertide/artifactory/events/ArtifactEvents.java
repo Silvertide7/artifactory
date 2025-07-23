@@ -19,6 +19,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
+import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.util.*;
 
@@ -79,7 +80,7 @@ public class ArtifactEvents {
         if(itemPickupEvent.getPlayer() instanceof ServerPlayer serverPlayer) {
             ItemStack stack = itemPickupEvent.getItemEntity().getItem();
             AttunementService.checkAndUpdateAttunementComponents(stack);
-            if(AttunementUtil.isValidAttunementItem(stack)
+            if(!ServerConfigs.PLAYERS_CAN_PICKUP_ATTUNED_ITEMS.get() && AttunementUtil.isValidAttunementItem(stack)
                     && AttunementUtil.isAttunedToAnotherPlayer(serverPlayer, stack)) {
                 itemPickupEvent.setCanPickup(TriState.FALSE);
             }

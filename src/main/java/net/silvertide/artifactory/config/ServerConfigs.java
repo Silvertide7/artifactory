@@ -8,6 +8,7 @@ public class ServerConfigs {
     public static final ModConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_THRESHOLD;
     public static final ModConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
     public static final ModConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
+    public static final ModConfigSpec.ConfigValue<Boolean> PLAYERS_CAN_PICKUP_ATTUNED_ITEMS;
     public static final ModConfigSpec.ConfigValue<String> EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM;
     public static final ModConfigSpec.ConfigValue<Boolean> SHOW_UNIDENTIFIED_PERCENTAGE;
     public static final ModConfigSpec.ConfigValue<Boolean> CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN;
@@ -25,6 +26,11 @@ public class ServerConfigs {
         BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed at");
         BUILDER.comment("level 3 and poisoned at level 1 you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         WEAR_EFFECTS_WHEN_USE_RESTRICTED = BUILDER.worldRestart().define("wearRestrictedEffects", "minecraft:slowness/4");
+
+        BUILDER.comment("Controls if players can pick up items attuned to other players.");
+        BUILDER.comment("If true then players can pickup items that are attuned to other players");
+        BUILDER.comment("If false then players can only pickup items that are unattuned or that they are attuned to.");
+        PLAYERS_CAN_PICKUP_ATTUNED_ITEMS = BUILDER.worldRestart().define("canPlayersPickupAttunedItems", false);
 
         BUILDER.comment("These effects are applied to a player who is wearing a restricted item in one of the armor slots.");
         BUILDER.comment("The format is \"effect/level;effect/level;etc\" so if you wanted a player to be slowed and poisoned");
