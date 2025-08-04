@@ -8,6 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
@@ -35,6 +36,11 @@ public class SystemEvents {
             NetworkUtil.syncServerConfigs(serverPlayer);
             ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
         }
+    }
+
+    @SubscribeEvent
+    public static void onTagLoad(TagsUpdatedEvent event) {
+        AttunableItems.DATA_LOADER.postProcess(event.getRegistryAccess());
     }
 
     @SubscribeEvent

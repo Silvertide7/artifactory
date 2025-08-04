@@ -30,12 +30,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementLevel;
@@ -49,6 +54,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Reader;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Generic data loader for Codec-parsable data.
@@ -66,6 +72,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     protected static final int JSON_EXTENSION_LENGTH = JSON_EXTENSION.length();
 
     /** the loaded data **/
+    protected final Map<ResourceLocation, AttunementDataSource> rawData = new HashMap<>();
     protected final Map<ResourceLocation, AttunementDataSource> data = new HashMap<>();
 
     private final String folderName;
@@ -140,48 +147,66 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final @NotNull Map<ResourceLocation, AttunementDataSource> data, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
-    {
-        // Sanitation is setup to check all item resource location codes and make sure they are valid within minecraft.
-        // If they are not they are removed and warning is logged.
-        Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Start");
-        Map<ResourceLocation, AttunementDataSource> processedData = processData(data);
-        Map<ResourceLocation, AttunementDataSource> sanitizedData = sanitizeItemRequirements(processedData);
-
-        this.data.putAll(sanitizedData);
-        Artifactory.LOGGER.info("Artifactory - Reading and Validating Data Packs - Complete");
+    protected void apply(final @NotNull Map<ResourceLocation, AttunementDataSource> data, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler) {
+        Artifactory.LOGGER.info("Artifactory - Loading Data - Start");
+        this.rawData.putAll(data);
+        this.data.putAll(sanitizeItemRequirements(processData(data)));
+        Artifactory.LOGGER.info("Artifactory - Loading Data - Finish");
     }
 
     /**
      * This goes through all resource locations and makes sure that the items given attunementLevels meet 3 critera:
      * 1 - They are valid items and do not fail to find an item from the resource location
      * 2 - They have a max stack size of 1. The functionality of this mod doesn't make sense with items that can stack
-     * 3 - It is not a block item, again that doesn't seem to fit the functionality of this mod.
+     * 3 - It is not a block item, again that doesn't fit the functionality of this mod.
      * @param data The data to filter
      * @return
      */
     private Map<ResourceLocation, AttunementDataSource> processData(Map<ResourceLocation, AttunementDataSource> data) {
         Map<ResourceLocation, AttunementDataSource> processedData = new HashMap<>();
-        for(ResourceLocation key : data.keySet()) {
-            AttunementDataSource dataSource = data.get(key);
-
-            // If the data source has a list of items to apply this config to then apply it to them.
-            if(!dataSource.applyToItems().isEmpty()) {
-                for(String itemPath : dataSource.applyToItems()) {
-                    // Just grab the item and make sure its valid before adding it to the data.
-                    ResourceLocation resourceLocation = ResourceLocation.parse(itemPath);
-                    if(isValidItem(resourceLocation)) {
-                        processedData.put(resourceLocation, dataSource);
-                    }
-                }
-            } else {
-                // If it doesn't then apply it to the item key instead, which should be the item
-                if(isValidItem(key)) {
-                    processedData.put(key, dataSource);
-                }
+        for(Map.Entry<ResourceLocation, AttunementDataSource> entry : data.entrySet()) {
+            // Only add the raw items to the data. The applyToItems list will be parsed and added when tags load.
+            if(entry.getValue().applyToItems().isEmpty() && isValidItem(entry.getKey())) {
+                processedData.put(entry.getKey(), entry.getValue());
             }
         }
         return processedData;
+    }
+
+    public void postProcess(RegistryAccess registryAccess) {
+        Registry<Item> itemRegistry = registryAccess.registryOrThrow(Registries.ITEM);
+        Artifactory.LOGGER.info("Artifactory - Post Process - Adding apply to items - Start");
+
+        Map<ResourceLocation, AttunementDataSource> postProcessedData = new HashMap<>();
+        for (Map.Entry<ResourceLocation, AttunementDataSource> dataRaw : new HashMap<>(this.rawData).entrySet()) {
+            // If the data source has a list of items to apply this config to then apply it to them.
+            if(!dataRaw.getValue().applyToItems().isEmpty()) {
+
+                List<ResourceLocation> tags = new ArrayList<>();
+                for(String itemPath : dataRaw.getValue().applyToItems()) {
+                    // Process tag if it starts with #
+                    if(itemPath.startsWith("#")) {
+                        ResourceLocation tagResourceLocation = ResourceLocation.tryParse(itemPath.substring(1));
+                        if(tagResourceLocation == null) continue;
+                        itemRegistry.getTag(TagKey.create(Registries.ITEM, tagResourceLocation))
+                                .ifPresent(holder ->
+                                        tags.addAll(holder.stream()
+                                                .map(h -> h.unwrapKey().get().location())
+                                                        .filter(this::isValidItem)
+                                                .collect(Collectors.toSet())));
+                    } else {
+                        // Process it as an item
+                        ResourceLocation resourceLocation = ResourceLocation.parse(itemPath);
+                        if(isValidItem(resourceLocation)) {
+                            tags.add(resourceLocation);
+                        }
+                    }
+                }
+                tags.forEach(rl -> postProcessedData.put(rl, dataRaw.getValue()));
+            }
+        }
+        this.data.putAll(sanitizeItemRequirements(postProcessedData));
+        Artifactory.LOGGER.info("Artifactory - Post Process - Adding Tags - Finish");
     }
 
     /**
