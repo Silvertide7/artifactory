@@ -4,6 +4,7 @@
   "block.artifactory.attunement_nexus": "Attunement Nexus",
 
   "hovertext.artifactory.attunement_unknown": "Attunable (?)",
+  "hovertext.artifactory.attunement_known": "Attunable",
   "hovertext.artifactory.attunement_unknown_percentage": "Attunable (%1$s)",
   "hovertext.artifactory.attuned_item": "Attuned",
   "hovertext.artifactory.use_without_attunement": "Attunable",

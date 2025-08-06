@@ -47,8 +47,8 @@ public class ServerConfigs {
         BUILDER.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.worldRestart().define("holdingOtherPlayersItemEffects", "minecraft:slowness/4;minecraft:poison/2");
 
-        BUILDER.comment("If true then when an attunement has not yet been identified it will show the perfect chance that the item has an attunement.");
-        BUILDER.comment("If false then it won't");
+        BUILDER.comment("If true then when an attunement has not yet been identified it will show the perfect chance that the item has an attunement if it is less than 100%.");
+        BUILDER.comment("If false then it won't, it will just show a question mark instead.");
         SHOW_UNIDENTIFIED_PERCENTAGE = BUILDER.worldRestart().define("showUnidentifiedPercentage", true);
 
         BUILDER.pop();

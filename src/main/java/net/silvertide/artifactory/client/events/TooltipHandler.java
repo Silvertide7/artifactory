@@ -47,8 +47,10 @@ public class TooltipHandler {
     private static void addUnknownAttunementState(List<Component> toolTips, double chance) {
         if(ServerConfigs.SHOW_UNIDENTIFIED_PERCENTAGE.get() && chance < 1.0D) {
             toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown_percentage", GUIUtil.convertToPercentage(chance)).withStyle(unAttunedFormatting));
-        } else {
+        } else if (chance < 1.0D){
             toolTips.add(Component.translatable("hovertext.artifactory.attunement_unknown").withStyle(unAttunedFormatting));
+        } else {
+            toolTips.add(Component.translatable("hovertext.artifactory.attunement_known").withStyle(unAttunedFormatting));
         }
     }
 
