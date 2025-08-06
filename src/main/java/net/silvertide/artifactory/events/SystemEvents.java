@@ -34,6 +34,7 @@ public class SystemEvents {
             Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
             NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
             NetworkUtil.syncServerConfigs(serverPlayer);
+            NetworkUtil.updateAttunementLevelAttribute(serverPlayer);
             ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
         }
     }

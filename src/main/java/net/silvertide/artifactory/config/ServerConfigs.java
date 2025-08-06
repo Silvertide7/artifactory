@@ -5,6 +5,8 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class ServerConfigs {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec SPEC;
+    public static final ModConfigSpec.ConfigValue<Boolean> UPDATE_ATTUNEMENT_LEVEL_ATTRIBUTE;
+    public static final ModConfigSpec.ConfigValue<Integer> BASE_ATTUNEMENT_LEVEL_ATTRIBUTE;
     public static final ModConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_THRESHOLD;
     public static final ModConfigSpec.ConfigValue<Integer> XP_LEVELS_TO_ATTUNE_CONSUMED;
     public static final ModConfigSpec.ConfigValue<String> WEAR_EFFECTS_WHEN_USE_RESTRICTED;
@@ -15,6 +17,14 @@ public class ServerConfigs {
 
     static {
         BUILDER.push("Artifactory Configs");
+
+        BUILDER.comment("If true it will check and update the attunement level attribute of a player when they log in, if their base value is different than below.");
+        BUILDER.comment("Once you have all players updated you can turn this back off, just in case another mod is supposed to adjust the base value of this attribute. Although that seems unlikely.");
+        UPDATE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().define("updateAttunementLevelAttribute", false);
+
+        BUILDER.comment("The base value of the Attunement Level attribute. Default: 15");
+        BUILDER.comment("If you change this and you want it to update for players, make sure to turn on the updateAttunementLevelAttribute config or it won't apply.");
+        BASE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().defineInRange("baseAttunementLevelAttribute", 15, 1, 1000);
 
         BUILDER.comment("How many levels by default you need to have to start the attunement process. Default: 35");
         XP_LEVELS_TO_ATTUNE_THRESHOLD = BUILDER.worldRestart().defineInRange("xpLevelThreshold", 30, 0, Integer.MAX_VALUE);
@@ -37,8 +47,9 @@ public class ServerConfigs {
         BUILDER.comment("you would put \"minecraft:slowness/3;minecraft:poison/1\".");
         EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM = BUILDER.worldRestart().define("holdingOtherPlayersItemEffects", "minecraft:slowness/4;minecraft:poison/2");
 
-        BUILDER.comment("If an attunement item has not been identified .");
-        SHOW_UNIDENTIFIED_PERCENTAGE = BUILDER.worldRestart().define("Show Unidentified Percentage", true);
+        BUILDER.comment("If true then when an attunement has not yet been identified it will show the perfect chance that the item has an attunement.");
+        BUILDER.comment("If false then it won't");
+        SHOW_UNIDENTIFIED_PERCENTAGE = BUILDER.worldRestart().define("showUnidentifiedPercentage", true);
 
         BUILDER.pop();
 
