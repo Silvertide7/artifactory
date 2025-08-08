@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
@@ -193,9 +194,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
             if(!slotInformation.attunedByAnotherPlayer() && !slotInformation.isPlayerAtMaxAttuneLevel()) {
                 if(slotInformation.xpConsumed() > 0 || slotInformation.xpThreshold() > 0) {
-                    renderRequirementText(guiGraphics, backgroundX, backgroundY);
-                    renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation);
-                    renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation);
+//                    renderRequirementText(guiGraphics, backgroundX, backgroundY);
+//                    renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation);
+//                    renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation);
                 }
             }
         }
@@ -262,34 +263,82 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         int totalAttunementSlots = AttunementUtil.getMaxAttunementSlots(this.player);
         int levelAchievedByPlayer = slotInformation.levelAchievedByPlayer();
 
-        String attunementSlotNumerator = String.valueOf(numAttunementSlotsUsedByPlayer);
-        String attunementSlotDenominator = String.valueOf(totalAttunementSlots);
-        if(levelAchievedByPlayer == 0) {
-            attunementSlotNumerator = numAttunementSlotsUsedByPlayer + " + " + slotInformation.slotsUsed() + " (" + (numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) + ")";
-        }
+        if(totalAttunementSlots == 0) return;
 
-        MutableComponent numerator = Component.literal(attunementSlotNumerator);
-        if(levelAchievedByPlayer == 0 && numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed() > totalAttunementSlots) {
-            numerator.withStyle(ChatFormatting.RED);
-        }
-
-        int textX = 126;
         int numeratorY = 46;
-        int denominatorY = 54;
-        float textScale = 0.5F;
+        int textX;
+        int denominatorY;
+        int yBound = 0;
 
-        Component denominator = Component.literal(attunementSlotDenominator);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, numerator, backgroundX + textX, backgroundY + numeratorY, 75, BUTTON_TEXT_COLOR);
-        GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, denominator, backgroundX + textX, backgroundY + denominatorY, 75, BUTTON_TEXT_COLOR);
+        // If they have more than 30 attunement slots then use the old text graphic
+        if(totalAttunementSlots > 30) {
+            numeratorY = 46;
+            textX = 126;
+            denominatorY = 54;
+            yBound = 0;
 
-        // Draw title
-        Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
-        GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 50 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
+            String attunementSlotNumerator = String.valueOf(numAttunementSlotsUsedByPlayer);
+            String attunementSlotDenominator = String.valueOf(totalAttunementSlots);
 
-        // Draw dividing line
-        guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 50, 0, 169, 34, 1);
+            if(levelAchievedByPlayer == 0) {
+                attunementSlotNumerator = numAttunementSlotsUsedByPlayer + " + " + slotInformation.slotsUsed() + " (" + (numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) + ")";
+            }
 
-        int yBound = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
+            MutableComponent numerator = Component.literal(attunementSlotNumerator);
+            if(levelAchievedByPlayer == 0 && numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed() > totalAttunementSlots) {
+                numerator.withStyle(ChatFormatting.RED);
+            }
+
+            float textScale = 0.5F;
+            Component denominator = Component.literal(attunementSlotDenominator);
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, numerator, backgroundX + textX, backgroundY + numeratorY, 75, BUTTON_TEXT_COLOR);
+            GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, denominator, backgroundX + textX, backgroundY + denominatorY, 75, BUTTON_TEXT_COLOR);
+
+            // Draw title
+            Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
+            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 50 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
+
+            // Draw dividing line
+            guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 50, 0, 169, 34, 1);
+            yBound = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
+        } else {
+
+            int numberSlotLightsPerRow = 10;
+            int startX = backgroundX + 92;
+            int startY = backgroundY + 74;
+
+            int rows = totalAttunementSlots % numberSlotLightsPerRow;
+
+            for(int row = 0; row < rows; row++) {
+                int numLightsInThisRow = row < rows - 1 ? numberSlotLightsPerRow : totalAttunementSlots - (numberSlotLightsPerRow * row);
+                int yOffset = row * (AttunementLight.HEIGHT + 1);
+
+                for(int j = 0; j < numLightsInThisRow; j++) {
+                    int xOffset = j * (AttunementLight.WIDTH + 1);
+                    int currentLightIndex = row*numberSlotLightsPerRow + j;
+
+                    // Decide which light we're showing.
+                    AttunementLight attunementLight;
+                    if(currentLightIndex < numAttunementSlotsUsedByPlayer) {
+                        attunementLight = AttunementLight.BLUE;
+                    } else if (currentLightIndex < numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) {
+                        if(numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed() > totalAttunementSlots) {
+                            attunementLight = AttunementLight.RED;
+                        } else if (currentLightIndex < numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) {
+                            attunementLight = AttunementLight.GREEN;
+                        } else {
+                            attunementLight = AttunementLight.GRAY;
+                        }
+                    } else {
+                        attunementLight = AttunementLight.GRAY;
+                    }
+
+                    attunementLight.render(guiGraphics, startX + xOffset, startY - yOffset);
+                }
+            }
+        }
+
+        // Tooltip when hovering
         if(isHovering(109, numeratorY, 34, yBound, mouseX, mouseY)) {
             List<Component> slotTooltips = new ArrayList<>();
             int slotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
@@ -328,6 +377,21 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
     }
 
+    private enum AttunementLight {
+        BLUE(0), GREEN(6), RED(12), GRAY(18);
+        public static final int HEIGHT = 6;
+        public static final int WIDTH = 6;
+        private final int yOffset;
+        AttunementLight(int yOffset){
+            this.yOffset = yOffset;
+        }
+
+        public void render(GuiGraphics guiGraphics, int x, int y) {
+            guiGraphics.blit(TEXTURE, x, y, 232, this.yOffset, WIDTH, HEIGHT);
+        }
+    }
+
+    // --------------------------------------------
 
     private void renderAttunedToAnotherPlayerText(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         Component attunedToInfo = Component.translatable("screen.text.artifactory.attunement.attuned_to_other", slotInformation.attunedToName());
