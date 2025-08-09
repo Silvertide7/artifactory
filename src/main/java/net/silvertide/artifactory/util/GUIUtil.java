@@ -79,22 +79,6 @@ public final class GUIUtil {
         guiGraphics.pose().popPose();
     }
 
-
-    public static void drawLeftAlignedScaledWordWrap(GuiGraphics guiGraphics, float textScale, Font font, Component buttonTextComp, int textX, int textY, int lineWidth, int color) {
-        if(buttonTextComp.getString().isEmpty()) return;
-
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(textScale, textScale, textScale);
-
-        float fontWidth = font.width(buttonTextComp) * textScale;
-
-        int scaledTextX = (int) ((textX - fontWidth) / textScale);
-        int scaledTextY = (int) ((textY) / textScale);
-        guiGraphics.drawWordWrap(font, buttonTextComp, scaledTextX, scaledTextY, (int) (lineWidth / textScale), color);
-
-        guiGraphics.pose().popPose();
-    }
-
     public static String convertToPercentage(double percent) {
         double roundedValue =  Math.round(percent * 100D) / 100D;
         return roundedValue * 100 +"%";

@@ -1,3 +1,8 @@
+## 2.5.0
+- Changed the attunement screen attunement slots UI.
+- Set the base attribute to 20
+- 
+
 ## 2.4.0
 - Added configs to allow players to change the base attribute value. You have to turn on the updateAttributes config so it starts checking. If the base value in game differs from the config then it will set the base value.
 - Updated the text for the show attunement percentage config.

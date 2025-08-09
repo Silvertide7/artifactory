@@ -36,7 +36,11 @@
   "screen.text.artifactory.attunement.not_attuned": "Not yet attuned",
   "screen.text.artifactory.attunement.current_level": "Attunement Level: §6%1$s§r",
   "screen.text.artifactory.attunement.slots_required": "Slots Reserved: §6%1$s§r",
-  "screen.text.artifactory.attunement.requirement_text": "Attunement Requirements",
+  "screen.text.artifactory.attunement.requirement_cost": "XP Cost to Attune: %1$s",
+  "screen.text.artifactory.attunement.requirement_cost_ascend": "XP Cost to Ascend: %1$s",
+  "screen.text.artifactory.attunement.requirement_threshold": "XP Threshold to Attune: %1$s",
+  "screen.text.artifactory.attunement.requirement_threshold_ascend": "XP Threshold to Ascend: %1$s",
+  "screen.text.artifactory.attunement.slot_text": "Attunement Slots",
 
   "screen.text.artifactory.manage.slots": "Attunement Slots",
   "screen.text.artifactory.manage.slots_used": "Slots reserved: %1$s",
@@ -45,9 +49,6 @@
   "screen.text.artifactory.manage.attunement_level_max": " §a(Max)§r",
   "screen.text.artifactory.manage.attunement_data_not_found": "Attunement data no longer found for this item.",
   "screen.text.artifactory.manage.requirement_text": "Requirements",
-  "screen.text.artifactory.manage.requirement_cost": "Levels Consumed:",
-  "screen.text.artifactory.manage.requirement_threshold": "Level Threshold:",
-  "screen.text.artifactory.attunement.slot_text": "Slots",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",

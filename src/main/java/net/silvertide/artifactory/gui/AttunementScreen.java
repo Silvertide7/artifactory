@@ -194,9 +194,9 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
             if(!slotInformation.attunedByAnotherPlayer() && !slotInformation.isPlayerAtMaxAttuneLevel()) {
                 if(slotInformation.xpConsumed() > 0 || slotInformation.xpThreshold() > 0) {
-//                    renderRequirementText(guiGraphics, backgroundX, backgroundY);
-//                    renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation);
-//                    renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation);
+                    boolean itemIsAttuned = slotInformation.levelAchievedByPlayer() > 0;
+                    renderLevelCost(guiGraphics, backgroundX, backgroundY, slotInformation, itemIsAttuned);
+                    renderXpThreshold(guiGraphics, backgroundX, backgroundY, slotInformation, itemIsAttuned);
                 }
             }
         }
@@ -218,7 +218,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
     private void renderCurrentAttunementLevel(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         MutableComponent attunementLevel;
-        if(slotInformation.levelAchievedByPlayer() == 0){
+        if(slotInformation.levelAchievedByPlayer() == 0) {
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.not_attuned");
         } else {
             attunementLevel = Component.translatable("screen.text.artifactory.attunement.current_level", String.valueOf(slotInformation.levelAchievedByPlayer()));
@@ -233,31 +233,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
     }
 
-    private void renderRequirementText(GuiGraphics guiGraphics, int x, int y) {
-        Component requirementText = Component.translatable("screen.text.artifactory.attunement.requirement_text");
-        GUIUtil.drawScaledWordWrap(guiGraphics, 0.55F, this.font, requirementText, x + 90, y + 60, 75, 0xF8B3B0);
-    }
-
-    private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if (slotInformation.xpConsumed() > 0) {
-            Component experienceCost = Component.translatable("screen.text.artifactory.manage.requirement_cost");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceCost, x + 136, y + 66, 75, BUTTON_TEXT_COLOR);
-
-            Component levelCostComponent = Component.literal(String.valueOf(slotInformation.xpConsumed()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelCostComponent, x + 138, y + 66, 75, BUTTON_TEXT_COLOR);
-        }
-    }
-
-    private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
-        if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
-            Component experienceThreshold = Component.translatable("screen.text.artifactory.manage.requirement_threshold");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, experienceThreshold, x + 136, y + 72, 75, BUTTON_TEXT_COLOR);
-
-            Component levelThresholdComponent = Component.literal(String.valueOf(slotInformation.xpThreshold()));
-            GUIUtil.drawScaledWordWrap(guiGraphics, 0.5F, this.font, levelThresholdComponent, x + 138, y + 72, 75, BUTTON_TEXT_COLOR);
-        }
-    }
-
     private void renderAttunementSlotRatio(GuiGraphics guiGraphics, int backgroundX, int backgroundY, int mouseX, int mouseY, AttunementNexusSlotInformation slotInformation) {
         int numAttunementSlotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
         int totalAttunementSlots = AttunementUtil.getMaxAttunementSlots(this.player);
@@ -265,17 +240,27 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
         if(totalAttunementSlots == 0) return;
 
-        int numeratorY = 46;
-        int textX;
-        int denominatorY;
-        int yBound = 0;
+        // Draw title
+        Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
+        GUIUtil.drawScaledWordWrap(guiGraphics, 0.4F, this.font, slotTitle, backgroundX + 92, backgroundY + 44, 75, BUTTON_TEXT_COLOR);
+
+        int toolTipX;
+        int toolTipY;
+        int toolTipWidth;
+        int toolTipHeight;
 
         // If they have more than 30 attunement slots then use the old text graphic
         if(totalAttunementSlots > 30) {
-            numeratorY = 46;
-            textX = 126;
-            denominatorY = 54;
-            yBound = 0;
+            float textScale = 0.5F;
+
+            int numeratorY = 52;
+            int textX = 126;
+            int denominatorY = 60;
+
+            toolTipX = 109;
+            toolTipY = denominatorY;
+            toolTipWidth = 34;
+            toolTipHeight = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
 
             String attunementSlotNumerator = String.valueOf(numAttunementSlotsUsedByPlayer);
             String attunementSlotDenominator = String.valueOf(totalAttunementSlots);
@@ -289,25 +274,24 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                 numerator.withStyle(ChatFormatting.RED);
             }
 
-            float textScale = 0.5F;
             Component denominator = Component.literal(attunementSlotDenominator);
             GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, numerator, backgroundX + textX, backgroundY + numeratorY, 75, BUTTON_TEXT_COLOR);
             GUIUtil.drawScaledCenteredWordWrap(guiGraphics, textScale, this.font, denominator, backgroundX + textX, backgroundY + denominatorY, 75, BUTTON_TEXT_COLOR);
 
-            // Draw title
-            Component slotTitle = Component.translatable("screen.text.artifactory.attunement.slot_text");
-            GUIUtil.drawLeftAlignedScaledWordWrap(guiGraphics, 0.5F, this.font, slotTitle, backgroundX + 105, backgroundY + 50 - this.font.lineHeight / 4, 75, BUTTON_TEXT_COLOR);
-
             // Draw dividing line
-            guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + 50, 0, 169, 34, 1);
-            yBound = (int) (denominatorY - numeratorY + (this.font.lineHeight * textScale));
+            guiGraphics.blit(TEXTURE, backgroundX + 109, backgroundY + ((denominatorY + numeratorY) / 2), 0, 169, 34, 1);
         } else {
-
             int numberSlotLightsPerRow = 10;
-            int startX = backgroundX + 92;
-            int startY = backgroundY + 74;
+            int rows = Math.ceilDiv(totalAttunementSlots, numberSlotLightsPerRow);
 
-            int rows = totalAttunementSlots % numberSlotLightsPerRow;
+            int startX = backgroundX + 94;
+            int startY = backgroundY + 49 + (rows - 1) * 7;
+
+            // Setup tooltip bounds
+            toolTipX = 94;
+            toolTipWidth = (AttunementLight.WIDTH + 1) * Math.min(totalAttunementSlots, 10);
+            toolTipHeight = AttunementLight.HEIGHT * rows;
+            toolTipY = 49;
 
             for(int row = 0; row < rows; row++) {
                 int numLightsInThisRow = row < rows - 1 ? numberSlotLightsPerRow : totalAttunementSlots - (numberSlotLightsPerRow * row);
@@ -321,13 +305,11 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                     AttunementLight attunementLight;
                     if(currentLightIndex < numAttunementSlotsUsedByPlayer) {
                         attunementLight = AttunementLight.BLUE;
-                    } else if (currentLightIndex < numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) {
+                    } else if (levelAchievedByPlayer == 0 && currentLightIndex < numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) {
                         if(numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed() > totalAttunementSlots) {
                             attunementLight = AttunementLight.RED;
-                        } else if (currentLightIndex < numAttunementSlotsUsedByPlayer + slotInformation.slotsUsed()) {
-                            attunementLight = AttunementLight.GREEN;
                         } else {
-                            attunementLight = AttunementLight.GRAY;
+                            attunementLight = AttunementLight.GREEN;
                         }
                     } else {
                         attunementLight = AttunementLight.GRAY;
@@ -339,7 +321,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
 
         // Tooltip when hovering
-        if(isHovering(109, numeratorY, 34, yBound, mouseX, mouseY)) {
+        if(isHovering(toolTipX, toolTipY, toolTipWidth, toolTipHeight, mouseX, mouseY)) {
             List<Component> slotTooltips = new ArrayList<>();
             int slotsUsedByPlayer = slotInformation.numSlotsUsedByPlayer();
             int maxSlots = AttunementUtil.getMaxAttunementSlots(this.player);
@@ -391,7 +373,21 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         }
     }
 
-    // --------------------------------------------
+    private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation, boolean itemIsAttuned) {
+        if (slotInformation.xpConsumed() > 0) {
+            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_cost" : "screen.text.artifactory.attunement.requirement_cost_ascend";
+            Component experienceCost = Component.translatable(key, String.valueOf(slotInformation.xpConsumed()));
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.4F, this.font, experienceCost, x + 93, y + 72, 75, 0xF8B3B0);
+        }
+    }
+
+    private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation, boolean itemIsAttuned) {
+        if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
+            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_threshold" : "screen.text.artifactory.attunement.requirement_threshold_ascend";
+            Component experienceThreshold = Component.translatable(key, String.valueOf(slotInformation.xpThreshold()));
+            GUIUtil.drawScaledWordWrap(guiGraphics, 0.4F, this.font, experienceThreshold, x + 93, y + 77, 75, 0xF8B3B0);
+        }
+    }
 
     private void renderAttunedToAnotherPlayerText(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation) {
         Component attunedToInfo = Component.translatable("screen.text.artifactory.attunement.attuned_to_other", slotInformation.attunedToName());
@@ -420,7 +416,6 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
             }
         }
     }
-
 
     private void renderPhaseOne(GuiGraphics guiGraphics, int x, int y, double ratio) {
         int verticalDraw = (int) (ratio * 34);

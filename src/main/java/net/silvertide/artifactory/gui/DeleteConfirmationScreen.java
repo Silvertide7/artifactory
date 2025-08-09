@@ -147,6 +147,11 @@ public class DeleteConfirmationScreen extends Screen {
     }
 
     @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
     public void onClose() {
         super.onClose();
         this.manageScreen.createAttunementCards();

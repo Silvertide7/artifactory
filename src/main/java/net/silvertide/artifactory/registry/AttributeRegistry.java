@@ -17,7 +17,7 @@ public class AttributeRegistry {
     public static void register(IEventBus eventBus) { ATTRIBUTES.register(eventBus); }
 
     public static final DeferredHolder<Attribute, Attribute> ATTUNEMENT_SLOTS = ATTRIBUTES.register("attunement_slots", () ->
-            new RangedAttribute("attribute.artifactory.max_attunement_slots", 15, 0, Integer.MAX_VALUE).setSyncable(true));
+            new RangedAttribute("attribute.artifactory.max_attunement_slots", 20, 0, Integer.MAX_VALUE).setSyncable(true));
 
 
     @SubscribeEvent

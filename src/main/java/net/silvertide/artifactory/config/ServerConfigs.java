@@ -24,7 +24,7 @@ public class ServerConfigs {
 
         BUILDER.comment("The base value of the Attunement Level attribute. Default: 15");
         BUILDER.comment("If you change this and you want it to update for players, make sure to turn on the updateAttunementLevelAttribute config or it won't apply.");
-        BASE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().defineInRange("baseAttunementLevelAttribute", 15, 1, 1000);
+        BASE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().defineInRange("baseAttunementLevelAttribute", 20, 1, 1000);
 
         BUILDER.comment("How many levels by default you need to have to start the attunement process. Default: 35");
         XP_LEVELS_TO_ATTUNE_THRESHOLD = BUILDER.worldRestart().defineInRange("xpLevelThreshold", 30, 0, Integer.MAX_VALUE);
