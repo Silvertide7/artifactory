@@ -375,7 +375,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
     private void renderLevelCost(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation, boolean itemIsAttuned) {
         if (slotInformation.xpConsumed() > 0) {
-            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_cost" : "screen.text.artifactory.attunement.requirement_cost_ascend";
+            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_cost_ascend" : "screen.text.artifactory.attunement.requirement_cost";
             Component experienceCost = Component.translatable(key, String.valueOf(slotInformation.xpConsumed()));
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.4F, this.font, experienceCost, x + 93, y + 72, 75, 0xF8B3B0);
         }
@@ -383,7 +383,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
     private void renderXpThreshold(GuiGraphics guiGraphics, int x, int y, AttunementNexusSlotInformation slotInformation, boolean itemIsAttuned) {
         if (slotInformation.xpThreshold() > 0 && slotInformation.xpThreshold() > slotInformation.xpConsumed()) {
-            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_threshold" : "screen.text.artifactory.attunement.requirement_threshold_ascend";
+            String key = itemIsAttuned ? "screen.text.artifactory.attunement.requirement_threshold_ascend" : "screen.text.artifactory.attunement.requirement_threshold";
             Component experienceThreshold = Component.translatable(key, String.valueOf(slotInformation.xpThreshold()));
             GUIUtil.drawScaledWordWrap(guiGraphics, 0.4F, this.font, experienceThreshold, x + 93, y + 77, 75, 0xF8B3B0);
         }

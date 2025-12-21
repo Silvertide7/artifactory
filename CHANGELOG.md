@@ -1,5 +1,8 @@
+## 2.5.1
+- Fix lang file text
+
 ## 2.5.0
-- Changed the attunement screen attunement slots UI.
+- Changed the attunement screen attunement slots UI
 - Set the base attribute to 20
 - Small UI fixes.
 
