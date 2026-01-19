@@ -9,7 +9,6 @@ import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.AttributeRegistry;
-import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.*;
 
@@ -166,28 +165,5 @@ public final class AttunementUtil {
             }
         }
         return results;
-    }
-
-    public static void ejectInvalidCurios(ServerPlayer serverPlayer) {
-        CuriosApi.getCuriosInventory(serverPlayer).ifPresent(inv -> {
-            inv.getCurios().forEach((identifier, handler) -> {
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack stack = handler.getStacks().getStackInSlot(i);
-                    if (stack.isEmpty()) continue;
-
-                    AttunementService.clearBrokenAttunementIfExists(stack);
-                    if (AttunementUtil.isValidAttunementItem(stack)
-                            && !AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack)
-                            && !DataPackUtil.canUseWithoutAttunement(stack)) {
-
-                        ItemStack removed = handler.getStacks().extractItem(i, stack.getCount(), false);
-
-                        if (!serverPlayer.getInventory().add(removed)) {
-                            serverPlayer.drop(removed, false);
-                        }
-                    }
-                }
-            });
-        });
     }
 }

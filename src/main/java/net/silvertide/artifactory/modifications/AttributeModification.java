@@ -11,7 +11,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.StackNBTUtil;
-import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -110,15 +109,7 @@ public class AttributeModification implements AttunementModification {
         }
     }
 
-    public void addCurioAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
-        ResourceLocation attributeResourceLocation = new ResourceLocation(attribute);
-        Attribute attributeToModify = ForgeRegistries.ATTRIBUTES.getValue(attributeResourceLocation);
-        if(attributeToModify != null) {
-            curioAttributeModifierEvent.addModifier(attributeToModify, this.buildAttributeModifier());
-        }
-    }
-
-    private AttributeModifier buildAttributeModifier() {
+    public AttributeModifier buildAttributeModifier() {
         return new AttributeModifier(attributeUUID, this.getName(), value, AttributeModifier.Operation.fromValue(operation));
     }
 

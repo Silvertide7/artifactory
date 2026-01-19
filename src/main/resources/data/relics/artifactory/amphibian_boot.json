@@ -1,0 +1,14 @@
+{
+  "slots_used": 2,
+  "use_without_attunement": false,
+  "attunement_levels": [
+    {
+      "modifications": ["soulbound"],
+      "requirements": {
+        "xpLevelsConsumed": 35,
+        "xpLevelThreshold": 40,
+        "items": ["minecraft:nether_star"]
+      }
+    }
+  ]
+}
