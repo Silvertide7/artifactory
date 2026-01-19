@@ -28,7 +28,7 @@ public class SB_ToggleManageAttunementsScreen {
         if(Config.CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN.get()) {
             PacketHandler.sendToClient(player, new CB_OpenManageAttunementsScreen(Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get()));
         } else {
-            PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.cant_use_manage_keybind");
+            PlayerMessenger.displayTranslatableClientMessage(player, "playermessage.artifactory.cant_use_manage_keybind");
         }
     }
 }

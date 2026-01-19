@@ -9,6 +9,7 @@ import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.config.codecs.ItemAttunementData;
 import net.silvertide.artifactory.registry.AttributeRegistry;
+import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.*;
 
@@ -18,11 +19,13 @@ import java.util.*;
 public final class AttunementUtil {
     private AttunementUtil() {}
 
+    // This can be called client or server side
     public static int getMaxAttunementSlots(Player player) {
         return (int) player.getAttributeValue(AttributeRegistry.MAX_ATTUNEMENT_SLOTS.get());
     }
 
-    public static int getAttunementSlotsUsed(Player player) {
+    // This can be called client or server side
+    public static int getAttunementSlotsUsed(ServerPlayer player) {
         Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(player.getUUID());
         int numAttunementSlotsUsed = 0;
         for(AttunedItem attunedItem : attunedItems.values()) {
@@ -31,7 +34,8 @@ public final class AttunementUtil {
         return numAttunementSlotsUsed;
     }
 
-    public static int getOpenAttunementSlots(Player player) {
+    // This can be called client or server side
+    public static int getOpenAttunementSlots(ServerPlayer player) {
         return getMaxAttunementSlots(player) - getAttunementSlotsUsed(player);
     }
 
@@ -61,15 +65,16 @@ public final class AttunementUtil {
         return ArtifactorySavedData.get().getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
-    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(Player player, ItemAttunementData attunementData) {
+    public static boolean doesPlayerHaveSlotCapacityToAttuneItem(ServerPlayer player, ItemAttunementData attunementData) {
         int openSlots = getOpenAttunementSlots(player);
         int attunementSlotsRequired = attunementData.getAttunementSlotsUsed();
         boolean uniqueRestrictionActive = attunementData.unique() && AttunementUtil.isPlayerAtUniqueAttunementLimit(player.getUUID());
         return openSlots >= attunementSlotsRequired && !uniqueRestrictionActive;
     }
 
-    public static boolean canIncreaseAttunementLevel(Player player, ItemStack stack) {
+    public static boolean canIncreaseAttunementLevel(ServerPlayer player, ItemStack stack) {
         if(stack.isEmpty() || !AttunementUtil.isValidAttunementItem(stack)) return false;
+
         return DataPackUtil.getAttunementData(stack).map(attunementData -> {
             if(isItemAttunedToPlayer(player, stack)) {
                 int levelAchieved = getLevelOfAttunementAchieved(stack);
@@ -85,17 +90,17 @@ public final class AttunementUtil {
         return !stack.isEmpty() && StackNBTUtil.containsItemAttunementUUID(stack) && StackNBTUtil.containsAttunedToUUID(stack);
     }
 
-    public static boolean isUseRestricted(Player player, ItemStack stack) {
+    public static boolean isUseRestricted(ServerPlayer player, ItemStack stack) {
         if(!isValidAttunementItem(stack)) return false;
         return DataPackUtil.getAttunementData(stack).map(itemAttunementData -> {
             if(isAttunedToAnotherPlayer(player, stack)) {
                 if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.owned_by_another_player");
+                    PlayerMessenger.displayTranslatableClientMessage(player,"playermessage.artifactory.owned_by_another_player");
                 }
                 return true;
             } else if(!AttunementUtil.isItemAttunedToPlayer(player, stack) && !itemAttunementData.useWithoutAttunement()) {
                 if(!player.level().isClientSide()) {
-                    PlayerMessenger.displayTranslatabelClientMessage(player,"playermessage.artifactory.item_not_usable");
+                    PlayerMessenger.displayTranslatableClientMessage(player,"playermessage.artifactory.item_not_usable");
                 }
                 return true;
             }
@@ -107,22 +112,12 @@ public final class AttunementUtil {
         return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> !player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
-    public static boolean arePlayerAndItemAttuned(Player player, ItemStack stack) {
-        return isItemAttunedToPlayer(player, stack) && isPlayerAttunedToItem(player, stack);
-    }
-
     public static boolean isItemAttunedToPlayer(Player player, ItemStack stack) {
         if (stack.isEmpty() || !StackNBTUtil.containsAttunedToUUID(stack)) return false;
         return StackNBTUtil.getAttunedToUUID(stack).map(attunedToUUID -> player.getUUID().equals(attunedToUUID)).orElse(false);
     }
 
-    private static boolean isPlayerAttunedToItem(Player player, ItemStack stack) {
-        return StackNBTUtil.getItemAttunementUUID(stack).map(itemAttunementUUID ->
-                        ArtifactorySavedData.get().getAttunedItem(player.getUUID(), itemAttunementUUID).isPresent())
-                .orElse(false);
-    }
-
-    public static boolean doesPlayerHaveAttunedItem(Player player) {
+    public static boolean doesPlayerHaveAttunedItem(ServerPlayer player) {
         return !ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty();
     }
 
@@ -140,10 +135,6 @@ public final class AttunementUtil {
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
         return GUIUtil.prettifyName(StackNBTUtil.getDisplayNameFromNBT(stack).orElse(stack.getItem().toString()));
-    }
-
-    public static Optional<String> getSavedDataAttunedItemOwnerDisplayName(ItemStack stack) {
-        return StackNBTUtil.getAttunedToUUID(stack).flatMap(attunedToUUID -> ArtifactorySavedData.get().getPlayerName(attunedToUUID));
     }
 
     public static boolean isPlayerAtUniqueAttunementLimit(UUID playerUUID) {
@@ -175,5 +166,28 @@ public final class AttunementUtil {
             }
         }
         return results;
+    }
+
+    public static void ejectInvalidCurios(ServerPlayer serverPlayer) {
+        CuriosApi.getCuriosInventory(serverPlayer).ifPresent(inv -> {
+            inv.getCurios().forEach((identifier, handler) -> {
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    ItemStack stack = handler.getStacks().getStackInSlot(i);
+                    if (stack.isEmpty()) continue;
+
+                    AttunementService.clearBrokenAttunementIfExists(stack);
+                    if (AttunementUtil.isValidAttunementItem(stack)
+                            && !AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack)
+                            && !DataPackUtil.canUseWithoutAttunement(stack)) {
+
+                        ItemStack removed = handler.getStacks().extractItem(i, stack.getCount(), false);
+
+                        if (!serverPlayer.getInventory().add(removed)) {
+                            serverPlayer.drop(removed, false);
+                        }
+                    }
+                }
+            });
+        });
     }
 }

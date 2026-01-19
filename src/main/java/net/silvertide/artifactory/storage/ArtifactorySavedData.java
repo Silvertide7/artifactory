@@ -89,7 +89,7 @@ public class ArtifactorySavedData extends SavedData {
             ServerPlayer player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerUUID);
             if(player != null) {
                 PacketHandler.sendToClient(player, new CB_RemoveAttunedItem(removedItem.getItemUUID()));
-                PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.bond_broken", removedItem.getDisplayName());
+                PlayerMessenger.displayTranslatableClientMessage(player, "playermessage.artifactory.bond_broken", removedItem.getDisplayName());
             }
         }
     }

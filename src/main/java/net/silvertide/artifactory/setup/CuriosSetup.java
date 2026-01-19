@@ -25,7 +25,7 @@ public class CuriosSetup {
                     ItemStack stack = slotResult.stack();
                     if(AttunementUtil.isValidAttunementItem(stack)) {
                         if(!AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack)) {
-                            PlayerMessenger.displayTranslatabelClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
+                            PlayerMessenger.displayTranslatableClientMessage(serverPlayer,"playermessage.artifactory.item_not_equippable");
                             return false;
                         } else {
                             return true;

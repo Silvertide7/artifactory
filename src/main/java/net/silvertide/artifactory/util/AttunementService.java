@@ -56,10 +56,17 @@ public final class AttunementService {
         StackNBTUtil.removeArtifactoryNBT(stack);
     }
 
-    public static void clearBrokenAttunements(Player player) {
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            clearBrokenAttunementIfExists(player.getInventory().items.get(i));
+    public static void clearBrokenAttunements(ServerPlayer player) {
+        for (ItemStack item : player.getInventory().items) {
+            clearBrokenAttunementIfExists(item);
         }
+        for (ItemStack item : player.getInventory().armor) {
+            clearBrokenAttunementIfExists(item);
+        }
+        for (ItemStack item : player.getInventory().offhand) {
+            clearBrokenAttunementIfExists(item);
+        }
+        AttunementUtil.ejectInvalidCurios(player);
     }
 
     // The purpose of this method is to check if the itemstack is attuned to a player
@@ -81,7 +88,7 @@ public final class AttunementService {
 
     }
 
-    public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
+    public static void applyEffectsToPlayer(ServerPlayer player, ItemStack stack, boolean wearable) {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());
