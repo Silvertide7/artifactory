@@ -1,3 +1,6 @@
+## 2.6.1
+- Remove unused dependencies.
+
 ## 2.6.0
 - Fix bug when loading into the game with an attunable curios item in a slot that is not attuned.
 - Small performance improvements and fixes.
