@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.events;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -77,11 +78,12 @@ public class ArtifactEvents {
     }
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
-        if(EffectiveSide.get().isClient()) {
-            return ClientItemAttunementData.isUseRestricted(player, stack);
-        } else {
-            return AttunementUtil.isUseRestricted(player, stack);
+        if(player instanceof ServerPlayer serverPlayer) {
+            return AttunementUtil.isUseRestricted(serverPlayer, stack);
+        } else if (player instanceof LocalPlayer localPlayer) {
+            return ClientItemAttunementData.isUseRestricted(localPlayer, stack);
         }
+        return false;
     }
 
     @SubscribeEvent
@@ -103,7 +105,7 @@ public class ArtifactEvents {
 
         Player player = playerTickEvent.player;
 
-        if (player instanceof ServerPlayer) {
+        if (player instanceof ServerPlayer serverPlayer) {
             Inventory inv = player.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
 
@@ -111,7 +113,7 @@ public class ArtifactEvents {
                 if(armorStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(armorStack);
 
-                AttunementService.applyEffectsToPlayer(player, armorStack, true);
+                AttunementService.applyEffectsToPlayer(serverPlayer, armorStack, true);
             }
 
             List<ItemStack> handItems= List.of(player.getMainHandItem(), player.getOffhandItem());
@@ -119,7 +121,7 @@ public class ArtifactEvents {
                 if(handStack.isEmpty()) continue;
                 AttunementService.clearBrokenAttunementIfExists(handStack);
 
-                AttunementService.applyEffectsToPlayer(player, handStack, false);
+                AttunementService.applyEffectsToPlayer(serverPlayer, handStack, false);
             }
         }
     }

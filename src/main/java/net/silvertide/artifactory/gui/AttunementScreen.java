@@ -468,8 +468,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> im
                             requirementsList.add(Component.translatable("screen.tooltip.artifactory.xp_level_threshold", slotInformation.xpThreshold()));
                         }
                         boolean itemOneSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
-                        boolean itemTwoSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
-                        boolean itemThreeSlotNeedsItems = slotInformation.hasItemRequirement(0) && getMenu().getItemRequirementOneState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemTwoSlotNeedsItems = slotInformation.hasItemRequirement(1) && getMenu().getItemRequirementTwoState() != ItemRequirementState.FULFILLED.getValue();
+                        boolean itemThreeSlotNeedsItems = slotInformation.hasItemRequirement(2) && getMenu().getItemRequirementThreeState() != ItemRequirementState.FULFILLED.getValue();
 
                         if(itemOneSlotNeedsItems || itemTwoSlotNeedsItems || itemThreeSlotNeedsItems) {
                             requirementsList.add(Component.translatable("screen.tooltip.artifactory.provide_items"));

@@ -1,8 +1,8 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.compat.CompatFlags;
 import net.silvertide.artifactory.config.Config;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
@@ -10,7 +10,7 @@ import net.silvertide.artifactory.storage.AttunedItem;
 public final class AttunementService {
     private AttunementService() {}
 
-    // Atunement Actions
+    // Attunement Actions
     public static void increaseLevelOfAttunement(ServerPlayer player, ItemStack stack) {
         int levelOfAttunementAchieved = AttunementUtil.getLevelOfAttunementAchieved(stack);
         boolean successfulAttunementIncrease = false;
@@ -56,9 +56,19 @@ public final class AttunementService {
         StackNBTUtil.removeArtifactoryNBT(stack);
     }
 
-    public static void clearBrokenAttunements(Player player) {
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            clearBrokenAttunementIfExists(player.getInventory().items.get(i));
+    public static void clearBrokenAttunements(ServerPlayer player) {
+        for (ItemStack item : player.getInventory().items) {
+            clearBrokenAttunementIfExists(item);
+        }
+        for (ItemStack item : player.getInventory().armor) {
+            clearBrokenAttunementIfExists(item);
+        }
+        for (ItemStack item : player.getInventory().offhand) {
+            clearBrokenAttunementIfExists(item);
+        }
+
+        if(CompatFlags.CURIOS_LOADED) {
+            net.silvertide.artifactory.compat.CuriosCompat.ejectInvalidCurios(player);
         }
     }
 
@@ -81,7 +91,7 @@ public final class AttunementService {
 
     }
 
-    public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
+    public static void applyEffectsToPlayer(ServerPlayer player, ItemStack stack, boolean wearable) {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, Config.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());

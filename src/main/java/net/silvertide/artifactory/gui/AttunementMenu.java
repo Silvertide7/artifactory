@@ -28,6 +28,7 @@ public class AttunementMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final Player player;
     private AttunementNexusSlotInformation attunementNexusSlotInformation= null;
+    private boolean needsAttunementRecalc = false;
 
     // Data Slot Fields
     protected final SimpleContainerData data;
@@ -65,7 +66,10 @@ public class AttunementMenu extends AbstractContainerMenu {
         this.access = access;
         this.player = playerInventory.player;
 
-        checkContainerSize(playerInventory, 1);
+        checkContainerSize(attunementInputContainer, 1);
+        checkContainerSize(itemRequirementOneContainer, 1);
+        checkContainerSize(itemRequirementTwoContainer, 1);
+        checkContainerSize(itemRequirementThreeContainer, 1);
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
@@ -140,10 +144,8 @@ public class AttunementMenu extends AbstractContainerMenu {
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                if(!stack.isEmpty() && !player.level().isClientSide()) {
-                    updateAttunementItemNBT();
-                    ArtifactorySavedData.get().updateDisplayName(stack);
-                    AttunementMenu.this.updateAttunementState();
+                if(player instanceof ServerPlayer) {
+                    needsAttunementRecalc = true;
                 }
             }
 
@@ -176,7 +178,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -184,7 +186,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -202,7 +204,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -210,7 +212,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -228,7 +230,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.onTake(player, stack);
@@ -236,7 +238,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void setChanged() {
-                if(!player.level().isClientSide()) {
+                if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
                 super.setChanged();
@@ -253,7 +255,12 @@ public class AttunementMenu extends AbstractContainerMenu {
                 setIsActive(false);
             } else {
                 setIsActive(true);
+                setProgress(0);
+                if (player instanceof ServerPlayer sp) {
+                    playStartEffects(sp);
+                }
             }
+            return true;
         } else if (pId == 2 && player instanceof ServerPlayer serverPlayer && AttunementUtil.doesPlayerHaveAttunedItem(serverPlayer)) {
             clearAllContainers();
             clearItemDataSlotData();
@@ -262,6 +269,7 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             int numUnique = Config.NUMBER_UNIQUE_ATTUNEMENTS_PER_PLAYER.get();
             PacketHandler.sendToClient(serverPlayer, new CB_OpenManageAttunementsScreen(numUnique));
+            return true;
         }
         return super.clickMenuButton(player, pId);
     }
@@ -269,29 +277,57 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        if(player instanceof ServerPlayer serverPlayer && getIsActive()) {
-            if(getProgress() < MAX_PROGRESS) {
-                if(getProgress() == 1) {
-                    playStartEffects(serverPlayer);
-                } else if(getProgress() % 3 == 0) {
-                    playProgressEffects(serverPlayer);
-                }
-                setProgress(getProgress() + 1);
-            } else {
-                if(this.canAscensionStart()) {
-                    ItemStack stack = this.attunementInputSlot.getItem();
-                    if(!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
-                        handleAttunement(stack);
-                        playAttuneEffects(serverPlayer);
-                        MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
-                    }
-                }
-                setIsActive(false);
-                setProgress(0);
+        if(player instanceof ServerPlayer serverPlayer) {
+            if (serverPlayer.server.getPlayerList().getPlayer(serverPlayer.getUUID()) == null) {
+                super.broadcastChanges();
+                return;
+            }
+
+            if(needsAttunementRecalc) {
+                needsAttunementRecalc = false;
+                updateAttunementItemNBT();
+                ArtifactorySavedData.get().updateDisplayName(attunementInputSlot.getItem());
+                updateAttunementState();
+            }
+
+
+            if(getIsActive()) {
+                tickAttunement(serverPlayer);
             }
         }
         super.broadcastChanges();
     }
+
+    private void tickAttunement(ServerPlayer serverPlayer) {
+        if (!attunementInputSlot.hasItem()) {
+            setIsActive(false);
+            setProgress(0);
+            return;
+        }
+
+        // If progress is not complete, iterate progress and return
+        int progress= getProgress();
+        if (progress < MAX_PROGRESS) {
+            if (progress > 0 && progress % 3 == 0) playProgressEffects(serverPlayer);
+            setProgress(progress + 1);
+            return;
+        }
+
+        // If the progress is complete lets double check that we can attune the item again and post events
+        if (canAscensionStart()) {
+            ItemStack stack = this.attunementInputSlot.getItem();
+            if (!MinecraftForge.EVENT_BUS.post(new PreAttuneEvent(player, stack))) {
+                handleAttunement(stack);
+                playAttuneEffects(serverPlayer);
+                MinecraftForge.EVENT_BUS.post(new PostAttuneEvent(player, stack));
+            }
+        }
+
+        // Reset data
+        setIsActive(false);
+        setProgress(0);
+    }
+
 
     private void playStartEffects(ServerPlayer player) {
         GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_ACTIVATE);
@@ -377,10 +413,14 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     private void updateAscensionCanStart() {
+        if (!(this.player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
         boolean ascensionCanStart = false;
         if(this.attunementInputSlot.hasItem()) {
             boolean meetsRequirementsToAttune = player.getAbilities().instabuild || this.meetsRequirementsToAttune();
-            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
+            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(serverPlayer, this.attunementInputSlot.getItem())
                     && meetsRequirementsToAttune;
         }
         setCanAscensionStart(ascensionCanStart);
