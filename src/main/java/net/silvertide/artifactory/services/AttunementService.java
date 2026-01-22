@@ -2,8 +2,8 @@ package net.silvertide.artifactory.services;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.compat.CompatFlags;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.component.PlayerAttunementData;
@@ -56,9 +56,18 @@ public final class AttunementService {
         DataComponentUtil.clearPlayerAttunementData(stack);
     }
 
-    public static void clearBrokenAttunements(Player player) {
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            checkAndUpdateAttunementComponents(player.getInventory().items.get(i));
+    public static void clearBrokenAttunements(ServerPlayer player) {
+        for (ItemStack item : player.getInventory().items) {
+            checkAndUpdateAttunementComponents(item);
+        }
+        for (ItemStack item : player.getInventory().armor) {
+            checkAndUpdateAttunementComponents(item);
+        }
+        for (ItemStack item : player.getInventory().offhand) {
+            checkAndUpdateAttunementComponents(item);
+        }
+        if(CompatFlags.CURIOS_LOADED) {
+            net.silvertide.artifactory.compat.CuriosCompat.ejectInvalidCurios(player);
         }
     }
 
@@ -116,7 +125,7 @@ public final class AttunementService {
         });
     }
 
-    public static void applyEffectsToPlayer(Player player, ItemStack stack, boolean wearable) {
+    public static void applyEffectsToPlayer(ServerPlayer player, ItemStack stack, boolean wearable) {
         if(AttunementUtil.isValidAttunementItem(stack)) {
             if(AttunementUtil.isAttunedToAnotherPlayer(player, stack)) {
                 EffectUtil.applyMobEffectInstancesToPlayer(player, ServerConfigs.EFFECTS_WHEN_HOLDING_OTHER_PLAYER_ITEM.get());

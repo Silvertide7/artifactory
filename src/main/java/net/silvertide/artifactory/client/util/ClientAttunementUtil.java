@@ -1,8 +1,11 @@
-package net.silvertide.artifactory.client.state;
+package net.silvertide.artifactory.client.util;
 
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.client.state.ClientAttunedItems;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
+import net.silvertide.artifactory.client.state.ClientSyncedConfig;
+import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementOverride;
@@ -45,7 +48,7 @@ public final class ClientAttunementUtil {
         return attunementFlagSet && getClientAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
     }
 
-    public static boolean isUseRestricted(Player player, ItemStack stack) {
+    public static boolean isUseRestricted(LocalPlayer player, ItemStack stack) {
         return getClientAttunementSchema(stack)
                 .filter(AttunementSchema::isValidSchema)
                 .map(attunementSchema ->

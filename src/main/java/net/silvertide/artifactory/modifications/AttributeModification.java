@@ -16,7 +16,6 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import org.jetbrains.annotations.NotNull;
-import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -83,10 +82,6 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
 
     public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
         itemAttributeModifierEvent.addModifier(this.attribute, this.modifier, this.slot());
-    }
-
-    public void addAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent) {
-        curioAttributeModifierEvent.addModifier(this.attribute, this.modifier);
     }
 
     private static AttributeModifier buildAttributeModifier(String resourceLocation, double value, int operation) {

@@ -1,3 +1,7 @@
+## 2.6.0
+- Fix bug when loading into the game with an attunable curios item in a slot that is not attuned.
+- Small performance improvements and fixes.
+
 ## 2.5.1
 - Fix lang file text
 

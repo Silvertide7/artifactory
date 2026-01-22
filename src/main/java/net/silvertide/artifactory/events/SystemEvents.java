@@ -2,7 +2,6 @@ package net.silvertide.artifactory.events;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -15,6 +14,7 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.commands.CmdRoot;
 import net.silvertide.artifactory.config.codecs.AttunableItems;
 import net.silvertide.artifactory.network.client_packets.CB_SyncDatapackData;
+import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementDataSourceUtil;
@@ -25,17 +25,24 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class SystemEvents {
-    @SubscribeEvent(priority=EventPriority.LOW)
+    @SubscribeEvent()
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
 
         if (player instanceof ServerPlayer serverPlayer) {
-            // Sync attuned items and information to player
-            Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
-            NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
-            NetworkUtil.syncServerConfigs(serverPlayer);
-            NetworkUtil.updateAttunementLevelAttribute(serverPlayer);
-            ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
+            serverPlayer.server.execute(() -> {
+                if (serverPlayer.server.getPlayerList().getPlayer(serverPlayer.getUUID()) == null) return;
+                ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
+
+                AttunementService.clearBrokenAttunements(serverPlayer);
+
+                NetworkUtil.syncServerConfigs(serverPlayer);
+                NetworkUtil.updateAttunementLevelAttribute(serverPlayer);
+
+                Map<UUID, AttunedItem> attunedItems = ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID());
+                NetworkUtil.updateAllAttunedItems(serverPlayer, attunedItems);
+            });
+
         }
     }
 

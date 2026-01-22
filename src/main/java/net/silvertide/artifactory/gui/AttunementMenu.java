@@ -13,7 +13,8 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.silvertide.artifactory.client.state.ClientAttunementUtil;
+import net.silvertide.artifactory.Artifactory;
+import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
@@ -33,6 +34,7 @@ public class AttunementMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final Player player;
     private AttunementNexusSlotInformation attunementNexusSlotInformation = null;
+    private boolean recalculateAttunementState = false;
 
     // Data Slot Fields
     protected final SimpleContainerData data;
@@ -70,7 +72,10 @@ public class AttunementMenu extends AbstractContainerMenu {
         this.access = access;
         this.player = playerInventory.player;
 
-        checkContainerSize(playerInventory, 1);
+        checkContainerSize(attunementInputContainer, 1);
+        checkContainerSize(itemRequirementOneContainer, 1);
+        checkContainerSize(itemRequirementTwoContainer, 1);
+        checkContainerSize(itemRequirementThreeContainer, 1);
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
@@ -144,19 +149,19 @@ public class AttunementMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
-                clearItemDataSlotData();
+                resetDerivedState();
                 clearAllContainers();
+                recalculateAttunementState = true;
                 super.onTake(player, stack);
             }
 
             @Override
-            public void set(@NotNull ItemStack stack) {
-                super.set(stack);
-                if(!stack.isEmpty()) {
-                    updateAttunementItemDataComponent();
-                    ArtifactorySavedData.get().updateDisplayName(stack);
-                    AttunementMenu.this.updateAttunementState();
+            public void setChanged() {
+                super.setChanged();
+                if(!(player instanceof ServerPlayer)) {
+                    updateAttunementState();
                 }
+                recalculateAttunementState = true;
             }
 
             @Override
@@ -265,43 +270,75 @@ public class AttunementMenu extends AbstractContainerMenu {
                 setIsActive(false);
             } else {
                 setIsActive(true);
+                setProgress(0);
+                if (player instanceof ServerPlayer sp) {
+                    playStartEffects(sp);
+                }
             }
+            return true;
         } else if (pId == 2 && player instanceof ServerPlayer serverPlayer && AttunementUtil.doesPlayerHaveAttunedItem(serverPlayer)) {
             clearAllContainers();
-            clearItemDataSlotData();
+            resetDerivedState();
             setProgress(0);
             setIsActive(false);
 
             PacketDistributor.sendToPlayer(serverPlayer, new CB_OpenManageAttunementsScreen());
+            return true;
         }
         return super.clickMenuButton(player, pId);
     }
 
-
     @Override
     public void broadcastChanges() {
-        if(player instanceof ServerPlayer serverPlayer && getIsActive()) {
-            if(getProgress() < MAX_PROGRESS) {
-                if(getProgress() == 1) {
-                    playStartEffects(serverPlayer);
-                } else if(getProgress() % 3 == 0) {
-                    playProgressEffects(serverPlayer);
-                }
-                setProgress(getProgress() + 1);
-            } else {
-                if(this.canAscensionStart()) {
-                    ItemStack stack = this.attunementInputSlot.getItem();
-                    if(!NeoForge.EVENT_BUS.post(new AttuneEvent.Pre(player, stack)).isCanceled()) {
-                        handleAttunement(stack);
-                        playAttuneEffects(serverPlayer);
-                        NeoForge.EVENT_BUS.post(new AttuneEvent.Post(player, stack));
-                    }
-                }
-                setIsActive(false);
-                setProgress(0);
+        if(player instanceof ServerPlayer serverPlayer) {
+            if (serverPlayer.server.getPlayerList().getPlayer(serverPlayer.getUUID()) == null) {
+                super.broadcastChanges();
+                return;
+            }
+
+            if(recalculateAttunementState) {
+                recalculateAttunementState = false;
+                updateAttunementItemDataComponent();
+                ArtifactorySavedData.get().updateDisplayName(attunementInputSlot.getItem());
+                updateAttunementState();
+            }
+
+            if(getIsActive()) {
+                tickAttunement(serverPlayer);
             }
         }
+
         super.broadcastChanges();
+    }
+
+    private void tickAttunement(ServerPlayer serverPlayer) {
+        if (!attunementInputSlot.hasItem()) {
+            setIsActive(false);
+            setProgress(0);
+            return;
+        }
+
+        // If progress is not complete, iterate progress and return
+        int progress= getProgress();
+        if (progress < MAX_PROGRESS) {
+            if (progress > 0 && progress % 3 == 0) playProgressEffects(serverPlayer);
+            setProgress(progress + 1);
+            return;
+        }
+
+        // If the progress is complete lets double check that we can attune the item again and post events
+        if (canAscensionStart()) {
+            ItemStack stack = this.attunementInputSlot.getItem();
+            if(!NeoForge.EVENT_BUS.post(new AttuneEvent.Pre(player, stack)).isCanceled()) {
+                handleAttunement(stack);
+                playAttuneEffects(serverPlayer);
+                NeoForge.EVENT_BUS.post(new AttuneEvent.Post(player, stack));
+            }
+        }
+
+        // Reset data
+        setIsActive(false);
+        setProgress(0);
     }
 
     private void playStartEffects(ServerPlayer player) {
@@ -368,17 +405,17 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     public void updateAttunementState() {
         if(this.player instanceof ServerPlayer serverPlayer) {
-            clearItemDataSlotData();
+            resetDerivedState();
             setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(serverPlayer.getUUID()).isEmpty());
             getAttunementSlotItemStack().ifPresent(stack -> {
                 this.attunementNexusSlotInformation = AttunementUtil.createAttunementNexusSlotInformation(serverPlayer, stack);
             });
             updateAscensionCanStart();
         } else if (this.player instanceof LocalPlayer localPlayer) {
-            this.attunementNexusSlotInformation = null;
-            getAttunementSlotItemStack().ifPresent(stack -> {
-                this.attunementNexusSlotInformation = ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack);
-            });
+            this.attunementNexusSlotInformation = getAttunementSlotItemStack().map(stack -> ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack)).orElse(null);
+            if (this.attunementNexusSlotInformation == null) {
+                clearClientVisualsOnly();
+            }
         }
         if(this.attunementNexusSlotInformation != null) {
             updateItemSlotRequirements();
@@ -386,10 +423,12 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     private void updateAscensionCanStart() {
+        if(!(this.player instanceof ServerPlayer serverPlayer)) return;
+
         boolean ascensionCanStart = false;
         if(this.attunementInputSlot.hasItem()) {
-            boolean meetsRequirementsToAttune = player.getAbilities().instabuild || this.meetsRequirementsToAttune();
-            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(this.player, this.attunementInputSlot.getItem())
+            boolean meetsRequirementsToAttune = serverPlayer.getAbilities().instabuild || this.meetsRequirementsToAttune();
+            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(serverPlayer, this.attunementInputSlot.getItem())
                     && meetsRequirementsToAttune;
         }
         setCanAscensionStart(ascensionCanStart);
@@ -420,25 +459,31 @@ public class AttunementMenu extends AbstractContainerMenu {
 
 
     private void updateItemRequirementDataSlots() {
+        if (!(player instanceof ServerPlayer)) return;
         setItemRequirementOneState(itemRequirementOneSlot.getItemRequirementState().getValue());
         setItemRequirementTwoState(itemRequirementTwoSlot.getItemRequirementState().getValue());
         setItemRequirementThreeState(itemRequirementThreeSlot.getItemRequirementState().getValue());
-        updateAscensionCanStart();
     }
 
+    public void resetDerivedState() {
+        if (player instanceof ServerPlayer) {
+            clearServerDataSlots();
+        }
+        clearClientVisualsOnly();
+    }
 
-    public void clearItemDataSlotData() {
+    private void clearServerDataSlots() {
         setCanAscensionStart(false);
-
         setItemRequirementOneState(ItemRequirementState.NOT_REQUIRED.getValue());
         setItemRequirementTwoState(ItemRequirementState.NOT_REQUIRED.getValue());
         setItemRequirementThreeState(ItemRequirementState.NOT_REQUIRED.getValue());
+    }
 
+    private void clearClientVisualsOnly() {
         this.attunementNexusSlotInformation = null;
-
-        this.itemRequirementOneSlot.clearItemRequired();
-        this.itemRequirementTwoSlot.clearItemRequired();
-        this.itemRequirementThreeSlot.clearItemRequired();
+        if (this.itemRequirementOneSlot != null) this.itemRequirementOneSlot.clearItemRequired();
+        if (this.itemRequirementTwoSlot != null) this.itemRequirementTwoSlot.clearItemRequired();
+        if (this.itemRequirementThreeSlot != null) this.itemRequirementThreeSlot.clearItemRequired();
     }
 
     public boolean hasAttunableItemInSlot() {
@@ -469,15 +514,16 @@ public class AttunementMenu extends AbstractContainerMenu {
 
     @Override
     public void removed(@NotNull Player player) {
-        clearItemDataSlotData();
-        setPlayerHasAttunedItem(false);
-        setProgress(0);
-        setIsActive(false);
+        if (player instanceof ServerPlayer) {
+            clearServerDataSlots();
+            setPlayerHasAttunedItem(false);
+            setProgress(0);
+            setIsActive(false);
+        }
+        clearClientVisualsOnly();
 
         super.removed(player);
-        this.access.execute((level, blockPos) -> {
-            clearAllContainers();
-        });
+        this.access.execute((level, blockPos) -> clearAllContainers());
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

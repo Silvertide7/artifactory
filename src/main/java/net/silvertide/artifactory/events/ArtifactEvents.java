@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.events;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -17,7 +18,7 @@ import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
 import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
-import net.silvertide.artifactory.client.state.ClientAttunementUtil;
+import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
@@ -35,7 +36,7 @@ public class ArtifactEvents {
         if (event.getEntity() instanceof Player player) {
             List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
             for(ItemStack stack : itemsInHand) {
-                if(AttunementUtil.isUseRestricted(player, stack)) {
+                if(sidedIsUseRestricted(player, stack)) {
                     event.setCanceled(true);
                     break;
                 }
@@ -68,11 +69,12 @@ public class ArtifactEvents {
     }
 
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
-        if(player instanceof ServerPlayer) {
-            return AttunementUtil.isUseRestricted(player, stack);
-        } else {
-            return ClientAttunementUtil.isUseRestricted(player, stack);
+        if(player instanceof ServerPlayer serverPlayer) {
+            return AttunementUtil.isUseRestricted(serverPlayer, stack);
+        } else if(player instanceof LocalPlayer localPlayer) {
+            return ClientAttunementUtil.isUseRestricted(localPlayer, stack);
         }
+        return false;
     }
 
     @SubscribeEvent

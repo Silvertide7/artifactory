@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.client.state;
 
+import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.modifications.AttunementModification;
 import net.silvertide.artifactory.modifications.ModificationFactory;
 import net.silvertide.artifactory.storage.AttunedItem;

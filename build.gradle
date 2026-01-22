@@ -140,6 +140,11 @@ configurations {
 dependencies {
     compileOnly ("top.theillusivec4.curios:curios-neoforge:${curios_version}:api")
     runtimeOnly ("top.theillusivec4.curios:curios-neoforge:${curios_version}")
+
+    // Curios Testing Mods
+    runtimeOnly ("curse.maven:octo-lib-916747:6932487")
+    runtimeOnly ("curse.maven:relics-mod-445274:6879532")
+    runtimeOnly ("curse.maven:architectury-api-419699:5786327")
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -23,7 +23,7 @@ public record SB_ToggleManageAttunementsScreen() implements CustomPacketPayload 
                 if(ServerConfigs.CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN.get()) {
                     PacketDistributor.sendToPlayer(player, new CB_OpenManageAttunementsScreen());
                 } else {
-                    PlayerMessenger.displayTranslatabelClientMessage(player, "playermessage.artifactory.cant_use_manage_keybind");
+                    PlayerMessenger.displayTranslatableClientMessage(player, "playermessage.artifactory.cant_use_manage_keybind");
                 }
             }
         });
