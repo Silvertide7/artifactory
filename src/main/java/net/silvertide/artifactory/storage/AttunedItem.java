@@ -101,7 +101,7 @@ public class AttunedItem {
         return order;
     }
 
-    public void incremenetAttunementLevel() {
+    public void incrementAttunementLevel() {
         setAttunementLevel(getAttunementLevel() + 1);
     }
 

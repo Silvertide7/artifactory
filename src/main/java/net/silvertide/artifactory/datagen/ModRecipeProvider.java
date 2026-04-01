@@ -19,12 +19,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     @Override
     protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, BlockRegistry.ATTUNEMENT_NEXUS_BLOCK.get())
-                .pattern("SAS")
+                .pattern("SWS")
                 .pattern("WBW")
-                .pattern("WCW")
+                .pattern("WAW")
                 .define('A', Ingredient.of(Items.ANVIL))
                 .define('B', Ingredient.of(Items.BEACON))
-                .define('C', Ingredient.of(Items.CONDUIT))
                 .define('S', Ingredient.of(Items.BLACKSTONE))
                 .define('W', Ingredient.of(Items.DARK_OAK_WOOD))
                 .unlockedBy("has_beacon", has(Items.BEACON)).save(recipeOutput);

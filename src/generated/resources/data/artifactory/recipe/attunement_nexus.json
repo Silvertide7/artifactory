@@ -8,9 +8,6 @@
     "B": {
       "item": "minecraft:beacon"
     },
-    "C": {
-      "item": "minecraft:conduit"
-    },
     "S": {
       "item": "minecraft:blackstone"
     },
@@ -19,9 +16,9 @@
     }
   },
   "pattern": [
-    "SAS",
+    "SWS",
     "WBW",
-    "WCW"
+    "WAW"
   ],
   "result": {
     "count": 1,

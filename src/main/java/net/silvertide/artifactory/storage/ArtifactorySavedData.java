@@ -91,7 +91,7 @@ public class ArtifactorySavedData extends SavedData {
         Map<UUID, AttunedItem> playerAttunedItems = attunedItems.getOrDefault(playerUUID, new HashMap<>());
         AttunedItem attunedItem = playerAttunedItems.get(attunedItemId);
         if(attunedItem != null) {
-            attunedItem.incremenetAttunementLevel();
+            attunedItem.incrementAttunementLevel();
             this.setDirty();
 
             // Sync updated information to the player.

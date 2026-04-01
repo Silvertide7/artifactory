@@ -141,7 +141,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
             map.put(id, merger.apply(raws));
         }
 
-        LOGGER.info("Data loader for {} loaded {} finalized objects", this.folderName, this.data.size());
+        LOGGER.info("Data loader for {} loaded {} finalized objects", this.folderName, map.size());
         return Map.copyOf(map);
     }
 
@@ -219,7 +219,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      */
     private boolean isValidItem(ResourceLocation resourceLocation) {
         ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(resourceLocation);
-        if(!stack.isEmpty() & stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
+        if(!stack.isEmpty() && stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
            return true;
         } else {
             Artifactory.LOGGER.warn("Artifactory - " + resourceLocation.toString() + " - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.");

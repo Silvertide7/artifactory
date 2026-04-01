@@ -20,8 +20,8 @@ public class ClientAttunedItems {
         return myAttunedItems;
     }
 
-    public static Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {
-        if(playerUUID == null || attunedItemId == null) return Optional.empty();
+    public static Optional<AttunedItem> getAttunedItem(UUID attunedItemId) {
+        if(attunedItemId == null) return Optional.empty();
         return Optional.ofNullable(myAttunedItems.get(attunedItemId));
     }
 

@@ -42,6 +42,9 @@ public final class GUIUtil {
         while(font.width(result) > width) {
             float ratio = (float) width / font.width(result);
             int stringLength = (int) (result.length() * ratio);
+            if(stringLength <= 3) {
+                return "...";
+            }
             result = result.substring(0, stringLength - 3);
             result += "...";
         }
@@ -102,17 +105,15 @@ public final class GUIUtil {
             StringBuilder result = new StringBuilder();
             String[] words = prettifiedLocation.split("_");
             for (int i = 0; i < words.length; i++) {
+                if(words[i].isEmpty()) continue;
                 // Capitalize the first letter and make the rest lowercase
                 String capitalizedWord = words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();
                 // Append the capitalized word to the result
+                if(!result.isEmpty()) result.append(" ");
                 result.append(capitalizedWord);
-                // Add a space if this is not the last word
-                if (i < words.length - 1) {
-                    result.append(" ");
-                }
             }
             prettifiedLocation = result.toString();
-        } else if(!prettifiedLocation.contains(" ")) {
+        } else if(!prettifiedLocation.isEmpty() && !prettifiedLocation.contains(" ")) {
             prettifiedLocation = prettifiedLocation.substring(0, 1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
         }
 
