@@ -69,7 +69,7 @@ public final class ClientAttunementUtil {
     }
 
     public static int getLevelOfAttunementAchieved(UUID playerUUID, UUID itemAttunementUUID) {
-        return ClientAttunedItems.getAttunedItem(playerUUID, itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
+        return ClientAttunedItems.getAttunedItem(itemAttunementUUID).map(AttunedItem::getAttunementLevel).orElse(0);
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {

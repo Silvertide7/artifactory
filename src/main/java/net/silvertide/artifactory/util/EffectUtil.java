@@ -7,6 +7,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 
+import net.silvertide.artifactory.Artifactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +26,20 @@ public final class EffectUtil {
             String[] effectComponents = serializedEffect.split("/");
             if(effectComponents.length == 2) {
                 String effectName = effectComponents[0];
-                int effectLevel = Integer.parseInt(effectComponents[1]);
+                int effectLevel;
+                try {
+                    effectLevel = Integer.parseInt(effectComponents[1]);
+                } catch (NumberFormatException e) {
+                    Artifactory.LOGGER.warn("Artifactory - Invalid effect level in config: {}", serializedEffect);
+                    continue;
+                }
 
                 Optional<Holder.Reference<MobEffect>> effect = BuiltInRegistries.MOB_EFFECT.getHolder(ResourceLocation.parse(effectName));
                 effect.ifPresent(effectReference -> {
                     mobEffects.add(new MobEffectInstance(effectReference, 20, effectLevel-1, false, false));
                 });
+            } else {
+                Artifactory.LOGGER.warn("Artifactory - Malformed effect config entry: {}", serializedEffect);
             }
         }
 

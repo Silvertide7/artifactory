@@ -1,3 +1,14 @@
+## 2.6.4
+- Actually make the default datapack removable.
+
+## 2.6.3
+- The default Artifactory datapack can now be removed from a world during world creation.
+
+## 2.6.2
+- The datapack is now enabled by default. This follows standard practice. It can still be disabled / overwritten.
+- The default recipe for the anvil changed a little bit to be easier to craft. It still requires a beacon, but everything else should be easy to find.
+- Fixes and cleanup
+
 ## 2.6.1
 - Remove unused dependencies.
 

@@ -7,7 +7,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 /**
  * AttuneEvent is fired before / after a {@link Player} attunes to an item.<br>
  * <br>
- * The Pre event is not Cancelable.<br>
+ * The Pre event is Cancelable.<br>
  * <br>
  * This event does not have a result.<br>
  * <br>
@@ -19,6 +19,10 @@ public abstract class AttuneEvent extends PlayerEvent {
         public AttuneEvent(Player player, ItemStack stack) {
             super(player);
             this.stack = stack;
+        }
+
+        public ItemStack getStack() {
+            return this.stack;
         }
 
         public static class Pre extends AttuneEvent implements ICancellableEvent {

@@ -23,10 +23,9 @@ public final class ResourceLocationUtil {
 
     public static ItemStack getItemStackFromResourceLocation(String resourceLocation) {
         try {
-            Item baseItem = getItemFromResourceLocation(resourceLocation);
-            return new ItemStack(baseItem);
+            return getItemStackFromResourceLocation(ResourceLocation.parse(resourceLocation));
         } catch (ResourceLocationException exception) {
-            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from " + resourceLocation);
+            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from {}", resourceLocation);
             return ItemStack.EMPTY;
         }
     }
@@ -36,7 +35,7 @@ public final class ResourceLocationUtil {
             Item baseItem = getItemFromResourceLocation(resourceLocation);
             return new ItemStack(baseItem);
         } catch (ResourceLocationException exception) {
-            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from " + resourceLocation);
+            Artifactory.LOGGER.error("Artifactory - getItemStackFromResourceLocation - Could not get item from {}", resourceLocation);
             return ItemStack.EMPTY;
         }
     }

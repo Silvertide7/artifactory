@@ -20,7 +20,6 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -445,7 +444,7 @@ public class ManageAttunementsScreen extends Screen {
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().translate(0F, 0F, 700F);
 
-                List<Component> list = Lists.newArrayList();
+                List<Component> list = new ArrayList<>();
                 if(this.modificationDescPerLevel.isEmpty()) {
                     list.add(Component.literal("No enhancements"));
 

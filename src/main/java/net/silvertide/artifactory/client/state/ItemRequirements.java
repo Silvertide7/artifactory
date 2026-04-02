@@ -38,7 +38,11 @@ public class ItemRequirements {
                 return null;
             }
             pathResult = itemParts[0];
-            quantity = Integer.parseInt(itemParts[1]);
+            try {
+                quantity = Integer.parseInt(itemParts[1]);
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
 
         ItemStack stack = ResourceLocationUtil.getItemStackFromResourceLocation(pathResult);

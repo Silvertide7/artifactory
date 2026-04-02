@@ -81,7 +81,7 @@ public record AttunementLevel(AttunementRequirements requirements, List<String> 
     public boolean equals(Object obj) {
         if(this == obj) return true;
         if(obj instanceof AttunementLevel attunementLevel) {
-            return this.requirements() == attunementLevel.requirements() &&
+            return Objects.equals(this.requirements(), attunementLevel.requirements()) &&
                     this.modifications().equals(attunementLevel.modifications());
         }
         return false;

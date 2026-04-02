@@ -17,7 +17,6 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.GUIUtil;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -164,7 +163,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
 
     private void renderManageTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if(isHoveringManageButton(mouseX, mouseY)) {
-            List<Component> list = Lists.newArrayList();
+            List<Component> list = new ArrayList<>();
             list.add(Component.translatable("screen.tooltip.artifactory.manage_button"));
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }
@@ -659,7 +658,7 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
         private void renderSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
             if(this.itemRequirementState == ItemRequirementState.EMPTY.getValue() && isHoveringItemRequirementSlot(mouseX, mouseY)) {
                 if(slotInformation != null) {
-                    List<Component> list = Lists.newArrayList();
+                    List<Component> list = new ArrayList<>();
                     list.add(slotInformation.getItemRequirementText(index));
                     guiGraphics.renderComponentTooltip(font, list, mouseX, mouseY);
                 }
