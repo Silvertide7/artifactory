@@ -1,3 +1,6 @@
+## 2.6.4
+- Actually make the default datapack removable.
+
 ## 2.6.3
 - The default Artifactory datapack can now be removed from a world during world creation.
 

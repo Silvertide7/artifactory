@@ -37,6 +37,6 @@ public class Artifactory
 
     public void addPackFinders(AddPackFindersEvent event) {
             ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "builtin_data_packs/artifactory_default_data_pack");
-            event.addPackFinders(location, PackType.SERVER_DATA,Component.literal("Artifactory Defaults"), PackSource.FEATURE, false, Pack.Position.TOP);
+            event.addPackFinders(location, PackType.SERVER_DATA,Component.literal("Artifactory Defaults"), PackSource.DEFAULT, false, Pack.Position.TOP);
     }
 }
