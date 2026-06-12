@@ -22,16 +22,16 @@
     {
       "modifications": ["attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand", "attribute/minecraft:generic.attack_damage/add_value/2/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 35,
-        "xpLevelThreshold": 45,
+        "xp_levels_consumed": 35,
+        "xp_level_threshold": 45,
         "items": ["minecraft:heart_of_the_sea#2"]
       }
     },
     {
       "modifications": ["soulbound", "attribute/forge:swim_speed/add_multiplied_base/0.1/mainhand", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.25/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 40,
-        "xpLevelThreshold": 50,
+        "xp_levels_consumed": 40,
+        "xp_level_threshold": 50,
         "items": ["minecraft:nether_star"]
       }
     }

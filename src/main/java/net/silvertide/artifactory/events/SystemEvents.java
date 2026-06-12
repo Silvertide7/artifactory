@@ -32,8 +32,6 @@ public class SystemEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.server.execute(() -> {
                 if (serverPlayer.server.getPlayerList().getPlayer(serverPlayer.getUUID()) == null) return;
-                ArtifactorySavedData.get().updatePlayerDisplayName(serverPlayer);
-
                 AttunementService.clearBrokenAttunements(serverPlayer);
 
                 NetworkUtil.syncServerConfigs(serverPlayer);

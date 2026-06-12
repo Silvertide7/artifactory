@@ -10,16 +10,16 @@
     {
       "modifications": ["attribute/minecraft:generic.luck/add_value/0.5/chest"],
       "requirements": {
-        "xpLevelsConsumed": 35,
-        "xpLevelThreshold": 40,
+        "xp_levels_consumed": 35,
+        "xp_level_threshold": 40,
         "items": ["minecraft:gold_block#2"]
       }
     },
     {
       "modifications": ["unbreakable", "soulbound"],
       "requirements": {
-        "xpLevelsConsumed": 40,
-        "xpLevelThreshold": 45,
+        "xp_levels_consumed": 40,
+        "xp_level_threshold": 45,
         "items": ["minecraft:netherite_scrap#3", "minecraft:nether_star"]
       }
     }

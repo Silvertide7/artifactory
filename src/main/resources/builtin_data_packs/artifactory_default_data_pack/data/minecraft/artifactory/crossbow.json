@@ -16,8 +16,8 @@
     {
       "modifications": ["soulbound"],
       "requirements": {
-        "xpLevelsConsumed": 40,
-        "xpLevelThreshold": 50,
+        "xp_levels_consumed": 40,
+        "xp_level_threshold": 50,
         "items": ["minecraft:nether_star"]
       }
     }

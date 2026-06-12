@@ -149,6 +149,10 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     @Override
     protected void apply(final @NotNull Map<ResourceLocation, AttunementDataSource> data, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler) {
         Artifactory.LOGGER.info("Artifactory - Loading Data - Start");
+        // Clear the previous load so entries removed from datapacks drop out on /reload.
+        // postProcess() rebuilds the apply_to_items entries from rawData when tags update.
+        this.rawData.clear();
+        this.data.clear();
         this.rawData.putAll(data);
         this.data.putAll(sanitizeItemRequirements(processData(data)));
         Artifactory.LOGGER.info("Artifactory - Loading Data - Finish");

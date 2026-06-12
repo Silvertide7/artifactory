@@ -137,9 +137,6 @@ public final class ClientAttunementUtil {
                 }
             }
 
-            // If the player isn't attuned to the item we need to first check if its a unique item
-            // and the item type has no other attuned owners. If there is then it can't be attuned by
-            // the player.
             return new AttunementNexusSlotInformation(
                     ClientAttunementUtil.getAttunedItemDisplayName(stack),
                     DataComponentUtil.getPlayerAttunementData(stack)

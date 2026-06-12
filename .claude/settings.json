@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(javap *)",
+      "Bash(./gradlew compileJava)",
+      "Bash(./gradlew compileJava *)",
+      "Bash(unzip -p *)",
+      "Bash(./gradlew build)",
+      "Bash(unzip -l *)",
+      "Bash(./gradlew test)",
+      "Bash(source /Users/nate/devtools/java21)",
+      "Bash(./gradlew dependencies)"
+    ]
+  }
+}

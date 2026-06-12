@@ -4,24 +4,24 @@
     {
       "modifications": ["invulnerable"],
       "requirements": {
-        "xpLevelsConsumed": 20,
-        "xpLevelThreshold": 30,
+        "xp_levels_consumed": 20,
+        "xp_level_threshold": 30,
         "items": ["minecraft:coal#64"]
       }
     },
     {
       "modifications": ["unbreakable", "attribute/minecraft:generic.armor/add_value/1/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 25,
-        "xpLevelThreshold": 35,
+        "xp_levels_consumed": 25,
+        "xp_level_threshold": 35,
         "items": ["minecraft:diamond#5", "minecraft:amethyst_shard#5"]
       }
     },
     {
       "modifications": ["soulbound", "attribute/minecraft:generic.armor/add_value/2/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 35,
-        "xpLevelThreshold": 40,
+        "xp_levels_consumed": 35,
+        "xp_level_threshold": 40,
         "items": ["minecraft:nether_star", "minecraft:diamond_block"]
       }
     }

@@ -4,23 +4,23 @@
     {
       "modifications": ["invulnerable"],
       "requirements": {
-        "xpLevelsConsumed": 30,
+        "xp_levels_consumed": 30,
         "items": ["minecraft:iron_block"]
       }
     },
     {
       "modifications": ["unbreakable", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.3/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 30,
-        "xpLevelThreshold": 40,
+        "xp_levels_consumed": 30,
+        "xp_level_threshold": 40,
         "items": ["minecraft:netherite_scrap#3", "minecraft:emerald#16"]
       }
     },
     {
       "modifications": ["soulbound", "attribute/minecraft:generic.attack_damage/add_value/4/mainhand"],
       "requirements": {
-        "xpLevelsConsumed": 40,
-        "xpLevelThreshold": 50,
+        "xp_levels_consumed": 40,
+        "xp_level_threshold": 50,
         "items": ["minecraft:nether_star", "minecraft:ender_pearl#16", "minecraft:diamond_block"]
       }
     }
