@@ -52,7 +52,6 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
 
     @Nullable
     public static AttributeModification fromAttunementDataString(String attributeModificationDataString) {
-        //"attribute/minecraft:generic.attack_damage/add_value/5/mainhand"
         String[] modification = attributeModificationDataString.split("/");
         if(modification.length == 5) {
             int operation = getOperationInteger(modification[2]);
@@ -67,7 +66,18 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
                 }
 
                 EquipmentSlotGroup equipmentSlotGroup = equipmentSlotGroupFromString(modification[4]);
-                Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(ResourceLocation.parse(attribute));
+                if(equipmentSlotGroup == null) {
+                    Artifactory.LOGGER.warn("Unknown attribute slot group (" + modification[4] + ") in modification: " + attributeModificationDataString);
+                    return null;
+                }
+
+                ResourceLocation attributeId = ResourceLocation.tryParse(attribute);
+                if(attributeId == null) {
+                    Artifactory.LOGGER.warn("Attribute id could not be parsed into a resource location (" + attribute + ")");
+                    return null;
+                }
+
+                Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(attributeId);
                 String uniqueResourceLocation = attribute + "_" + equipmentSlotGroup.getSerializedName() + "_" + UUID.randomUUID();
                 return attributeToModify.map(attributeReference -> {
                     AttributeModifier attributeModifier = buildAttributeModifier(uniqueResourceLocation, value, operation);
@@ -128,13 +138,14 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         return new AttributeModification(existingAttributeModification.attribute(), newModifier, existingAttributeModification.slot());
     }
 
+    @Nullable
     public static EquipmentSlotGroup equipmentSlotGroupFromString(String name) {
         for (EquipmentSlotGroup group : EquipmentSlotGroup.values()) {
             if (group.getSerializedName().equals(name)) {
                 return group;
             }
         }
-        throw new IllegalArgumentException("Unknown EquipmentSlotGroup name: " + name);
+        return null;
     }
 
 

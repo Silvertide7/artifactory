@@ -138,7 +138,9 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                     LOGGER.error(String.format(Locale.ENGLISH, "Error reading resource %s in folder %s from pack %s: ", id, this.folderName, resource.sourcePackId()), e);
                 }
             }
-            map.put(id, merger.apply(raws));
+            if (!raws.isEmpty()) {
+                map.put(id, merger.apply(raws));
+            }
         }
 
         LOGGER.info("Data loader for {} loaded {} finalized objects", this.folderName, map.size());
@@ -199,9 +201,8 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                                                         .filter(this::isValidItem)
                                                 .collect(Collectors.toSet())));
                     } else {
-                        // Process it as an item
-                        ResourceLocation resourceLocation = ResourceLocation.parse(itemPath);
-                        if(isValidItem(resourceLocation)) {
+                        ResourceLocation resourceLocation = ResourceLocation.tryParse(itemPath);
+                        if(resourceLocation != null && isValidItem(resourceLocation)) {
                             tags.add(resourceLocation);
                         }
                     }
