@@ -196,6 +196,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.onTake(player, stack);
             }
 
@@ -204,6 +205,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.setChanged();
             }
         };
@@ -222,6 +224,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.onTake(player, stack);
             }
 
@@ -230,6 +233,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.setChanged();
             }
         };
@@ -248,6 +252,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.onTake(player, stack);
             }
 
@@ -256,6 +261,7 @@ public class AttunementMenu extends AbstractContainerMenu {
                 if(player instanceof ServerPlayer) {
                     AttunementMenu.this.updateItemRequirementDataSlots();
                 }
+                recalculateAttunementState = true;
                 super.setChanged();
             }
         };
@@ -326,8 +332,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             return;
         }
 
-        // If the progress is complete lets double check that we can attune the item again and post events
-        if (canAscensionStart()) {
+        if (computeCanAscensionStart(serverPlayer)) {
             ItemStack stack = this.attunementInputSlot.getItem();
             if(!NeoForge.EVENT_BUS.post(new AttuneEvent.Pre(player, stack)).isCanceled()) {
                 handleAttunement(stack);
@@ -410,28 +415,30 @@ public class AttunementMenu extends AbstractContainerMenu {
             getAttunementSlotItemStack().ifPresent(stack -> {
                 this.attunementNexusSlotInformation = AttunementUtil.createAttunementNexusSlotInformation(serverPlayer, stack);
             });
+            if(this.attunementNexusSlotInformation != null) {
+                updateItemSlotRequirements();
+            }
             updateAscensionCanStart();
         } else if (this.player instanceof LocalPlayer localPlayer) {
             this.attunementNexusSlotInformation = getAttunementSlotItemStack().map(stack -> ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack)).orElse(null);
             if (this.attunementNexusSlotInformation == null) {
                 clearClientVisualsOnly();
+            } else {
+                updateItemSlotRequirements();
             }
-        }
-        if(this.attunementNexusSlotInformation != null) {
-            updateItemSlotRequirements();
         }
     }
 
     private void updateAscensionCanStart() {
         if(!(this.player instanceof ServerPlayer serverPlayer)) return;
+        setCanAscensionStart(computeCanAscensionStart(serverPlayer));
+    }
 
-        boolean ascensionCanStart = false;
-        if(this.attunementInputSlot.hasItem()) {
-            boolean meetsRequirementsToAttune = serverPlayer.getAbilities().instabuild || this.meetsRequirementsToAttune();
-            ascensionCanStart = AttunementUtil.canIncreaseAttunementLevel(serverPlayer, this.attunementInputSlot.getItem())
-                    && meetsRequirementsToAttune;
-        }
-        setCanAscensionStart(ascensionCanStart);
+    private boolean computeCanAscensionStart(ServerPlayer serverPlayer) {
+        if(!this.attunementInputSlot.hasItem()) return false;
+        boolean meetsRequirementsToAttune = serverPlayer.getAbilities().instabuild || this.meetsRequirementsToAttune();
+        return AttunementUtil.canIncreaseAttunementLevel(serverPlayer, this.attunementInputSlot.getItem())
+                && meetsRequirementsToAttune;
     }
 
     private void updateItemSlotRequirements() {
