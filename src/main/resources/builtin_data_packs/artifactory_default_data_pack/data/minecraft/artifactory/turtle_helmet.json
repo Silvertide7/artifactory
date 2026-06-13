@@ -8,7 +8,7 @@
       }
     },
     {
-      "modifications": ["attribute/forge:swim_speed/add_multiplied_base/0.2/head"],
+      "modifications": ["attribute/neoforge:swim_speed/add_multiplied_base/0.2/head"],
       "requirements": {
         "xp_levels_consumed": 30,
         "xp_level_threshold": 40,
@@ -24,7 +24,7 @@
       }
     },
     {
-      "modifications": ["soulbound", "attribute/forge:swim_speed/add_multiplied_base/0.2/head"],
+      "modifications": ["soulbound", "attribute/neoforge:swim_speed/add_multiplied_base/0.2/head"],
       "requirements": {
         "xp_levels_consumed": 40,
         "xp_level_threshold": 50,

@@ -37,7 +37,9 @@ public class ArtifactorySavedData extends SavedData {
 
     public ArtifactorySavedData() {}
     public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
-        attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY)).result().orElse(new HashMap<>()));
+        attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY))
+                .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to load attuned items, resetting to empty: {}", error))
+                .orElse(new HashMap<>()));
     }
 
     public static Factory<ArtifactorySavedData> dataFactory() {
@@ -46,7 +48,9 @@ public class ArtifactorySavedData extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-        nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems).result().orElse(new CompoundTag()));
+        nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems)
+                .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save attuned items: {}", error))
+                .orElse(new CompoundTag()));
         return nbt;
     }
 

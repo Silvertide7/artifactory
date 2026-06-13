@@ -10,48 +10,58 @@ import net.minecraft.world.entity.player.Player;
 import net.silvertide.artifactory.Artifactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public final class EffectUtil {
+    private static final int EFFECT_DURATION_TICKS = 20;
+    private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 18;
+    private static final Map<String, List<ParsedEffect>> PARSED_EFFECT_CACHE = new HashMap<>();
 
     private EffectUtil() {}
 
-    public static List<MobEffectInstance> getMobEffectInstancesFromConfig(String configEffectString) {
-        String[] serializedEffects = configEffectString.split(";");
+    private record ParsedEffect(Holder<MobEffect> effect, int amplifier) {}
 
-        List<MobEffectInstance> mobEffects = new ArrayList<>();
+    private static List<ParsedEffect> getParsedEffects(String configEffectString) {
+        return PARSED_EFFECT_CACHE.computeIfAbsent(configEffectString, EffectUtil::parseEffects);
+    }
 
-        for (String serializedEffect : serializedEffects) {
+    private static List<ParsedEffect> parseEffects(String configEffectString) {
+        List<ParsedEffect> parsedEffects = new ArrayList<>();
+        for (String serializedEffect : configEffectString.split(";")) {
             String[] effectComponents = serializedEffect.split("/");
-            if(effectComponents.length == 2) {
-                String effectName = effectComponents[0];
-                int effectLevel;
-                try {
-                    effectLevel = Integer.parseInt(effectComponents[1]);
-                } catch (NumberFormatException e) {
-                    Artifactory.LOGGER.warn("Artifactory - Invalid effect level in config: {}", serializedEffect);
-                    continue;
-                }
-
-                Optional<Holder.Reference<MobEffect>> effect = BuiltInRegistries.MOB_EFFECT.getHolder(ResourceLocation.parse(effectName));
-                effect.ifPresent(effectReference -> {
-                    mobEffects.add(new MobEffectInstance(effectReference, 20, effectLevel-1, false, false));
-                });
-            } else {
+            if(effectComponents.length != 2) {
                 Artifactory.LOGGER.warn("Artifactory - Malformed effect config entry: {}", serializedEffect);
+                continue;
             }
-        }
 
-        return mobEffects;
+            int effectLevel;
+            try {
+                effectLevel = Integer.parseInt(effectComponents[1]);
+            } catch (NumberFormatException e) {
+                Artifactory.LOGGER.warn("Artifactory - Invalid effect level in config: {}", serializedEffect);
+                continue;
+            }
+
+            ResourceLocation effectId = ResourceLocation.tryParse(effectComponents[0]);
+            if(effectId == null) {
+                Artifactory.LOGGER.warn("Artifactory - Invalid effect id in config: {}", serializedEffect);
+                continue;
+            }
+
+            BuiltInRegistries.MOB_EFFECT.getHolder(effectId).ifPresentOrElse(
+                    effect -> parsedEffects.add(new ParsedEffect(effect, effectLevel - 1)),
+                    () -> Artifactory.LOGGER.warn("Artifactory - Unknown effect id in config: {}", serializedEffect));
+        }
+        return parsedEffects;
     }
 
     public static void applyMobEffectInstancesToPlayer(Player player, String serializedMobEffects) {
-        List<MobEffectInstance> mobEffectInstances = getMobEffectInstancesFromConfig(serializedMobEffects);
-        for(MobEffectInstance mobEffectInstance : mobEffectInstances) {
-            MobEffectInstance instanceOnPlayer = player.getEffect(mobEffectInstance.getEffect());
-            if (!player.hasEffect(mobEffectInstance.getEffect()) || ( instanceOnPlayer != null && instanceOnPlayer.getDuration() < 18)) {
-                player.addEffect(mobEffectInstance);
+        for(ParsedEffect parsedEffect : getParsedEffects(serializedMobEffects)) {
+            MobEffectInstance instanceOnPlayer = player.getEffect(parsedEffect.effect());
+            if (!player.hasEffect(parsedEffect.effect()) || (instanceOnPlayer != null && instanceOnPlayer.getDuration() < EFFECT_REFRESH_THRESHOLD_TICKS)) {
+                player.addEffect(new MobEffectInstance(parsedEffect.effect(), EFFECT_DURATION_TICKS, parsedEffect.amplifier(), false, false));
             }
         }
     }

@@ -33,8 +33,8 @@ public class ItemRequirements {
 
         // If the requirements has a custom quantity attached to it. modid:item_name#quantity
         if(pathResult.contains("#")) {
-            String[] itemParts = pathResult.split("#");
-            if(itemParts.length > 2) {
+            String[] itemParts = pathResult.split("#", -1);
+            if(itemParts.length != 2) {
                 return null;
             }
             pathResult = itemParts[0];

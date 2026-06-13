@@ -12,7 +12,13 @@ public class CodecTypes {
     public static final PrimitiveCodec<UUID> UUID_CODEC = new PrimitiveCodec<>() {
         @Override
         public <T> DataResult<UUID> read(DynamicOps<T> ops, T input) {
-            return DataResult.success(UUID.fromString(ops.getStringValue(input).getOrThrow()));
+            return ops.getStringValue(input).flatMap(string -> {
+                try {
+                    return DataResult.success(UUID.fromString(string));
+                } catch (IllegalArgumentException exception) {
+                    return DataResult.error(() -> "Not a valid UUID: " + string);
+                }
+            });
         }
         @Override
         public <T> T write(DynamicOps<T> ops, UUID value) {

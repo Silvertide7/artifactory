@@ -92,13 +92,11 @@ public class ArtifactEvents {
     // This implementation of checking the players items and giving negative effects based on the attunement requirements
     // was adapted from Project MMO
     // https://github.com/Caltinor/Project-MMO-2.0/blob/main/src/main/java/harmonised/pmmo/events/impl/PlayerTickHandler.java
-    private static short ticksIgnoredSinceLastProcess = 0;
+    private static final int TICKS_BETWEEN_GEAR_VALIDATION = 18;
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post playerTickEvent) {
         if (playerTickEvent.getEntity() instanceof ServerPlayer serverPlayer) {
-            ticksIgnoredSinceLastProcess++;
-            if (ticksIgnoredSinceLastProcess < 18) return;
-            ticksIgnoredSinceLastProcess = 0;
+            if (serverPlayer.tickCount % TICKS_BETWEEN_GEAR_VALIDATION != 0) return;
 
             Inventory inv = serverPlayer.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
