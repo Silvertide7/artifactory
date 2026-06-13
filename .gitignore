@@ -28,3 +28,5 @@ repo
 .DS_Store
 *.log.gz
 *.cache
+claude_reference
+.claude
