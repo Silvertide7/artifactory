@@ -193,6 +193,17 @@ publishMods {
         clientRequired = true
         serverRequired = true
     }
+
+    discord {
+        webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK_URL")
+        dryRunWebhookUrl = providers.environmentVariable("DISCORD_WEBHOOK_TEST_URL")
+        username = "Artifactory"
+        style {
+            look = "MODERN"
+            color = "curseforge"
+            link = "EMBED"
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
