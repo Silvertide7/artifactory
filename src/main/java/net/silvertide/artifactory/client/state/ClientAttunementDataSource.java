@@ -16,6 +16,10 @@ public class ClientAttunementDataSource {
         attunementDataSource = syncedAttunementData;
     }
 
+    public static void clear() {
+        attunementDataSource = null;
+    }
+
     public static Optional<AttunementDataSource> getClientAttunementDataSource(ResourceLocation resourceLocation) {
         if(attunementDataSource == null) return Optional.empty();
         return Optional.ofNullable(attunementDataSource.get(resourceLocation));

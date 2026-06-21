@@ -250,7 +250,12 @@ public class ManageAttunementsScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        updateSliderProgress(this.sliderProgress - (float) scrollY);
+        if(canScroll()) {
+            int maxDistanceScrollableY = attunementCards.size() * AttunementCard.ATTUNEMENT_CARD_HEIGHT - AttunementCard.CARD_WINDOW_HEIGHT;
+            if(maxDistanceScrollableY > 0) {
+                updateSliderProgress(this.sliderProgress - (float) scrollY * AttunementCard.ATTUNEMENT_CARD_HEIGHT / maxDistanceScrollableY);
+            }
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 

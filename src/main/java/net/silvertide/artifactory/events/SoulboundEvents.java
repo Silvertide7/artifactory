@@ -26,7 +26,7 @@ public class SoulboundEvents {
     public static final String ARTIFACTORY_INV_TAG = "artifactoryInventory";
 
     // Most of the implementation for keeping items in the inventory was taken from Twilight Forests charm of keeping.
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerDeath(LivingDeathEvent livingDeathEvent) {
         LivingEntity livingEntity = livingDeathEvent.getEntity();
         if (!(livingDeathEvent.getEntity() instanceof ServerPlayer serverPlayer) || livingDeathEvent.isCanceled() || !(livingEntity instanceof Player player)

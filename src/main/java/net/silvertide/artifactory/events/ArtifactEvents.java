@@ -33,36 +33,40 @@ public class ArtifactEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.isCanceled()) return;
-        if (event.getEntity() instanceof Player player) {
-            List<ItemStack> itemsInHand = List.of(player.getMainHandItem(), player.getOffhandItem());
-            for(ItemStack stack : itemsInHand) {
-                if(sidedIsUseRestricted(player, stack)) {
-                    event.setCanceled(true);
-                    break;
-                }
-            }
+        if (event.getEntity() instanceof Player player && sidedIsUseRestricted(player, player.getMainHandItem())) {
+            event.setCanceled(true);
         }
     }
 
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        Player player = event.getEntity();
         if(event.isCanceled()) return;
-
-        ItemStack stack = event.getItemStack();
-
-        if(sidedIsUseRestricted(player, stack)) {
+        if(sidedIsUseRestricted(event.getEntity(), event.getItemStack())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        Player player = event.getEntity();
         if(event.isCanceled()) return;
+        if(sidedIsUseRestricted(event.getEntity(), event.getItemStack())) {
+            event.setCancellationResult(InteractionResult.FAIL);
+            event.setCanceled(true);
+        }
+    }
 
-        ItemStack stack = event.getItemStack();
-        if(sidedIsUseRestricted(player, stack)) {
+    @SubscribeEvent(priority=EventPriority.LOWEST)
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if(event.isCanceled()) return;
+        if(sidedIsUseRestricted(event.getEntity(), event.getItemStack())) {
+            event.setUseItem(TriState.FALSE);
+        }
+    }
+
+    @SubscribeEvent(priority=EventPriority.LOWEST)
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if(event.isCanceled()) return;
+        if(sidedIsUseRestricted(event.getEntity(), event.getItemStack())) {
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
         }

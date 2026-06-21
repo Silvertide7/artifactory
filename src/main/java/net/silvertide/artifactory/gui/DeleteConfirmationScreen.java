@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -153,7 +154,7 @@ public class DeleteConfirmationScreen extends Screen {
 
     @Override
     public void onClose() {
-        super.onClose();
+        Minecraft.getInstance().popGuiLayer();
         this.manageScreen.createAttunementCards();
     }
 

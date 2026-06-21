@@ -184,7 +184,9 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         Artifactory.LOGGER.info("Artifactory - Post Process - Adding apply to items - Start");
 
         Map<ResourceLocation, AttunementDataSource> postProcessedData = new HashMap<>();
-        for (Map.Entry<ResourceLocation, AttunementDataSource> dataRaw : new HashMap<>(this.rawData).entrySet()) {
+        List<Map.Entry<ResourceLocation, AttunementDataSource>> sortedRawData = new ArrayList<>(this.rawData.entrySet());
+        sortedRawData.sort(Map.Entry.comparingByKey());
+        for (Map.Entry<ResourceLocation, AttunementDataSource> dataRaw : sortedRawData) {
             // If the data source has a list of items to apply this config to then apply it to them.
             if(!dataRaw.getValue().applyToItems().isEmpty()) {
 

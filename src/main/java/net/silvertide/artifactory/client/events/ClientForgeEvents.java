@@ -4,10 +4,14 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.keybindings.Keybindings;
+import net.silvertide.artifactory.client.state.ClientAttunedItems;
+import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
+import net.silvertide.artifactory.client.state.ClientSyncedConfig;
 import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttunementsScreen;
 
 @EventBusSubscriber(modid = Artifactory.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
@@ -18,5 +22,12 @@ public class ClientForgeEvents {
         if(Keybindings.INSTANCE.useOpenManageAttunementsKey.consumeClick()) {
             PacketDistributor.sendToServer(new SB_ToggleManageAttunementsScreen());
         }
+    }
+
+    @SubscribeEvent
+    public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientAttunedItems.clearAllAttunedItems();
+        ClientAttunementDataSource.clear();
+        ClientSyncedConfig.reset();
     }
 }

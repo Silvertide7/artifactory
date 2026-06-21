@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public record AttributeModification(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) implements AttunementModification {
     public static final Codec<AttributeModification> CODEC;
@@ -78,7 +77,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
                 }
 
                 Optional<Holder.Reference<Attribute>> attributeToModify = BuiltInRegistries.ATTRIBUTE.getHolder(attributeId);
-                String uniqueResourceLocation = attribute + "_" + equipmentSlotGroup.getSerializedName() + "_" + UUID.randomUUID();
+                String uniqueResourceLocation = attribute + "_" + equipmentSlotGroup.getSerializedName() + "_" + modification[2];
                 return attributeToModify.map(attributeReference -> {
                     AttributeModifier attributeModifier = buildAttributeModifier(uniqueResourceLocation, value, operation);
                     return new AttributeModification(attributeReference, attributeModifier, equipmentSlotGroup);
@@ -117,7 +116,9 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
             boolean wasCombined = false;
             for(int i = 0; i < newModifications.size(); i++) {
                 AttributeModification currModification = newModifications.get(i);
-                if(this.attribute().value().getDescriptionId().equals(currModification.attribute().value().getDescriptionId()) && this.slot() == currModification.slot()) {
+                if(this.attribute().value().getDescriptionId().equals(currModification.attribute().value().getDescriptionId())
+                        && this.slot() == currModification.slot()
+                        && this.modifier().operation() == currModification.modifier().operation()) {
                     newModifications.set(i, combineWith(currModification));
                     wasCombined = true;
                     break;
