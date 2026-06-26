@@ -99,7 +99,7 @@ public class AttunementMenu extends AbstractContainerMenu {
         setProgress(0);
         setIsActive(false);
         setCanAscensionStart(false);
-        setPlayerHasAttunedItem(!ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty());
+        setPlayerHasAttunedItem(player instanceof ServerPlayer && !ArtifactorySavedData.get().getAttunedItems(player.getUUID()).isEmpty());
         setItemRequirementOneState(0);
         setItemRequirementTwoState(0);
         setItemRequirementThreeState(0);

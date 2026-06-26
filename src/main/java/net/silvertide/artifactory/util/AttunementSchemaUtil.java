@@ -22,6 +22,14 @@ public final class AttunementSchemaUtil {
         return Optional.empty();
     }
 
+    public static boolean hasValidSchema(ItemStack stack) {
+        return getAttunementSchema(stack).isPresent();
+    }
+
+    public static boolean shouldApplyAttunementModifications(ItemStack stack) {
+        return DataComponentUtil.isActivelyAttuned(stack) && hasValidSchema(stack);
+    }
+
     public static Optional<AttunementSchema> getAttunementSchema(AttunedItem attunedItem) {
         if(attunedItem.getAttunementOverrideOpt().isPresent()) return Optional.of(attunedItem.getAttunementOverrideOpt().get());
 

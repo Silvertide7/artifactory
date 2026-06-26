@@ -74,6 +74,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
     /** the loaded data **/
     protected final Map<ResourceLocation, AttunementDataSource> rawData = new HashMap<>();
     protected final Map<ResourceLocation, AttunementDataSource> data = new HashMap<>();
+    private Set<ResourceLocation> directEntryKeys = new HashSet<>();
 
     private final String folderName;
     private final Codec<AttunementDataSource> codec;
@@ -97,14 +98,6 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         this.folderName = folderName;
         this.codec = codec;
         this.merger = merger;
-    }
-
-    /**
-     * @return The immutable map of data entries
-     */
-    public Map<ResourceLocation, AttunementDataSource> getData()
-    {
-        return this.data;
     }
 
     /** Off-thread processing (can include reading files from hard drive) **/
@@ -156,7 +149,10 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         this.rawData.clear();
         this.data.clear();
         this.rawData.putAll(data);
-        this.data.putAll(sanitizeItemRequirements(processData(data)));
+        Map<ResourceLocation, AttunementDataSource> directEntries = sanitizeItemRequirements(processData(data));
+        this.data.putAll(directEntries);
+        this.directEntryKeys = new HashSet<>(directEntries.keySet());
+        AttunableItems.setActiveData(this.data);
         Artifactory.LOGGER.info("Artifactory - Loading Data - Finish");
     }
 
@@ -212,7 +208,14 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                 tags.forEach(rl -> postProcessedData.put(rl, dataRaw.getValue()));
             }
         }
-        this.data.putAll(sanitizeItemRequirements(postProcessedData));
+        sanitizeItemRequirements(postProcessedData).forEach((itemId, config) -> {
+            if (this.directEntryKeys.contains(itemId)) {
+                Artifactory.LOGGER.warn("Artifactory - {} - apply_to_items entry skipped because a specific config already targets this item.", itemId);
+            } else {
+                this.data.put(itemId, config);
+            }
+        });
+        AttunableItems.setActiveData(this.data);
         Artifactory.LOGGER.info("Artifactory - Post Process - Adding Tags - Finish");
     }
 

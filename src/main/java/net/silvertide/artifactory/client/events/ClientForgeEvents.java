@@ -10,7 +10,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.keybindings.Keybindings;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientSyncedConfig;
 import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttunementsScreen;
 
@@ -27,7 +26,6 @@ public class ClientForgeEvents {
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientAttunedItems.clearAllAttunedItems();
-        ClientAttunementDataSource.clear();
         ClientSyncedConfig.reset();
     }
 }

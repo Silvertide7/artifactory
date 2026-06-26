@@ -11,12 +11,12 @@ public final class AttunementDataSourceUtil {
     private AttunementDataSourceUtil() {}
 
     public static Optional<Map<ResourceLocation, AttunementDataSource>> getAttunementDataMap() {
-        if(AttunableItems.DATA_LOADER.getData().isEmpty()) return Optional.empty();
-        return Optional.of(AttunableItems.DATA_LOADER.getData());
+        Map<ResourceLocation, AttunementDataSource> data = AttunableItems.getActiveData();
+        if(data.isEmpty()) return Optional.empty();
+        return Optional.of(data);
     }
     public static Optional<AttunementDataSource> getAttunementDataSource(ItemStack stack) {
-        ResourceLocation stackResourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(stackResourceLocation));
+        return AttunableItems.getActiveData(ResourceLocationUtil.getResourceLocation(stack));
     }
 
     public static Optional<AttunementDataSource> getAttunementDataSource(String resourceLocation) {
@@ -24,6 +24,6 @@ public final class AttunementDataSourceUtil {
     }
 
     private static Optional<AttunementDataSource> getAttunementDataSource(ResourceLocation resourceLocation) {
-        return Optional.ofNullable(AttunableItems.DATA_LOADER.getData().get(resourceLocation));
+        return AttunableItems.getActiveData(resourceLocation);
     }
 }

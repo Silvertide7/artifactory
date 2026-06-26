@@ -3,16 +3,14 @@ package net.silvertide.artifactory.client.util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
-import net.silvertide.artifactory.client.state.ClientAttunementDataSource;
 import net.silvertide.artifactory.client.state.ClientSyncedConfig;
 import net.silvertide.artifactory.client.state.ItemRequirements;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
-import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
-import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.util.GUIUtil;
 
@@ -24,22 +22,11 @@ public final class ClientAttunementUtil {
     private ClientAttunementUtil() {}
 
     public static Optional<AttunementSchema> getClientAttunementSchema(ItemStack stack) {
-        AttunementOverride override = DataComponentUtil.getAttunementOverride(stack);
-        if(override.isValidSchema()) return Optional.of(override);
-
-        Optional<AttunementDataSource> clientSource = ClientAttunementDataSource.getClientAttunementDataSource(stack);
-        if(clientSource.isPresent() && clientSource.get().isValidSchema()) return Optional.of(clientSource.get());
-
-        return Optional.empty();
+        return AttunementSchemaUtil.getAttunementSchema(stack);
     }
 
     public static Optional<AttunementSchema> getClientAttunementSchema(AttunedItem attunedItem) {
-        if(attunedItem.getAttunementOverrideOpt().isPresent()) return Optional.of(attunedItem.getAttunementOverrideOpt().get());
-
-        Optional<AttunementDataSource> clientSource = ClientAttunementDataSource.getClientAttunementDataSource(attunedItem.getResourceLocation());
-        if(clientSource.isPresent() && clientSource.get().isValidSchema()) return Optional.of(clientSource.get());
-
-        return Optional.empty();
+        return AttunementSchemaUtil.getAttunementSchema(attunedItem);
     }
 
     public static boolean isValidAttunementItem(ItemStack stack) {
@@ -49,6 +36,7 @@ public final class ClientAttunementUtil {
     }
 
     public static boolean isUseRestricted(LocalPlayer player, ItemStack stack) {
+        if(!isValidAttunementItem(stack)) return false;
         return getClientAttunementSchema(stack)
                 .filter(AttunementSchema::isValidSchema)
                 .map(attunementSchema ->

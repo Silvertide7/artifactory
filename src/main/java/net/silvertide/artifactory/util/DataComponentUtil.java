@@ -49,6 +49,14 @@ public final class DataComponentUtil {
         setPlayerAttunementData(stack, null);
     }
 
+    public static boolean isActivelyAttuned(ItemStack stack) {
+        if(stack.isEmpty()) return false;
+        boolean attunable = getAttunementFlag(stack).map(AttunementFlag::isAttunable).orElse(false);
+        return attunable && getPlayerAttunementData(stack)
+                .map(data -> data.attunedToUUID() != null && data.attunementUUID() != null)
+                .orElse(false);
+    }
+
     // LIFECYCLE METHODS
 
     public static void configurePlayerAttunementData(ServerPlayer player, ItemStack stack, AttunedItem attunedItem) {

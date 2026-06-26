@@ -2,6 +2,7 @@ package net.silvertide.artifactory.compat;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.util.TriState;
@@ -31,11 +32,8 @@ public class CuriosCompat {
         eventBus.addListener(CuriosCompat::onCurioAttributeModifierEvent);
 
         CuriosApi.registerCurioPredicate(ResourceLocation.fromNamespaceAndPath("artifactory", "is_attuned_item"), (SlotResult slotResult) -> {
-            if(slotResult.slotContext().entity() instanceof ServerPlayer serverPlayer) {
-                ItemStack stack = slotResult.stack();
-                if(AttunementUtil.isValidAttunementItem(stack)) {
-                    return AttunementUtil.isItemAttunedToPlayer(serverPlayer, stack);
-                }
+            if(slotResult.slotContext().entity() instanceof Player player) {
+                return AttunementUtil.isItemAttunedToPlayer(player, slotResult.stack());
             }
             return false;
         });
@@ -77,16 +75,13 @@ public class CuriosCompat {
 
     public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {
         SlotContext slotContext = event.getSlotContext();
-        if(!(slotContext.entity() instanceof ServerPlayer)) return;
+        if(!(slotContext.entity() instanceof Player)) return;
         if("attuned_item".equals(slotContext.identifier())) return;
 
-        // Don't apply attributes if placed into an attuned_item slot
-        // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = event.getItemStack();
-        if(AttunementUtil.isValidAttunementItem(stack)) {
-            DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
-                attunementData.attributeModifications().forEach(modification -> addAttributeModifier(event, modification));
-            });
+        if(AttunementSchemaUtil.shouldApplyAttunementModifications(stack)) {
+            DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData ->
+                    attunementData.attributeModifications().forEach(modification -> addAttributeModifier(event, modification)));
         }
     }
 

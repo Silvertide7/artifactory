@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -137,6 +136,7 @@ public class ArtifactEvents {
 
     @SubscribeEvent
     public static void onItemEntityExpire(ItemExpireEvent itemExpireEvent) {
+        if(itemExpireEvent.getEntity().level().isClientSide()) return;
         ItemStack stack = itemExpireEvent.getEntity().getItem();
         if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
             AttunementService.removeAttunementFromPlayerAndItem(stack);
@@ -145,6 +145,7 @@ public class ArtifactEvents {
 
     @SubscribeEvent
     public static void onPlayerDestroyItemEvent(PlayerDestroyItemEvent playerDestroyItemEvent) {
+        if(!(playerDestroyItemEvent.getEntity() instanceof ServerPlayer)) return;
         ItemStack stack = playerDestroyItemEvent.getOriginal();
         if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
             AttunementService.removeAttunementFromPlayerAndItem(stack);
@@ -153,18 +154,10 @@ public class ArtifactEvents {
 
     @SubscribeEvent
     public static void onApplyAttributeModifier(ItemAttributeModifierEvent attributeModifierEvent) {
-        // Check the artifactory attributes data and apply attribute modifiers
         ItemStack stack = attributeModifierEvent.getItemStack();
-
-        boolean isValidAttunementItem = switch(FMLEnvironment.dist) {
-            case CLIENT -> ClientAttunementUtil.isValidAttunementItem(stack);
-            case DEDICATED_SERVER -> AttunementUtil.isValidAttunementItem(stack);
-        };
-
-        if(isValidAttunementItem) {
-            DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
-                attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(attributeModifierEvent));
-            });
+        if(AttunementSchemaUtil.shouldApplyAttunementModifications(stack)) {
+            DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData ->
+                    attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(attributeModifierEvent)));
         }
     }
 }

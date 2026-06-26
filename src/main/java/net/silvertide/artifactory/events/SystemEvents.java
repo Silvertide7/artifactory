@@ -46,6 +46,7 @@ public class SystemEvents {
 
     @SubscribeEvent
     public static void onTagLoad(TagsUpdatedEvent event) {
+        if(event.getUpdateCause() != TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) return;
         AttunableItems.DATA_LOADER.postProcess(event.getRegistryAccess());
     }
 
