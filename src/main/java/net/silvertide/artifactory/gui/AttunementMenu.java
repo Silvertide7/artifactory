@@ -15,7 +15,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
-import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.events.custom.AttuneEvent;
 import net.silvertide.artifactory.network.client_packets.CB_OpenManageAttunementsScreen;
 import net.silvertide.artifactory.registry.BlockRegistry;
@@ -131,20 +130,7 @@ public class AttunementMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
                 if(getIsActive()) return false;
-
-                AttunementService.checkAndUpdateAttunementComponents(stack);
-                AttunementService.discoverAttunementItem(stack);
-                boolean isValidAttunementItem = AttunementUtil.isValidAttunementItem(stack);
-
-                // Check if the item is unbreakable from artifactory, but it is no longer a
-                // valid attunement item and remove unbreakable if so. We have to do it here
-                // instead of updateAttunementItemState because only valid attunement items can
-                // be placed in the slot and have that method run.
-                if(!isValidAttunementItem && DataComponentUtil.isUnbreakable(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isUnbreakable).orElse(false)) {
-                    DataComponentUtil.removeUnbreakable(stack);
-                }
-
-                return isValidAttunementItem;
+                return AttunementUtil.isValidAttunementItem(stack);
             }
 
             @Override

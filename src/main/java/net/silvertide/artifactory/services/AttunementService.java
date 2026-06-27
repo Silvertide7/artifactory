@@ -105,6 +105,7 @@ public final class AttunementService {
                 });
             }
         });
+        discoverAttunementItem(stack);
     }
 
     public static void removeUnbreakableIfFromArtifactory(ItemStack stack, PlayerAttunementData playerAttunementData) {
