@@ -103,19 +103,16 @@ public class ArtifactEvents {
 
             Inventory inv = serverPlayer.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));
-
             for (ItemStack armorStack : armorItems) {
                 if(armorStack.isEmpty()) continue;
                 AttunementService.checkAndUpdateAttunementComponents(armorStack);
-
                 AttunementService.applyEffectsToPlayer(serverPlayer, armorStack, true);
             }
 
-            List<ItemStack> handItems= List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
+            List<ItemStack> handItems = List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
             for(ItemStack handStack : handItems) {
                 if(handStack.isEmpty()) continue;
                 AttunementService.checkAndUpdateAttunementComponents(handStack);
-
                 AttunementService.applyEffectsToPlayer(serverPlayer, handStack, false);
             }
         }
