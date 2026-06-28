@@ -22,6 +22,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.silvertide.artifactory.gui.AttunementMenu;
+import net.silvertide.artifactory.services.AttunementService;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -53,6 +54,9 @@ public class AttunementNexusBlock extends Block {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
+            for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+                AttunementService.checkAndUpdateAttunementComponents(player.getInventory().getItem(slot));
+            }
             player.openMenu(state.getMenuProvider(level, pos));
             return InteractionResult.CONSUME;
         }
