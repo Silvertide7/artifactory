@@ -2,7 +2,7 @@
   "slots_used": 2,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable"],
+      "modifications": ["attribute/minecraft:generic.attack_damage/add_value/1/mainhand"],
       "requirements": {
         "xp_levels_consumed": 20,
         "xp_level_threshold": 30,

@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Overview
-Artifactory is a Minecraft NeoForge mod (MC 1.21.1, NeoForge 21.1.x, mod ID `artifactory`) adding an item attunement system: players bond to non-stackable items at an **Attunement Nexus** block to unlock per-level benefits (attribute bonuses, soulbound, unbreakable, invulnerable). Which items are attunable and what each level costs/grants is data-driven via datapack JSON. Curios API integration is optional at runtime.
+Artifactory is a Minecraft NeoForge mod (MC 1.21.1, NeoForge 21.1.x, mod ID `artifactory`) adding an item attunement system: players bond to non-stackable items at an **Attunement Nexus** block to unlock per-level benefits (attribute bonuses, soulbound, unbreakable). Which items are attunable and what each level costs/grants is data-driven via datapack JSON. Curios API integration is optional at runtime.
 
 ## Build & Run
 - **Build**: `./gradlew build` (jar lands in `build/libs/`)
@@ -50,7 +50,7 @@ The stack's `attunementUUID` points into SavedData; SavedData wins. `AttunementS
 Server logic: `AttunementUtil` / `AttunementSchemaUtil` / `ArtifactorySavedData` / `ServerConfigs`. Client mirrors: `ClientAttunementUtil` + `client/state` singletons (`ClientAttunedItems`, `ClientAttunementDataSource`, `ClientSyncedConfig`) fed by `CB_*` packets. Shared codepaths branch on `ServerPlayer` vs `LocalPlayer` (e.g. `ArtifactEvents.sidedIsUseRestricted`, `AttunementMenu.updateAttunementState`, `ItemAttributeModifierEvent` handler switching on `FMLEnvironment.dist`) — **when changing attunement checks, update both the server and client variants.**
 
 ### Enforcement & soulbound (events/)
-- `ArtifactEvents`: cancels attack/left-click/right-click with use-restricted items (both sides); blocks pickup of others' attuned items (config); attuned item entities never despawn (and may be invulnerable); destroy/expire breaks the attunement in SavedData; `ItemAttributeModifierEvent` applies stored attribute modifications; a throttled player tick (every 18 ticks) re-validates held/worn gear and applies config-driven penalty effects (`minecraft:effect/level;...` strings parsed by `EffectUtil`).
+- `ArtifactEvents`: cancels attack/left-click/right-click with use-restricted items (both sides); blocks pickup of others' attuned items (config); attuned item entities never despawn and are invulnerable to environmental damage (lava/fire/explosion — set unconditionally on join; void still destroys them); destroy/expire breaks the attunement in SavedData; `ItemAttributeModifierEvent` applies stored attribute modifications; a throttled player tick (every 18 ticks) re-validates held/worn gear and applies config-driven penalty effects (`minecraft:effect/level;...` strings parsed by `EffectUtil`).
 - `SoulboundEvents`: on death (without keepInventory) stashes soulbound items into persistent player NBT (Twilight Forest charm-of-keeping approach); restores on respawn.
 
 ### Curios integration
@@ -67,12 +67,12 @@ Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_
   "attunement_levels": [
     {
       "requirements": { "xp_levels_consumed": 20, "xp_level_threshold": 30, "items": ["minecraft:coal#64"] },
-      "modifications": ["invulnerable", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.25/mainhand"]
+      "modifications": ["unbreakable", "attribute/minecraft:generic.attack_speed/add_multiplied_base/0.25/mainhand"]
     }
   ]
 }
 ```
-- Modification grammar: `soulbound` | `unbreakable` | `invulnerable` | `attribute/<attribute id>/<add_value|add_multiplied_base|add_multiplied_total>/<amount>/<slot group>` (parsed by `ModificationFactory`).
+- Modification grammar: `soulbound` | `unbreakable` | `attribute/<attribute id>/<add_value|add_multiplied_base|add_multiplied_total>/<amount>/<slot group>` (parsed by `ModificationFactory`). `invulnerable` was removed — all attuned items are now invulnerable when dropped — and is accepted as a no-op so existing JSONs don't break.
 - Item requirement grammar: `modid:item#quantity`; only the first 3 are used (3 GUI slots).
 - Omitted/negative xp values fall back to server config defaults (`xpLevelThreshold`, `xpLevelsConsumed` in `artifactory-server.toml`).
 - All keys are snake_case exactly as shown — there are no legacy aliases; misspelled keys are silently ignored and fall back to defaults.

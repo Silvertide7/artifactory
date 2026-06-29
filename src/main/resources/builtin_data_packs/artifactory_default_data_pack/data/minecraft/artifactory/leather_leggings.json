@@ -2,7 +2,7 @@
   "slots_used": 1,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/minecraft:generic.armor/add_value/1.0/legs"],
+      "modifications": ["attribute/minecraft:generic.armor/add_value/1.0/legs"],
       "requirements": {
         "items": ["minecraft:leather#4"]
       }

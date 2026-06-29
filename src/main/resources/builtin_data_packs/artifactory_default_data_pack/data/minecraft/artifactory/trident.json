@@ -2,7 +2,7 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable", "attribute/neoforge:swim_speed/add_multiplied_base/0.1/mainhand"],
+      "modifications": ["attribute/neoforge:swim_speed/add_multiplied_base/0.1/mainhand"],
       "requirements": {
         "items": ["minecraft:emerald#5"]
       }

@@ -14,7 +14,6 @@ public class BasicModification implements AttunementModification {
     public void applyModification(ItemStack stack) {
         switch(modificationType) {
             case UNBREAKABLE -> applyUnbreakable(stack);
-            case INVULNERABLE -> applyInvulnerable(stack);
             case SOULBOUND -> applySoulbound(stack);
         }
     }
@@ -23,14 +22,6 @@ public class BasicModification implements AttunementModification {
         DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
             if(!attunementData.isSoulbound()) {
                 DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsSoulbound(true));
-            }
-        });
-    }
-
-    private void applyInvulnerable(ItemStack stack) {
-        DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
-            if(!attunementData.isInvulnerable()) {
-                DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsInvulnerable(true));
             }
         });
     }
@@ -45,7 +36,6 @@ public class BasicModification implements AttunementModification {
     public String toString() {
         return switch(modificationType) {
             case UNBREAKABLE -> "Unbreakable";
-            case INVULNERABLE -> "Invulnerable";
             case SOULBOUND -> "Soulbound";
         };
     }

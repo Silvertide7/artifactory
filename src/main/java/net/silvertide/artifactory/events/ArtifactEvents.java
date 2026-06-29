@@ -18,7 +18,6 @@ import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
-import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.util.*;
@@ -124,9 +123,7 @@ public class ArtifactEvents {
             ItemStack stack = itemEntity.getItem();
             if(AttunementUtil.isValidAttunementItem(stack) && AttunementUtil.isItemAttunedToAPlayer(stack)) {
                 itemEntity.setUnlimitedLifetime();
-                if(DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isInvulnerable).orElse(false)) {
-                    itemEntity.setInvulnerable(true);
-                }
+                itemEntity.setInvulnerable(true);
             }
         }
     }

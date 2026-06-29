@@ -2,7 +2,7 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable"],
+      "modifications": [],
       "requirements": {
         "items": ["minecraft:emerald#5"]
       }

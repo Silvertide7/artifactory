@@ -2,7 +2,7 @@
   "slots_used": 3,
   "attunement_levels": [
     {
-      "modifications": ["invulnerable"],
+      "modifications": [],
       "requirements": {
         "xp_levels_consumed": 30,
         "items": ["minecraft:iron_block"]

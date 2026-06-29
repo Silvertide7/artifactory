@@ -11,7 +11,7 @@ public class ModificationFactory {
             if (modificationIdentifier.equalsIgnoreCase("attribute")) {
                 return Optional.ofNullable(AttributeModification.fromAttunementDataString(modificationCode));
             }
-        } else {
+        } else if(!modificationCode.equalsIgnoreCase("invulnerable")) {
             try {
                 BasicModificationType modification = BasicModificationType.valueOf(modificationCode.toUpperCase());
                 return Optional.of(new BasicModification(modification));
