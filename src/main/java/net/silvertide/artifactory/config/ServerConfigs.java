@@ -22,11 +22,11 @@ public class ServerConfigs {
         BUILDER.comment("Once you have all players updated you can turn this back off, just in case another mod is supposed to adjust the base value of this attribute. Although that seems unlikely.");
         UPDATE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().define("updateAttunementLevelAttribute", false);
 
-        BUILDER.comment("The base value of the Attunement Level attribute. Default: 15");
+        BUILDER.comment("The base value of the Attunement Level attribute. Default: 20");
         BUILDER.comment("If you change this and you want it to update for players, make sure to turn on the updateAttunementLevelAttribute config or it won't apply.");
         BASE_ATTUNEMENT_LEVEL_ATTRIBUTE = BUILDER.worldRestart().defineInRange("baseAttunementLevelAttribute", 20, 1, 1000);
 
-        BUILDER.comment("How many levels by default you need to have to start the attunement process. Default: 35");
+        BUILDER.comment("How many levels by default you need to have to start the attunement process. Default: 30");
         XP_LEVELS_TO_ATTUNE_THRESHOLD = BUILDER.worldRestart().defineInRange("xpLevelThreshold", 30, 0, Integer.MAX_VALUE);
 
         BUILDER.comment("How many levels by default are consumed to attune an item.");
@@ -58,7 +58,7 @@ public class ServerConfigs {
         BUILDER.comment("Controls if a player can open the manage attunements screen from a keybind.");
         BUILDER.comment("If true the player can assign a keybind to the manage attunements screen and open it anywhere.");
         BUILDER.comment("If false it will not ope when the keybind is assigned and pressed.");
-        CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN = BUILDER.worldRestart().define("Can Open Manage Attunements Screen From Keybind", true);
+        CAN_USE_KEYBIND_TO_OPEN_MANAGE_SCREEN = BUILDER.worldRestart().define("canOpenManageAttunementsScreenFromKeybind", true);
 
         BUILDER.pop();
 

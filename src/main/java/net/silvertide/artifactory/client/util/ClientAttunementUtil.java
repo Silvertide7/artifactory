@@ -1,10 +1,10 @@
 package net.silvertide.artifactory.client.util;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.client.state.ClientAttunedItems;
 import net.silvertide.artifactory.client.state.ClientSyncedConfig;
-import net.silvertide.artifactory.client.state.ItemRequirements;
+import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementSchema;
@@ -12,7 +12,7 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public final class ClientAttunementUtil {
         return attunementFlagSet && getClientAttunementSchema(stack).map(AttunementSchema::isValidSchema).orElse(false);
     }
 
-    public static boolean isUseRestricted(LocalPlayer player, ItemStack stack) {
+    public static boolean isUseRestricted(Player player, ItemStack stack) {
         if(!isValidAttunementItem(stack)) return false;
         return getClientAttunementSchema(stack)
                 .filter(AttunementSchema::isValidSchema)
@@ -45,7 +45,7 @@ public final class ClientAttunementUtil {
                         .orElse(!attunementSchema.useWithoutAttunement()))
                 .orElse(false);
     }
-    public static int getLevelOfAttunementAchievedByPlayer(LocalPlayer player, ItemStack stack) {
+    public static int getLevelOfAttunementAchievedByPlayer(Player player, ItemStack stack) {
         return DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
             if(attunementData.attunementUUID() != null
                     && attunementData.attunedToUUID() != null
@@ -61,10 +61,10 @@ public final class ClientAttunementUtil {
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
-        return GUIUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
+        return ResourceLocationUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
     }
 
-    public static boolean isAttunedToAnotherPlayer(LocalPlayer player, ItemStack stack) {
+    public static boolean isAttunedToAnotherPlayer(Player player, ItemStack stack) {
         if(stack.isEmpty()) return false;
         return DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
             if(attunementData.attunedToUUID() != null) {
@@ -94,7 +94,7 @@ public final class ClientAttunementUtil {
         }).orElse(null);
     }
 
-    public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(LocalPlayer localPlayer, ItemStack stack) {
+    public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(Player localPlayer, ItemStack stack) {
         if (!ClientAttunementUtil.isValidAttunementItem(stack)) return null;
 
         return ClientAttunementUtil.getClientAttunementSchema(stack).map(attunementSchema -> {

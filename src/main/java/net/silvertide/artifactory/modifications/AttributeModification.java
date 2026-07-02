@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.DataComponentUtil;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -149,7 +149,6 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         return null;
     }
 
-
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("+");
@@ -164,7 +163,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         }
 
         if(attribute().isBound()) {
-            result.append(" ").append(GUIUtil.prettifyName(attribute().value().getDescriptionId()));
+            result.append(" ").append(ResourceLocationUtil.prettifyName(attribute().value().getDescriptionId()));
         } else {
             result.append(" unknown");
         }

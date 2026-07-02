@@ -14,7 +14,7 @@ import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.client.util.GUIUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,20 +88,20 @@ public class TooltipHandler {
     }
 
     private static void addTraitTooltips(List<Component> toolTips, ItemStack stack) {
-        List<String> traitTextList = DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
-            List<String> textList = new ArrayList<>();
+        List<Component> traitTextList = DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> {
+            List<Component> textList = new ArrayList<>();
             if(attunementData.isSoulbound()) {
-                textList.add("Soulbound");
+                textList.add(Component.translatable("hovertext.artifactory.trait_soulbound"));
             }
 
             if(attunementData.isInvulnerable()) {
-                textList.add("Invulnerable");
+                textList.add(Component.translatable("hovertext.artifactory.trait_invulnerable"));
             }
 
             return textList;
         }).orElse(new ArrayList<>());
 
-        traitTextList.forEach(trait -> toolTips.add(Component.literal(trait).withStyle(ChatFormatting.BLUE)));
+        traitTextList.forEach(trait -> toolTips.add(trait.copy().withStyle(ChatFormatting.BLUE)));
     }
 }
 

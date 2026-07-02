@@ -77,8 +77,6 @@ public final class DataComponentUtil {
     public static void makeUnbreakable(ItemStack stack) {
         if(!isUnbreakable(stack)) {
             stack.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
-            Integer damage = stack.get(DataComponents.DAMAGE);
-            if(damage != null && damage > 0) stack.set(DataComponents.DAMAGE, 0);
 
             // Turn on the unbreakable flag because we only hit this code if it wasn't unbreakable
             // beforehand. This will remove unbreakable in the future if they break the attunement.

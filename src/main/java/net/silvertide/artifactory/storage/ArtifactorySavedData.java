@@ -42,8 +42,10 @@ public class ArtifactorySavedData extends SavedData {
                 .orElse(new HashMap<>()));
     }
 
+    private static final Factory<ArtifactorySavedData> DATA_FACTORY = new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
+
     public static Factory<ArtifactorySavedData> dataFactory() {
-        return new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
+        return DATA_FACTORY;
     }
 
     @Override
@@ -61,12 +63,8 @@ public class ArtifactorySavedData extends SavedData {
             return new ArtifactorySavedData();
     }
 
-    public int getNumAttunedItems(UUID playerUUID) {
-        return getAttunedItems(playerUUID).size();
-    }
-
     public Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {
-        return attunedItems.getOrDefault(playerUUID, new HashMap<>());
+        return attunedItems.getOrDefault(playerUUID, Map.of());
     }
 
     public Optional<AttunedItem> getAttunedItem(UUID playerUUID, UUID attunedItemId) {

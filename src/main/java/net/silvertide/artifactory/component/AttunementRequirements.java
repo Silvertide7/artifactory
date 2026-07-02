@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold, int kills, List<String> items, List<String> feats) {
     public static final Codec<AttunementRequirements> CODEC;
@@ -19,8 +18,8 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
                         Codec.INT.optionalFieldOf("xp_levels_consumed", -1).forGetter(AttunementRequirements::xpLevelsConsumed),
                         Codec.INT.optionalFieldOf("xp_level_threshold", -1).forGetter(AttunementRequirements::xpLevelThreshold),
                         Codec.INT.optionalFieldOf("kills", 0).forGetter(AttunementRequirements::kills),
-                        Codec.list(Codec.STRING).optionalFieldOf("items", new ArrayList<>()).forGetter(AttunementRequirements::items),
-                        Codec.list(Codec.STRING).optionalFieldOf("feats", new ArrayList<>()).forGetter(AttunementRequirements::feats))
+                        Codec.list(Codec.STRING).optionalFieldOf("items", List.of()).forGetter(AttunementRequirements::items),
+                        Codec.list(Codec.STRING).optionalFieldOf("feats", List.of()).forGetter(AttunementRequirements::feats))
                 .apply(instance, AttunementRequirements::new)
         );
 
@@ -91,23 +90,5 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
         }
 
         return result.append("}").toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj instanceof AttunementRequirements attunementRequirements) {
-            return this.xpLevelsConsumed() == attunementRequirements.xpLevelsConsumed() &&
-                    this.xpLevelThreshold() == attunementRequirements.xpLevelThreshold() &&
-                    this.kills() == attunementRequirements.kills() &&
-                    this.items().equals(attunementRequirements.items()) &&
-                    this.feats().equals(attunementRequirements.feats());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.xpLevelsConsumed(), this.xpLevelThreshold(), this.kills(), this.items(), this.feats());
     }
 }

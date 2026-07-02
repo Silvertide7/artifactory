@@ -1,6 +1,5 @@
 package net.silvertide.artifactory.events;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -73,8 +72,8 @@ public class ArtifactEvents {
     private static boolean sidedIsUseRestricted(Player player, ItemStack stack) {
         if(player instanceof ServerPlayer serverPlayer) {
             return AttunementUtil.isUseRestricted(serverPlayer, stack);
-        } else if(player instanceof LocalPlayer localPlayer) {
-            return ClientAttunementUtil.isUseRestricted(localPlayer, stack);
+        } else if(player.level().isClientSide()) {
+            return ClientAttunementUtil.isUseRestricted(player, stack);
         }
         return false;
     }

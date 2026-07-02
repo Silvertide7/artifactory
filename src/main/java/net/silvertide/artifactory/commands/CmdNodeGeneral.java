@@ -1,18 +1,18 @@
 package net.silvertide.artifactory.commands;
 
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.services.PlayerMessenger;
 
 public class CmdNodeGeneral {
-    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("slots").executes(CmdNodeGeneral::getPlayerSlots);
 
     }
@@ -20,9 +20,11 @@ public class CmdNodeGeneral {
         ServerPlayer player = ctx.getSource().getPlayer();
         if(player == null) return 0;
 
-        String slotsUsedText = AttunementUtil.getAttunementSlotsUsed(player) + " of " + AttunementUtil.getMaxAttunementSlots(player) + " attunement slots used.";
+        Component slotsUsedText = Component.translatable("command.artifactory.slots_used",
+                AttunementUtil.getAttunementSlotsUsed(player), AttunementUtil.getMaxAttunementSlots(player))
+                .withStyle(ChatFormatting.DARK_AQUA);
 
-        PlayerMessenger.sendSystemMessage(player, "§3" + slotsUsedText + "§r");
+        PlayerMessenger.sendSystemMessage(player, slotsUsedText);
         return 0;
     }
 }

@@ -18,7 +18,7 @@ import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.client.util.GUIUtil;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,7 +94,8 @@ public class ManageAttunementsScreen extends Screen {
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         try {
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            Artifactory.LOGGER.error("Error rendering ManageAttunementsScreen, closing screen", e);
             onClose();
         }
     }
@@ -122,7 +123,7 @@ public class ManageAttunementsScreen extends Screen {
     }
 
     private void renderTitle(GuiGraphics guiGraphics) {
-        Component buttonTextComp = Component.literal("Manage Attunements");
+        Component buttonTextComp = Component.translatable("screen.text.artifactory.manage.title");
         GUIUtil.drawScaledCenteredWordWrap(guiGraphics, 0.85F, this.font, buttonTextComp, this.getScreenLeftPos() + SCREEN_WIDTH / 2, this.getScreenTopPos() + 13, 100, BUTTON_TEXT_COLOR);
     }
 
@@ -293,7 +294,7 @@ public class ManageAttunementsScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (sliderButtonDown &&  this.canScroll()) {
-            int i = this.getScreenTopPos() + 24 + (int) (SLIDER_HEIGHT*sliderProgress);
+            int i = this.getScreenTopPos() + SLIDER_BASE_Y;
             int j = i + SLIDER_MAX_DISTANCE_Y;
             updateSliderProgress(((float) mouseY - (float) i - 7.5F) / ((float) (j - i) - 15.0F));
             return true;
@@ -413,7 +414,7 @@ public class ManageAttunementsScreen extends Screen {
                 double progress = (double) attunedItem.getAttunementLevel() / attunementSchema.attunementLevels().size();
                 if(progress >= 0.0 && progress < 0.33) {
                     return 169;
-                } else if (progress >= 0.33 && progress < 0.65) {
+                } else if (progress >= 0.33 && progress < 0.66) {
                     return 188;
                 } else if (progress >= 0.66 && progress < 1.00) {
                     return 207;
@@ -451,7 +452,7 @@ public class ManageAttunementsScreen extends Screen {
 
                 List<Component> list = new ArrayList<>();
                 if(this.modificationDescPerLevel.isEmpty()) {
-                    list.add(Component.literal("No enhancements"));
+                    list.add(Component.translatable("screen.text.artifactory.manage.no_enhancements"));
 
                 } else {
                     for(int i = 0; i < this.modificationDescPerLevel.size(); i++) {

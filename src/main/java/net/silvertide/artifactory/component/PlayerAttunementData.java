@@ -105,23 +105,4 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 this.isUnbreakable(),
                 attributeModifications);
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PlayerAttunementData other = (PlayerAttunementData) o;
-        return isSoulbound() == other.isSoulbound()
-                && isInvulnerable() == other.isInvulnerable()
-                && isUnbreakable() == other.isUnbreakable()
-                && Objects.equals(attunementUUID, other.attunementUUID)
-                && Objects.equals(attunedToUUID, other.attunedToUUID)
-                && Objects.equals(attunedToName, other.attunedToName)
-                && Objects.equals(attributeModifications, other.attributeModifications);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(attunementUUID, attunedToUUID, attunedToName, isSoulbound(), isInvulnerable(), isUnbreakable(), attributeModifications);
-    }
 }

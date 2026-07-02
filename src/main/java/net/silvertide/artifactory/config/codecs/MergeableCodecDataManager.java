@@ -45,7 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementRequirements;
-import net.silvertide.artifactory.client.state.ItemRequirements;
+import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

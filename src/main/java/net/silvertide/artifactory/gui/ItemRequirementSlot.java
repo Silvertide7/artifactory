@@ -43,6 +43,11 @@ public abstract class ItemRequirementSlot extends Slot {
         return super.mayPickup(player);
     }
 
+    @Override
+    public int getMaxStackSize(@NotNull ItemStack stack) {
+        return Math.max(super.getMaxStackSize(stack), this.stackRequired.getCount());
+    }
+
     public void clearItemRequired() {
         this.stackRequired = ItemStack.EMPTY;
     }

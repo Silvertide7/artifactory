@@ -16,7 +16,7 @@ public final class PlayerMessenger {
         if (player.server.getPlayerList().getPlayer(player.getUUID()) == null) return;
         player.displayClientMessage(Component.translatable(translationKey, extraValue), true);
     }
-    public static void sendSystemMessage(ServerPlayer player, String message) {
-        player.sendSystemMessage(Component.literal(message));
+    public static void sendSystemMessage(ServerPlayer player, Component message) {
+        player.sendSystemMessage(message);
     }
 }

@@ -1,16 +1,20 @@
 package net.silvertide.artifactory.gui;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
@@ -27,8 +31,10 @@ import net.silvertide.artifactory.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Random;
 
 public class AttunementMenu extends AbstractContainerMenu {
+    private static final Random SOUND_RNG = new Random();
     public final int MAX_PROGRESS = 120;
     private final ContainerLevelAccess access;
     private final Player player;
@@ -333,17 +339,27 @@ public class AttunementMenu extends AbstractContainerMenu {
     }
 
     private void playStartEffects(ServerPlayer player) {
-        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_ACTIVATE);
+        playSound(player.serverLevel(), player, SoundEvents.BEACON_ACTIVATE);
     }
 
     private void playProgressEffects(ServerPlayer player) {
-        GUIUtil.spawnParticals(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 3);
-        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_AMBIENT);
+        spawnParticles(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 3);
+        playSound(player.serverLevel(), player, SoundEvents.BEACON_AMBIENT);
     }
 
     private void playAttuneEffects(ServerPlayer player) {
-        GUIUtil.spawnParticals(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 2);
-        GUIUtil.playSound(player.serverLevel(), player, SoundEvents.BEACON_DEACTIVATE);
+        spawnParticles(player.serverLevel(), player, ParticleTypes.ENCHANT, getProgress() / 2);
+        playSound(player.serverLevel(), player, SoundEvents.BEACON_DEACTIVATE);
+    }
+
+    private void spawnParticles(ServerLevel serverLevel, Player player, ParticleOptions particle, int numParticles) {
+        for(int i = 0; i < numParticles; i++){
+            serverLevel.sendParticles(particle, player.getX() + serverLevel.random.nextDouble() - 0.5, player.getY() + 1.0, player.getZ() + serverLevel.random.nextDouble() - 0.5, 1, 0.0D, 0.0D, 0.0D, 1.0D);
+        }
+    }
+
+    private void playSound(Level level, Player player, SoundEvent soundEvent) {
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.PLAYERS, 1.0f, 0.95f + SOUND_RNG.nextFloat() * 0.1f);
     }
 
     private boolean meetsRequirementsToAttune() {
@@ -405,8 +421,8 @@ public class AttunementMenu extends AbstractContainerMenu {
                 updateItemSlotRequirements();
             }
             updateAscensionCanStart();
-        } else if (this.player instanceof LocalPlayer localPlayer) {
-            this.attunementNexusSlotInformation = getAttunementSlotItemStack().map(stack -> ClientAttunementUtil.createAttunementNexusSlotInformation(localPlayer, stack)).orElse(null);
+        } else if (this.player.level().isClientSide()) {
+            this.attunementNexusSlotInformation = getAttunementSlotItemStack().map(stack -> ClientAttunementUtil.createAttunementNexusSlotInformation(this.player, stack)).orElse(null);
             if (this.attunementNexusSlotInformation == null) {
                 clearClientVisualsOnly();
             } else {

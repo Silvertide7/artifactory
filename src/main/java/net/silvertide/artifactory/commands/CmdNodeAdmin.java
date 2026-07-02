@@ -1,7 +1,6 @@
 package net.silvertide.artifactory.commands;
 
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -14,7 +13,7 @@ import net.silvertide.artifactory.storage.ArtifactorySavedData;
 public class CmdNodeAdmin {
     private static final String TARGET_ARG = "Target";
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("admin")
                 .requires(p -> p.hasPermission(2))
                 .then(Commands.argument(TARGET_ARG, EntityArgument.players())

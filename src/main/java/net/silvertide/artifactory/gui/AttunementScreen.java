@@ -16,7 +16,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.storage.AttunementNexusSlotInformation;
 import net.silvertide.artifactory.util.AttunementUtil;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.client.util.GUIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -75,7 +75,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
             renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
             renderTooltip(guiGraphics, mouseX, mouseY);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            Artifactory.LOGGER.error("Error rendering AttunementScreen, closing screen", e);
             onClose();
         }
     }

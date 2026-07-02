@@ -10,7 +10,7 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.state.ClientSyncedConfig;
 import org.jetbrains.annotations.NotNull;
 
-public record CB_SyncServerConfigs(Integer xpThreshold, Integer xpConsumed) implements CustomPacketPayload {
+public record CB_SyncServerConfigs(int xpThreshold, int xpConsumed) implements CustomPacketPayload {
     public static final Type<CB_SyncServerConfigs> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Artifactory.MOD_ID, "cb_sync_server_configs"));
     public static final StreamCodec<FriendlyByteBuf, CB_SyncServerConfigs> STREAM_CODEC = StreamCodec.composite(
                     ByteBufCodecs.INT, CB_SyncServerConfigs::xpThreshold,

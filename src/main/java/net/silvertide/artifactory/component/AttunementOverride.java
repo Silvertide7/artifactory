@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement) implements AttunementSchema {
     public static final AttunementOverride NULL_ATTUNEMENT_OVERRIDE = new AttunementOverride(-1, List.of(), 0.0D, true);
@@ -53,22 +52,5 @@ public record AttunementOverride(int attunementSlotsUsed, List<AttunementLevel> 
                 buf.writeBoolean(attunementOverride.useWithoutAttunement());
             }
         };
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj instanceof AttunementOverride(int slotsUsed, List<AttunementLevel> levels, double chanceIn, boolean withoutAttunement)) {
-            return this.attunementSlotsUsed() == slotsUsed &&
-                    this.useWithoutAttunement() == withoutAttunement &&
-                    this.chance() == chanceIn &&
-                    this.attunementLevels().equals(levels);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.attunementSlotsUsed(), this.attunementLevels(), this.chance(), this.useWithoutAttunement());
     }
 }

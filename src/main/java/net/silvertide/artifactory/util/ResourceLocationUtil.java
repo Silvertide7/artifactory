@@ -39,4 +39,32 @@ public final class ResourceLocationUtil {
             return ItemStack.EMPTY;
         }
     }
+
+    public static String prettifyName(String resourceLocation) {
+        String prettifiedLocation = resourceLocation;
+        if(prettifiedLocation.contains(":")) {
+            prettifiedLocation = resourceLocation.split(":")[1];
+        }
+
+        if(prettifiedLocation.contains(".")) {
+            String[] periodSeperated = prettifiedLocation.split("\\.");
+            prettifiedLocation = periodSeperated[periodSeperated.length - 1];
+        }
+
+        if(prettifiedLocation.contains("_")) {
+            StringBuilder result = new StringBuilder();
+            String[] words = prettifiedLocation.split("_");
+            for (String word : words) {
+                if(word.isEmpty()) continue;
+                String capitalizedWord = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+                if(!result.isEmpty()) result.append(" ");
+                result.append(capitalizedWord);
+            }
+            prettifiedLocation = result.toString();
+        } else if(!prettifiedLocation.isEmpty() && !prettifiedLocation.contains(" ")) {
+            prettifiedLocation = prettifiedLocation.substring(0, 1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
+        }
+
+        return prettifiedLocation;
+    }
 }

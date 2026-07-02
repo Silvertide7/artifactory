@@ -3,7 +3,7 @@ package net.silvertide.artifactory.util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silvertide.artifactory.client.state.ItemRequirements;
+import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementSchema;
@@ -139,7 +139,7 @@ public final class AttunementUtil {
     }
 
     public static String getAttunedItemDisplayName(ItemStack stack) {
-        return GUIUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
+        return ResourceLocationUtil.prettifyName(DataComponentUtil.getItemDisplayName(stack).orElse(stack.getItem().toString()));
     }
 
     public static AttunementNexusSlotInformation createAttunementNexusSlotInformation(ServerPlayer player, ItemStack stack) {

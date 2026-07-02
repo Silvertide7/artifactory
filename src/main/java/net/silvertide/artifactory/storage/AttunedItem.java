@@ -107,11 +107,12 @@ public class AttunedItem {
 
     public static AttunedItem buildAttunedItem(Player player, ItemStack stack) {
         ResourceLocation resourceLocation = ResourceLocationUtil.getResourceLocation(stack);
-        int numAttunedItems = ArtifactorySavedData.get().getNumAttunedItems(player.getUUID());
+        int nextOrder = ArtifactorySavedData.get().getAttunedItems(player.getUUID()).values().stream()
+                .mapToInt(AttunedItem::getOrder).max().orElse(0) + 1;
         String itemDisplayName = AttunementUtil.getAttunedItemDisplayName(stack);
 
         AttunementOverride attunementOverride = DataComponentUtil.getAttunementOverride(stack);
-        return new AttunedItem(attunementOverride, UUID.randomUUID(), resourceLocation.toString(), itemDisplayName, 1, numAttunedItems + 1);
+        return new AttunedItem(attunementOverride, UUID.randomUUID(), resourceLocation.toString(), itemDisplayName, 1, nextOrder);
     }
 
     @Override

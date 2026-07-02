@@ -9,6 +9,8 @@
   "hovertext.artifactory.attuned_item": "Attuned",
   "hovertext.artifactory.use_without_attunement": "Attunable",
   "hovertext.artifactory.use_with_attunement": "Attunable (Required)",
+  "hovertext.artifactory.trait_soulbound": "Soulbound",
+  "hovertext.artifactory.trait_invulnerable": "Invulnerable",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use.",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",
@@ -42,25 +44,21 @@
   "screen.text.artifactory.attunement.requirement_threshold_ascend": "XP Threshold to Ascend: %1$s",
   "screen.text.artifactory.attunement.slot_text": "Attunement Slots",
 
+  "screen.text.artifactory.manage.title": "Manage Attunements",
+  "screen.text.artifactory.manage.no_enhancements": "No enhancements",
   "screen.text.artifactory.manage.slots": "Attunement Slots",
   "screen.text.artifactory.manage.slots_used": "Slots reserved: %1$s",
-  "screen.text.artifactory.manage.slots_used_unique": " - §6Unique§r",
   "screen.text.artifactory.manage.attunement_level": "Attunement Level: %1$s",
   "screen.text.artifactory.manage.attunement_level_max": " §a(Max)§r",
   "screen.text.artifactory.manage.attunement_data_not_found": "Attunement data no longer found for this item.",
-  "screen.text.artifactory.manage.requirement_text": "Requirements",
 
   "screen.tooltip.artifactory.xp_level_threshold": "Must have a total of %1$s levels to begin.",
   "screen.tooltip.artifactory.xp_levels_consumed": "Consumes %1$s levels.",
   "screen.tooltip.artifactory.attuned_to_other_player": "This is attuned to another player. Cannot attune.",
-  "screen.tooltip.artifactory.able_to_attune": "Attune this item.",
-  "screen.tooltip.artifactory.ascend": "Ascend to level %1$s.",
-  "screen.tooltip.artifactory.max_attunement_reached": "You have reached the maximum attunement level with this item.",
   "screen.tooltip.artifactory.manage_button": "Manage Attunements",
   "screen.tooltip.artifactory.attuned_by_another_player": "This item is already attuned by %1$s.",
   "screen.tooltip.artifactory.item_in_slot_is_max_level": "Max level reached, cannot ascend further.",
   "screen.tooltip.artifactory.provide_items": "Provide required items.",
-  "screen.tooltip.artifactory.max_slots": "Slots",
 
   "screen.tooltip.artifactory.attunement.one_item_slot_required": "This item requires 1 open slot to attune.",
   "screen.tooltip.artifactory.attunement.one_item_slot_reserved": "This item is reserving 1 slot.",
@@ -70,8 +68,11 @@
   "screen.tooltip.artifactory.attunement.one_slot_available": "You have 1 slot available.",
   "screen.tooltip.artifactory.attunement.slots_ratio": "You are currently using %1$s of your %2$s slots.",
   "screen.tooltip.artifactory.attunement.not_enough_slots": "You don't have enough slots available to attune this item.",
+  "screen.tooltip.artifactory.attunement.requires_item_count": "Requires %1$s ",
 
   "screen.tooltip.artifactory.not_enough_slots_available": "Not enough attunement slots available to attune this item.",
   "curios.identifier.attuned_item": "Attuned Item",
-  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots"
+  "attribute.artifactory.max_attunement_slots": "Max Attunement Slots",
+
+  "command.artifactory.slots_used": "%1$s of %2$s attunement slots used."
 }

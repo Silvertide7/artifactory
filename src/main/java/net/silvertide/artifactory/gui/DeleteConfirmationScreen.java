@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.network.server_packets.SB_RemoveAttunedItem;
 import net.silvertide.artifactory.storage.AttunedItem;
-import net.silvertide.artifactory.util.GUIUtil;
+import net.silvertide.artifactory.client.util.GUIUtil;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
@@ -42,7 +42,8 @@ public class DeleteConfirmationScreen extends Screen {
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         try {
             super.render(guiGraphics, mouseX, mouseY, partialTicks);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            Artifactory.LOGGER.error("Error rendering DeleteConfirmationScreen, closing screen", e);
             onClose();
         }
     }

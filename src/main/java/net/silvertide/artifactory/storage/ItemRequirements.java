@@ -1,4 +1,4 @@
-package net.silvertide.artifactory.client.state;
+package net.silvertide.artifactory.storage;
 
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;

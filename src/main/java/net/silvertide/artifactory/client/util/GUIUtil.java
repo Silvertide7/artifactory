@@ -1,19 +1,10 @@
-package net.silvertide.artifactory.util;
+package net.silvertide.artifactory.client.util;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-
-import java.util.Random;
 
 public final class GUIUtil {
-    private static final Random SOUND_RNG = new Random();
     private GUIUtil() {}
     public static boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         return isHovering(0, 0, pX, pY, pWidth, pHeight, pMouseX, pMouseY);
@@ -83,56 +74,6 @@ public final class GUIUtil {
     }
 
     public static String convertToPercentage(double percent) {
-        double roundedValue =  Math.round(percent * 100D) / 100D;
-        return roundedValue * 100 +"%";
+        return Math.round(percent * 100D) + "%";
     }
-
-    public static String prettifyName(String resourceLocation) {
-        String prettifiedLocation = resourceLocation;
-        // Split the path by modid:moditem
-        if(prettifiedLocation.contains(":")) {
-            prettifiedLocation = resourceLocation.split(":")[1];
-        }
-
-        // Added this to deal with attributes like general.movement_speed
-        if(prettifiedLocation.contains(".")) {
-            String[] periodSeperated = prettifiedLocation.split("\\.");
-            prettifiedLocation = periodSeperated[periodSeperated.length - 1];
-        }
-
-        // Separate into multiple words
-        if(prettifiedLocation.contains("_")) {
-            StringBuilder result = new StringBuilder();
-            String[] words = prettifiedLocation.split("_");
-            for (int i = 0; i < words.length; i++) {
-                if(words[i].isEmpty()) continue;
-                // Capitalize the first letter and make the rest lowercase
-                String capitalizedWord = words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();
-                // Append the capitalized word to the result
-                if(!result.isEmpty()) result.append(" ");
-                result.append(capitalizedWord);
-            }
-            prettifiedLocation = result.toString();
-        } else if(!prettifiedLocation.isEmpty() && !prettifiedLocation.contains(" ")) {
-            prettifiedLocation = prettifiedLocation.substring(0, 1).toUpperCase() + prettifiedLocation.substring(1).toLowerCase();
-        }
-
-        return prettifiedLocation;
-    }
-
-    public static void spawnParticals(ServerLevel serverLevel, Player player, ParticleOptions particle, int numParticles){
-        Level level = player.level();
-        for(int i = 0; i < numParticles; i++){
-            serverLevel.sendParticles(particle, player.getX() + level.random.nextDouble() - 0.5, player.getY() + 1.0, player.getZ() + level.random.nextDouble() - 0.5, 1, 0.0D, 0.0D, 0.0D, 1.0D);
-        }
-    }
-
-    public static void playSound(Level level, double x, double y, double z, SoundEvent soundEvent){
-        level.playSound(null, x, y, z, soundEvent, SoundSource.PLAYERS, 20, 0.95f+SOUND_RNG.nextFloat()*0.1f);
-    }
-
-    public static void playSound(Level level, Player player, SoundEvent soundEvent){
-        playSound(level, player.getX(), player.getY(), player.getZ(), soundEvent);
-    }
-
 }

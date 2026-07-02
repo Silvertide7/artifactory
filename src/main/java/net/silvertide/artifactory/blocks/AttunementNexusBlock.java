@@ -39,10 +39,11 @@ public class AttunementNexusBlock extends Block {
     private static final Component CONTAINER_TITLE = Component.translatable("container.artifactory.attunement_nexus");
 
     public AttunementNexusBlock() {
-        super(BlockBehaviour.Properties.of().strength(3.0F).sound(SoundType.ANVIL).lightLevel(state -> 9).noOcclusion());
+        super(BlockBehaviour.Properties.of().strength(3.0F).sound(SoundType.ANVIL).lightLevel(state -> 9).noOcclusion().requiresCorrectToolForDrops());
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
+    @Override
     @Nullable
     public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider((i, inventory, player) ->
@@ -73,6 +74,7 @@ public class AttunementNexusBlock extends Block {
         return RenderShape.MODEL;
     }
 
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
@@ -92,6 +94,7 @@ public class AttunementNexusBlock extends Block {
         builder.add(FACING);
     }
 
+    @Override
     public PushReaction getPistonPushReaction(@NotNull BlockState state) {
         return PushReaction.BLOCK;
     }
