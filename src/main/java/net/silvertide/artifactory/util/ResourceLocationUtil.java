@@ -14,9 +14,6 @@ public final class ResourceLocationUtil {
         return BuiltInRegistries.ITEM.getKey(stack.getItem());
     }
 
-    public static Item getItemFromResourceLocation(String stringifiedResourceLocation) {
-        return BuiltInRegistries.ITEM.get(ResourceLocation.parse(stringifiedResourceLocation));
-    }
     public static Item getItemFromResourceLocation(ResourceLocation location) {
         return BuiltInRegistries.ITEM.get(location);
     }

@@ -1,6 +1,7 @@
 package net.silvertide.artifactory.commands;
 
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
@@ -25,6 +26,6 @@ public class CmdNodeGeneral {
                 .withStyle(ChatFormatting.DARK_AQUA);
 
         PlayerMessenger.sendSystemMessage(player, slotsUsedText);
-        return 0;
+        return Command.SINGLE_SUCCESS;
     }
 }

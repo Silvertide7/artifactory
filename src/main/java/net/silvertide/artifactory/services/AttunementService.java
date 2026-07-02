@@ -100,7 +100,7 @@ public final class AttunementService {
                     } else if (attunementSchema.chance() >= 1.0D) {
                         DataComponentUtil.setAttunementFlag(stack, AttunementFlag.getAttunableFlag());
                     } else {
-                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.max(Math.min(attunementSchema.chance(), 1.0D), 0.0D)));
+                        DataComponentUtil.setAttunementFlag(stack, new AttunementFlag(false, false, Math.clamp(attunementSchema.chance(), 0.0D, 1.0D)));
                     }
                 });
             }

@@ -73,7 +73,7 @@ public record AttunementRequirements(int xpLevelsConsumed, int xpLevelThreshold,
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder result = new StringBuilder("AttunementRequirements: \n" +
                 "\txpLevelsThreshold : " + xpLevelThreshold() + "\n" +
                 "\txpLevelsConsumed : " + xpLevelsConsumed() + "\n" +

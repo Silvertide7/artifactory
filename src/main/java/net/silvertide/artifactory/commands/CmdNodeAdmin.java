@@ -26,9 +26,11 @@ public class CmdNodeAdmin {
     }
 
     public static int adminBreakAttunements(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        int playersAffected = 0;
         for (ServerPlayer player : EntityArgument.getPlayers(ctx, TARGET_ARG)) {
             ArtifactorySavedData.get().removeAllAttunedItems(player.getUUID());
+            playersAffected++;
         }
-        return 0;
+        return playersAffected;
     }
 }

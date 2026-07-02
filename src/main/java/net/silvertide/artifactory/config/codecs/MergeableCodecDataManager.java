@@ -128,7 +128,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                 }
                 catch(Exception e)
                 {
-                    LOGGER.error(String.format(Locale.ENGLISH, "Error reading resource %s in folder %s from pack %s: ", id, this.folderName, resource.sourcePackId()), e);
+                    LOGGER.error("Error reading resource {} in folder {} from pack {}: ", id, this.folderName, resource.sourcePackId(), e);
                 }
             }
             if (!raws.isEmpty()) {
@@ -232,7 +232,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
         if(!stack.isEmpty() && stack.getMaxStackSize() == 1 && !(stack.getItem() instanceof BlockItem)){
            return true;
         } else {
-            Artifactory.LOGGER.warn("Artifactory - " + resourceLocation.toString() + " - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.");
+            Artifactory.LOGGER.warn("Artifactory - {} - Invalid datapack pathway found. Either item doesn't exist, it is a block item, or it has a stack size greater than 1.", resourceLocation);
             return false;
         }
     }
@@ -248,7 +248,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
             AttunementDataSource dataSource = entry.getValue();
             if(!dataSource.useWithoutAttunement() && dataSource.chance() != 1.0D){
                 dataSource = dataSource.withChance(1.0D);
-                Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - chance is not valid, must have a chance of 1.0D if use_without_attunement is false. Setting to 1.0D.");
+                Artifactory.LOGGER.warn("Artifactory - {} - chance is not valid, must have a chance of 1.0D if use_without_attunement is false. Setting to 1.0D.", entry.getKey());
             }
 
             // Sanitize items in attunement levels
@@ -262,7 +262,7 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                         if (stack != null && !stack.isEmpty()) {
                             sanitizedItems.add(itemCode);
                         } else {
-                            Artifactory.LOGGER.warn("Artifactory - " + entry.getKey() + " - ItemRequirement not valid, must be modid:itemid#quantity - " + itemCode + " removed.");
+                            Artifactory.LOGGER.warn("Artifactory - {} - ItemRequirement not valid, must be modid:itemid#quantity - {} removed.", entry.getKey(), itemCode);
                         }
                     }
                 }

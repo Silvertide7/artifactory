@@ -64,7 +64,7 @@ public record AttunementLevel(AttunementRequirements requirements, List<String> 
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder result = new StringBuilder("AttunementLevel: \n" +
                 " modifications: [");
 

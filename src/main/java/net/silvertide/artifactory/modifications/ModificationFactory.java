@@ -16,7 +16,7 @@ public class ModificationFactory {
                 BasicModificationType modification = BasicModificationType.valueOf(modificationCode.toUpperCase());
                 return Optional.of(new BasicModification(modification));
             } catch (IllegalArgumentException e) {
-                Artifactory.LOGGER.error("Artifactory - Unknown attunement modification " + modificationCode);
+                Artifactory.LOGGER.error("Artifactory - Unknown attunement modification {}", modificationCode);
             }
         }
         return Optional.empty();

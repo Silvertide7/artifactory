@@ -60,19 +60,19 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
                 try {
                     value = Double.parseDouble(modification[3]);
                 }  catch (NumberFormatException exception) {
-                    Artifactory.LOGGER.warn("Attribute value could not be parsed into a number (" + modification[3] + ")");
+                    Artifactory.LOGGER.warn("Attribute value could not be parsed into a number ({})", modification[3]);
                     return null;
                 }
 
                 EquipmentSlotGroup equipmentSlotGroup = equipmentSlotGroupFromString(modification[4]);
                 if(equipmentSlotGroup == null) {
-                    Artifactory.LOGGER.warn("Unknown attribute slot group (" + modification[4] + ") in modification: " + attributeModificationDataString);
+                    Artifactory.LOGGER.warn("Unknown attribute slot group ({}) in modification: {}", modification[4], attributeModificationDataString);
                     return null;
                 }
 
                 ResourceLocation attributeId = ResourceLocation.tryParse(attribute);
                 if(attributeId == null) {
-                    Artifactory.LOGGER.warn("Attribute id could not be parsed into a resource location (" + attribute + ")");
+                    Artifactory.LOGGER.warn("Attribute id could not be parsed into a resource location ({})", attribute);
                     return null;
                 }
 
@@ -150,7 +150,7 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder result = new StringBuilder("+");
         if(modifier().operation().id() == 0) {
             result.append(modifier().amount());
