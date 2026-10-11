@@ -1,8 +1,7 @@
 package net.silvertide.artifactory.mixin;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.silvertide.artifactory.events.VoidReturnEvents;
+import net.silvertide.artifactory.services.VoidReturnService;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +12,6 @@ public abstract class EntityMixin {
 
     @Inject(method = "onBelowWorld", at = @At("HEAD"), cancellable = true)
     private void artifactory$returnAttunedItemBeforeVoidDeletesIt(CallbackInfo ci) {
-        if ((Object) this instanceof ItemEntity itemEntity && VoidReturnEvents.returnAttunedItemToOwner(itemEntity)) ci.cancel();
+        if (VoidReturnService.returnAttunedItemToOwner((Entity) (Object) this)) ci.cancel();
     }
 }

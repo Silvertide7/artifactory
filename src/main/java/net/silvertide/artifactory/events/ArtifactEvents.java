@@ -20,6 +20,7 @@ import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.services.PlayerMessenger;
+import net.silvertide.artifactory.services.VoidReturnService;
 import net.silvertide.artifactory.util.*;
 import net.silvertide.silverlib.feature.breakage.BrokenItems;
 import net.silvertide.silverlib.feature.breakage.ItemBreakingEvent;
@@ -102,6 +103,7 @@ public class ArtifactEvents {
     public static void onPlayerTick(PlayerTickEvent.Post playerTickEvent) {
         if (playerTickEvent.getEntity() instanceof ServerPlayer serverPlayer) {
             if (serverPlayer.tickCount % TICKS_BETWEEN_GEAR_VALIDATION != 0) return;
+            if (!serverPlayer.isDeadOrDying()) VoidReturnService.giveItemsWaitingForOwner(serverPlayer);
 
             Inventory inv = serverPlayer.getInventory();
             List<ItemStack> armorItems = List.of(inv.getItem(36), inv.getItem(37), inv.getItem(38), inv.getItem(39));

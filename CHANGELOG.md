@@ -7,6 +7,7 @@
 - Broken items no longer grant attunement attribute bonuses
 - Soulbound now runs on SilverLib: items survive revive mods cancelling the death, return to their original slot, and drop at your feet instead of vanishing when the inventory is full; soulbound curios in cosmetic slots are kept too
 - Items kept by the old soulbound system are returned on login or respawn
+- Attuned items that fall into the void (dropped, or a thrown trident) are returned to their owner instead of being destroyed; if the owner is offline or dead they get it back once they're online and alive
 
 ## 2.6.5
 - Tons of clean up, refactor, and bug fixes.

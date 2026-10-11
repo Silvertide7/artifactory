@@ -3,7 +3,10 @@ package net.silvertide.artifactory.storage;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +28,6 @@ import java.util.*;
 public class ArtifactorySavedData extends SavedData {
     private static final String ATTUNED_ITEMS_KEY = "attuned_items";
     private static final String ITEMS_RETURNED_FROM_VOID_KEY = "items_returned_from_void";
-    private static final Codec<Map<UUID, List<ItemStack>>> ITEMS_RETURNED_FROM_VOID_CODEC =
-            Codec.unboundedMap(CodecTypes.UUID_CODEC, ItemStack.CODEC.listOf());
 
     // CODEC
     private static final Codec<Map<UUID, Map<UUID, AttunedItem>>> ATTUNED_ITEMS_CODEC =
@@ -37,18 +38,15 @@ public class ArtifactorySavedData extends SavedData {
     private static final String NAME = Artifactory.MOD_ID;
 
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
-    private Map<UUID, List<ItemStack>> itemsReturnedFromVoid = new HashMap<>();
+    private final Map<UUID, List<ItemStack>> itemsReturnedFromVoid = new HashMap<>();
+    private final Map<UUID, List<Tag>> unreadableItemsReturnedFromVoid = new HashMap<>();
 
     public ArtifactorySavedData() {}
     public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
         attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY))
                 .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to load attuned items, resetting to empty: {}", error))
                 .orElse(new HashMap<>()));
-        if (nbt.contains(ITEMS_RETURNED_FROM_VOID_KEY)) {
-            itemsReturnedFromVoid = new HashMap<>(ITEMS_RETURNED_FROM_VOID_CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), nbt.get(ITEMS_RETURNED_FROM_VOID_KEY))
-                    .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to load some items returned from the void: {}", error))
-                    .orElse(new HashMap<>()));
-        }
+        loadItemsReturnedFromVoid(nbt.getCompound(ITEMS_RETURNED_FROM_VOID_KEY), provider.createSerializationContext(NbtOps.INSTANCE));
     }
 
     private static final Factory<ArtifactorySavedData> DATA_FACTORY = new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
@@ -62,11 +60,8 @@ public class ArtifactorySavedData extends SavedData {
         nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems)
                 .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save attuned items: {}", error))
                 .orElse(new CompoundTag()));
-        if (!itemsReturnedFromVoid.isEmpty()) {
-            ITEMS_RETURNED_FROM_VOID_CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), itemsReturnedFromVoid)
-                    .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save items returned from the void: {}", error))
-                    .ifPresent(tag -> nbt.put(ITEMS_RETURNED_FROM_VOID_KEY, tag));
-        }
+        CompoundTag itemsReturnedFromVoidTag = saveItemsReturnedFromVoid(provider.createSerializationContext(NbtOps.INSTANCE));
+        if (!itemsReturnedFromVoidTag.isEmpty()) nbt.put(ITEMS_RETURNED_FROM_VOID_KEY, itemsReturnedFromVoidTag);
         return nbt;
     }
 
@@ -75,6 +70,37 @@ public class ArtifactorySavedData extends SavedData {
             return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
         else
             return new ArtifactorySavedData();
+    }
+
+    private void loadItemsReturnedFromVoid(CompoundTag itemsReturnedFromVoidTag, RegistryOps<Tag> ops) {
+        for (String ownerKey : itemsReturnedFromVoidTag.getAllKeys()) {
+            UUID ownerUUID = UUID.fromString(ownerKey);
+            for (Tag stackTag : itemsReturnedFromVoidTag.getList(ownerKey, Tag.TAG_COMPOUND)) {
+                ItemStack.CODEC.parse(ops, stackTag)
+                        .resultOrPartial(error -> Artifactory.LOGGER.warn("Artifactory - Item returned from the void for {} did not fully load: {}", ownerKey, error))
+                        .filter(stack -> !stack.isEmpty())
+                        .ifPresentOrElse(
+                                stack -> itemsReturnedFromVoid.computeIfAbsent(ownerUUID, uuid -> new ArrayList<>()).add(stack),
+                                () -> unreadableItemsReturnedFromVoid.computeIfAbsent(ownerUUID, uuid -> new ArrayList<>()).add(stackTag));
+            }
+        }
+    }
+
+    private CompoundTag saveItemsReturnedFromVoid(RegistryOps<Tag> ops) {
+        CompoundTag itemsReturnedFromVoidTag = new CompoundTag();
+        Set<UUID> owners = new HashSet<>(itemsReturnedFromVoid.keySet());
+        owners.addAll(unreadableItemsReturnedFromVoid.keySet());
+        for (UUID ownerUUID : owners) {
+            ListTag stackTags = new ListTag();
+            for (ItemStack stack : itemsReturnedFromVoid.getOrDefault(ownerUUID, List.of())) {
+                ItemStack.CODEC.encodeStart(ops, stack)
+                        .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save item returned from the void for {}: {}", ownerUUID, error))
+                        .ifPresent(stackTags::add);
+            }
+            stackTags.addAll(unreadableItemsReturnedFromVoid.getOrDefault(ownerUUID, List.of()));
+            itemsReturnedFromVoidTag.put(ownerUUID.toString(), stackTags);
+        }
+        return itemsReturnedFromVoidTag;
     }
 
     public void keepItemReturnedFromVoid(UUID ownerUUID, ItemStack stack) {
