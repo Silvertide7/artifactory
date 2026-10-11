@@ -24,6 +24,9 @@ import java.util.*;
 
 public class ArtifactorySavedData extends SavedData {
     private static final String ATTUNED_ITEMS_KEY = "attuned_items";
+    private static final String ITEMS_RETURNED_FROM_VOID_KEY = "items_returned_from_void";
+    private static final Codec<Map<UUID, List<ItemStack>>> ITEMS_RETURNED_FROM_VOID_CODEC =
+            Codec.unboundedMap(CodecTypes.UUID_CODEC, ItemStack.CODEC.listOf());
 
     // CODEC
     private static final Codec<Map<UUID, Map<UUID, AttunedItem>>> ATTUNED_ITEMS_CODEC =
@@ -34,12 +37,18 @@ public class ArtifactorySavedData extends SavedData {
     private static final String NAME = Artifactory.MOD_ID;
 
     private Map<UUID, Map<UUID, AttunedItem>> attunedItems = new HashMap<>();
+    private Map<UUID, List<ItemStack>> itemsReturnedFromVoid = new HashMap<>();
 
     public ArtifactorySavedData() {}
     public ArtifactorySavedData(CompoundTag nbt, HolderLookup.Provider provider) {
         attunedItems = new HashMap<>(ATTUNED_ITEMS_CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(ATTUNED_ITEMS_KEY))
                 .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to load attuned items, resetting to empty: {}", error))
                 .orElse(new HashMap<>()));
+        if (nbt.contains(ITEMS_RETURNED_FROM_VOID_KEY)) {
+            itemsReturnedFromVoid = new HashMap<>(ITEMS_RETURNED_FROM_VOID_CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), nbt.get(ITEMS_RETURNED_FROM_VOID_KEY))
+                    .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to load some items returned from the void: {}", error))
+                    .orElse(new HashMap<>()));
+        }
     }
 
     private static final Factory<ArtifactorySavedData> DATA_FACTORY = new SavedData.Factory<>(ArtifactorySavedData::new, ArtifactorySavedData::new, null);
@@ -53,6 +62,11 @@ public class ArtifactorySavedData extends SavedData {
         nbt.put(ATTUNED_ITEMS_KEY, ATTUNED_ITEMS_CODEC.encodeStart(NbtOps.INSTANCE, attunedItems)
                 .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save attuned items: {}", error))
                 .orElse(new CompoundTag()));
+        if (!itemsReturnedFromVoid.isEmpty()) {
+            ITEMS_RETURNED_FROM_VOID_CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), itemsReturnedFromVoid)
+                    .resultOrPartial(error -> Artifactory.LOGGER.error("Artifactory - Failed to save items returned from the void: {}", error))
+                    .ifPresent(tag -> nbt.put(ITEMS_RETURNED_FROM_VOID_KEY, tag));
+        }
         return nbt;
     }
 
@@ -61,6 +75,18 @@ public class ArtifactorySavedData extends SavedData {
             return ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage().computeIfAbsent(dataFactory(), NAME);
         else
             return new ArtifactorySavedData();
+    }
+
+    public void keepItemReturnedFromVoid(UUID ownerUUID, ItemStack stack) {
+        itemsReturnedFromVoid.computeIfAbsent(ownerUUID, uuid -> new ArrayList<>()).add(stack);
+        setDirty();
+    }
+
+    public List<ItemStack> takeItemsReturnedFromVoid(UUID ownerUUID) {
+        List<ItemStack> items = itemsReturnedFromVoid.remove(ownerUUID);
+        if (items == null) return List.of();
+        setDirty();
+        return items;
     }
 
     public Map<UUID, AttunedItem> getAttunedItems(UUID playerUUID) {

@@ -13,6 +13,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.util.AttunementUtil;
+import net.silvertide.artifactory.util.InventoryUtil;
 import net.silvertide.silverlib.feature.soulbound.SoulboundCheckEvent;
 
 import java.util.ArrayList;
@@ -65,10 +66,7 @@ public class SoulboundEvents {
                 displacedStacks.add(stack);
             }
         }
-        displacedStacks.forEach(stack -> {
-            if (inventory.getFreeSlot() >= 0) inventory.add(stack);
-            if (!stack.isEmpty()) player.drop(stack, false, false);
-        });
+        displacedStacks.forEach(stack -> InventoryUtil.giveOrDropAtFeet(player, stack));
     }
 
     private static int toCombinedInventorySlot(int legacySlot) {

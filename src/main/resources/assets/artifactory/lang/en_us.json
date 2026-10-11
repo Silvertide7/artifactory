@@ -18,6 +18,7 @@
   "playermessage.artifactory.owned_by_another_player": "This item is attuned to someone else.",
   "playermessage.artifactory.bond_broken": "You feel the bond between you and %1$s break.",
   "playermessage.artifactory.attuned_item_broken": "%1$s is broken. Repair it to use it again.",
+  "playermessage.artifactory.returned_from_void": "%1$s was pulled back from the void.",
   "playermessage.artifactory.cant_use_manage_keybind": "This feature is turned off. Enable in server config.",
 
   "key.artifactory.useOpenManageAttunementsKey": "Open Manage Attunements Screen",
