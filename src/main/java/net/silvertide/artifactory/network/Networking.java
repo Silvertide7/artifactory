@@ -11,9 +11,11 @@ import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttuneme
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Artifactory.MOD_ID)
 public class Networking {
+    private static final String PROTOCOL_VERSION = "2";
+
     @SubscribeEvent
     public static void registerMessages(RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(Artifactory.MOD_ID);
+        final PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
 
         registrar
                 // CLIENT BOUND PACKETS

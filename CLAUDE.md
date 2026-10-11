@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Overview
-Artifactory is a Minecraft NeoForge mod (MC 1.21.1, NeoForge 21.1.x, mod ID `artifactory`) adding an item attunement system: players bond to non-stackable items at an **Attunement Nexus** block to unlock per-level benefits (attribute bonuses, soulbound, unbreakable). Which items are attunable and what each level costs/grants is data-driven via datapack JSON. Curios API integration is optional at runtime.
+Artifactory is a Minecraft NeoForge mod (MC 1.21.1, NeoForge 21.1.x, mod ID `artifactory`) adding an item attunement system: players bond to non-stackable items at an **Attunement Nexus** block to unlock per-level benefits (attribute bonuses, soulbound, unbreakable, resilient). Which items are attunable and what each level costs/grants is data-driven via datapack JSON. Curios API and QualityAPI integrations are optional at runtime; SilverLib is a required dependency (its breakage feature backs the `resilient` modification and its soulbound feature backs `soulbound`).
 
 ## Build & Run
 - **Build**: `./gradlew build` (jar lands in `build/libs/`)
@@ -27,11 +27,11 @@ Artifactory is a Minecraft NeoForge mod (MC 1.21.1, NeoForge 21.1.x, mod ID `art
 1. **`ArtifactorySavedData`** (world SavedData on the overworld) is the authoritative server-side record: `player UUID -> attunement UUID -> AttunedItem` (level, slot order, display name, item resource location, optional `AttunementOverride` snapshot). All mutations `setDirty()` and push `CB_*` packets to keep the owning client's `ClientAttunedItems` in sync.
 2. **Item data components** (`DataComponentRegistry`):
    - `ATTUNEMENT_FLAG` — discovery state (`isAttunable`, `discovered`, `chance`); set lazily on pickup/tick/menu placement.
-   - `PLAYER_ATTUNEMENT_DATA` ("attunement_data") — live attunement: attunement UUID, owner UUID + name, soulbound/invulnerable/unbreakable flags, accumulated `AttributeModification`s.
+   - `PLAYER_ATTUNEMENT_DATA` ("attunement_data") — live attunement: attunement UUID, owner UUID + name, soulbound/invulnerable/unbreakable/resilient flags, accumulated `AttributeModification`s.
    - `ATTUNEMENT_OVERRIDE` — optional per-stack schema that takes precedence over datapack config.
 3. **Datapack definitions** loaded into `AttunableItems.DATA_LOADER` (server) and mirrored to `ClientAttunementDataSource` (client).
 
-The stack's `attunementUUID` points into SavedData; SavedData wins. `AttunementService.checkAndUpdateAttunementComponents` clears stale component data when no matching SavedData entry exists ("broken attunement" cleanup). It runs on item pickup, player tick, login, nexus slot placement, and curios equip — there is no global scan; stacks self-heal when touched.
+The stack's `attunementUUID` points into SavedData; SavedData wins. `AttunementService.checkAndUpdateAttunementComponents` clears stale component data when no matching SavedData entry exists ("broken attunement" cleanup). It runs on item pickup, player tick, login, nexus slot placement, curios equip, and on attuned stacks inside SilverLib's `ItemBreakingEvent` and QualityAPI's `QualityBreakDowngradeEvent` — there is no global scan; stacks self-heal when touched.
 
 ### Schema resolution
 `AttunementSchema` (interface: `slots_used`, `attunement_levels`, `chance`, `use_without_attunement`) is implemented by both `AttunementOverride` (component / AttunedItem snapshot) and `AttunementDataSource` (datapack). `AttunementSchemaUtil` resolves override first, then datapack. A schema is valid iff `attunementSlotsUsed() >= 0` (the null-override sentinel is -1). Client mirror: `ClientAttunementUtil.getClientAttunementSchema`.
@@ -44,17 +44,20 @@ The stack's `attunementUUID` points into SavedData; SavedData wins. `AttunementS
 - Commands: `/artifactory slots` (anyone), `/artifactory admin <players> attunementLevels breakAll` (perm 2).
 
 ### Datapack loading pipeline (two-phase)
-`MergeableCodecDataManager` (a `SimplePreparableReloadListener`, registered in `SystemEvents.onAddReloadListeners`) scans `data/<namespace>/artifactory/*.json`; the resource location `namespace:filename` names the target item. Entries using `apply_to_items` (item IDs or `#tags`) can't resolve at reload time — they're applied in `postProcess()` on `TagsUpdatedEvent`. Validation drops items that don't exist, stack > 1, or are BlockItems; `chance` is forced to 1.0 when `use_without_attunement` is false; malformed item-requirement strings are removed. Any entry with `replace: true` overrides others for the same source ID. A specific per-item config always wins over an `apply_to_items`/tag entry targeting the same item (the tag entry is skipped with a logged warning); among competing tag entries, the alphabetically-last source config key wins (deterministic). The full map is synced to clients on `OnDatapackSyncEvent` via `CB_SyncDatapackData` (each entry travels as a JSON string).
+`MergeableCodecDataManager` (a `SimplePreparableReloadListener`, registered in `SystemEvents.onAddReloadListeners`) scans `data/<namespace>/artifactory/*.json`; the resource location `namespace:filename` names the target item. Entries using `apply_to_items` (item IDs or `#tags`) can't resolve at reload time — they're applied in `postProcess()` on `TagsUpdatedEvent`. Validation drops items that don't exist, stack > 1, or are BlockItems; `chance` is forced to 1.0 when `use_without_attunement` is false; malformed item-requirement strings are removed. Any entry with `replace: true` overrides others for the same source ID. A specific per-item config always wins over an `apply_to_items`/tag entry targeting the same item (the tag entry is skipped with a logged warning); among competing tag entries, the alphabetically-last source config key wins (deterministic). The full map is synced to clients on `OnDatapackSyncEvent` via `CB_SyncDatapackData` (each entry encoded with `AttunementDataSource.STREAM_CODEC`).
 
 ### Client/server split
 Server logic: `AttunementUtil` / `AttunementSchemaUtil` / `ArtifactorySavedData` / `ServerConfigs`. Client mirrors: `ClientAttunementUtil` + `client/state` singletons (`ClientAttunedItems`, `ClientAttunementDataSource`, `ClientSyncedConfig`) fed by `CB_*` packets. Shared codepaths branch on `ServerPlayer` vs `LocalPlayer` (e.g. `ArtifactEvents.sidedIsUseRestricted`, `AttunementMenu.updateAttunementState`, `ItemAttributeModifierEvent` handler switching on `FMLEnvironment.dist`) — **when changing attunement checks, update both the server and client variants.**
 
 ### Enforcement & soulbound (events/)
 - `ArtifactEvents`: cancels attack/left-click/right-click with use-restricted items (both sides); blocks pickup of others' attuned items (config); attuned item entities never despawn and are invulnerable to environmental damage (lava/fire/explosion — set unconditionally on join; void still destroys them); destroy/expire breaks the attunement in SavedData; `ItemAttributeModifierEvent` applies stored attribute modifications; a throttled player tick (every 18 ticks) re-validates held/worn gear and applies config-driven penalty effects (`minecraft:effect/level;...` strings parsed by `EffectUtil`).
-- `SoulboundEvents`: on death (without keepInventory) stashes soulbound items into persistent player NBT (Twilight Forest charm-of-keeping approach); restores on respawn.
+- `SoulboundEvents`: answers SilverLib's `SoulboundCheckEvent` with `keep()` when `AttunementUtil.isSoulboundActive(player, stack)` (never for `FakePlayer`s); SilverLib does the stashing on death and the slot-exact restore on respawn. It also returns any pre-2.7.0 stash (`PlayerPersisted.artifactoryInventory`, vanilla `Inventory.save` slot bytes) on login (if alive) or respawn, then removes the tag; this migration can be deleted once no pre-2.7.0 stashes remain.
+
+### QualityAPI integration
+QualityAPI is **compile-only**, gated behind `CompatFlags.QUALITY_LOADED` set by `CompatSetup`; imports stay in `compat/QualityCompat`. It answers `min_quality` checks and cancels `QualityBreakDowngradeEvent` for actively attuned items (healing stale attunement components first, so a stack whose bond was broken elsewhere can still lose a tier), so an attuned item never loses a tier when it breaks.
 
 ### Curios integration
-Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_LOADED`, set by `CuriosSetup` only if the mod is loaded. Keep curios imports confined to `compat/` (callers reference `CuriosCompat` fully-qualified behind the flag). `CuriosCompat` blocks equipping restricted/foreign items, keeps soulbound curios on death, applies attribute modifications (except in the `attuned_item` slot), and ejects invalid curios on login.
+Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_LOADED`, set by `CompatSetup` only if the mod is loaded. Keep curios imports confined to `compat/` (callers reference `CuriosCompat` fully-qualified behind the flag). `CuriosCompat` blocks equipping restricted/foreign items, keeps soulbound curios on death (one `DropRulesEvent` override, which also covers cosmetic slots), applies attribute modifications (except in the `attuned_item` slot), and ejects invalid curios on login.
 
 ## Datapack JSON format
 ```json
@@ -63,6 +66,7 @@ Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_
   "slots_used": 2,
   "chance": 1.0,
   "use_without_attunement": true,
+  "min_quality": 3,
   "apply_to_items": ["minecraft:diamond_sword", "#minecraft:swords"],
   "attunement_levels": [
     {
@@ -72,7 +76,9 @@ Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_
   ]
 }
 ```
-- Modification grammar: `soulbound` | `unbreakable` | `attribute/<attribute id>/<add_value|add_multiplied_base|add_multiplied_total>/<amount>/<slot group>` (parsed by `ModificationFactory`). `invulnerable` was removed — all attuned items are now invulnerable when dropped — and is accepted as a no-op so existing JSONs don't break.
+- Modification grammar: `soulbound` | `unbreakable` | `resilient` | `attribute/<attribute id>/<add_value|add_multiplied_base|add_multiplied_total>/<amount>/<slot group>` (parsed by `ModificationFactory`). `invulnerable` was removed — all attuned items are now invulnerable when dropped — and is accepted as a no-op so existing JSONs don't break.
+- `resilient` stores `is_resilient` on `PlayerAttunementData` (optional in the codec, default false, so older saves load). `ArtifactEvents` calls SilverLib's `ItemBreakingEvent.keepBroken()` for it, so the item sits broken at zero durability instead of vanishing until repaired, and messages the owner on `ItemKeptBrokenEvent` for any attuned item SilverLib keeps broken (resilient or kept by another mod such as QualityAPI). The `Resilient` tooltip line only shows while the item can actually take damage. `PlayerDestroyItemEvent` never removes an attunement from a SilverLib-broken stack. `shouldApplyAttunementModifications` is false for any SilverLib-broken stack, so broken items grant no attunement attributes. Like soulbound, removing `resilient` from a datapack only clears it from existing stacks when they are next recalculated (nexus placement or level-up). Resilient keeps the item no matter who holds it, but the break message only goes to the owner when the owner is the one holding it. A resilient item that breaks keeps SilverLib's broken marker after its attunement ends, so it stays broken until repaired. Gaining `unbreakable` on an item that is currently broken makes it usable again at zero durability (SilverLib only treats damageable items as broken).
+- `min_quality` (optional QualityAPI tier level, compared by number not name): when set, only stacks whose quality level is at least this can be attuned; a stack with no quality, or any stack while QualityAPI is absent, cannot. It gates new attunement only: checked in the datapack branch of `AttunementSchemaUtil.getAttunementSchema(stack)` (which the client also uses) and skipped for stacks that are already actively attuned, so a later datapack change, tier change or QualityAPI removal never breaks an existing attunement. Below-`min_quality` unattuned stacks get no schema at all, so they are also free of `use_without_attunement: false` restrictions (accepted: the combination is unusual). Smithing an attuned item keeps its attunement on the result even if the result's own `min_quality` is higher (consistent with "attuned items never lose attunement").
 - Item requirement grammar: `modid:item#quantity`; only the first 3 are used (3 GUI slots).
 - Omitted/negative xp values fall back to server config defaults (`xpLevelThreshold`, `xpLevelsConsumed` in `artifactory-server.toml`).
 - All keys are snake_case exactly as shown — there are no legacy aliases; misspelled keys are silently ignored and fall back to defaults.
@@ -81,7 +87,7 @@ Curios is **compile-only**; all runtime use is gated behind `CompatFlags.CURIOS_
 ## Conventions
 - **No backwards-compatibility shims by default.** Fix problems permanently and cleanly — do not add legacy aliases, fallback parsers, or migration paths on your own. When a correct fix breaks backwards compatibility (datapack formats, save data, configs, network), state exactly what breaks and ask before choosing the approach; the maintainer decides.
 - Package `net.silvertide.artifactory`; registries use the NeoForge `DeferredRegister` pattern (`registry/`).
-- Network packets: NeoForge `PayloadRegistrar` + `StreamCodec`, registered in `network/Networking`; naming `CB_*` (client-bound) / `SB_*` (server-bound).
+- Network packets: NeoForge `PayloadRegistrar` (created with `event.registrar(PROTOCOL_VERSION)`) + `StreamCodec`, registered in `network/Networking`; naming `CB_*` (client-bound) / `SB_*` (server-bound). Bump `Networking.PROTOCOL_VERSION` whenever any stream codec changes (packets or synced data components), so mismatched clients get a version screen instead of decode errors.
 - Server config: NeoForge `ModConfigSpec` TOML (`config/ServerConfigs`), registered as `artifactory-server.toml`; most values are `worldRestart`.
 - Most domain types hand-roll both a `Codec` (persistence) and a `StreamCodec` (network) side by side; follow that pattern for new components.
 - User-facing text goes through translation keys in `assets/artifactory/lang/en_us.json` (`screen.*`, `playermessage.*`, `hovertext.*`).

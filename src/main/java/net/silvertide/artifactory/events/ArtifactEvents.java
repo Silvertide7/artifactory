@@ -19,7 +19,11 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
+import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
+import net.silvertide.silverlib.feature.breakage.BrokenItems;
+import net.silvertide.silverlib.feature.breakage.ItemBreakingEvent;
+import net.silvertide.silverlib.feature.breakage.ItemKeptBrokenEvent;
 
 import java.util.List;
 
@@ -140,8 +144,28 @@ public class ArtifactEvents {
     public static void onPlayerDestroyItemEvent(PlayerDestroyItemEvent playerDestroyItemEvent) {
         if(!(playerDestroyItemEvent.getEntity() instanceof ServerPlayer)) return;
         ItemStack stack = playerDestroyItemEvent.getOriginal();
-        if(!stack.isEmpty() && AttunementUtil.isItemAttunedToAPlayer(stack)) {
+        if(!stack.isEmpty() && !BrokenItems.isBroken(stack) && AttunementUtil.isItemAttunedToAPlayer(stack)) {
             AttunementService.removeAttunementFromPlayerAndItem(stack);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemBreaking(ItemBreakingEvent itemBreakingEvent) {
+        ItemStack stack = itemBreakingEvent.getStack();
+        if(!DataComponentUtil.isActivelyAttuned(stack)) return;
+        AttunementService.checkAndUpdateAttunementComponents(stack);
+        if(AttunementUtil.isResilientActive(stack)) itemBreakingEvent.keepBroken();
+    }
+
+    @SubscribeEvent
+    public static void onItemKeptBroken(ItemKeptBrokenEvent itemKeptBrokenEvent) {
+        if(!(itemKeptBrokenEvent.getEntity() instanceof ServerPlayer player)) return;
+        ItemStack stack = itemKeptBrokenEvent.getStack();
+        boolean attunedToThisPlayer = DataComponentUtil.getPlayerAttunementData(stack)
+                .map(attunementData -> player.getUUID().equals(attunementData.attunedToUUID()))
+                .orElse(false);
+        if(attunedToThisPlayer) {
+            PlayerMessenger.displayTranslatableClientMessage(player, "playermessage.artifactory.attuned_item_broken", AttunementUtil.getAttunedItemDisplayName(stack));
         }
     }
 

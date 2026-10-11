@@ -14,7 +14,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.*;
-import net.silvertide.artifactory.setup.CuriosSetup;
+import net.silvertide.artifactory.setup.CompatSetup;
 import org.slf4j.Logger;
 
 @Mod(Artifactory.MOD_ID)
@@ -30,7 +30,7 @@ public class Artifactory
         DataComponentRegistry.register(modEventBus);
 
         modEventBus.addListener(this::addPackFinders);
-        modEventBus.addListener(CuriosSetup::init);
+        modEventBus.addListener(CompatSetup::init);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfigs.SPEC, String.format("%s-server.toml", Artifactory.MOD_ID));
     }

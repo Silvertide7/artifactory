@@ -2,6 +2,7 @@ package net.silvertide.artifactory.modifications;
 
 import net.silvertide.artifactory.Artifactory;
 
+import java.util.Locale;
 import java.util.Optional;
 
 public class ModificationFactory {
@@ -13,7 +14,7 @@ public class ModificationFactory {
             }
         } else if(!modificationCode.equalsIgnoreCase("invulnerable")) {
             try {
-                BasicModificationType modification = BasicModificationType.valueOf(modificationCode.toUpperCase());
+                BasicModificationType modification = BasicModificationType.valueOf(modificationCode.toUpperCase(Locale.ROOT));
                 return Optional.of(new BasicModification(modification));
             } catch (IllegalArgumentException e) {
                 Artifactory.LOGGER.error("Artifactory - Unknown attunement modification {}", modificationCode);

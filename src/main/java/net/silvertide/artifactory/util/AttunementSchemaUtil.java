@@ -1,11 +1,13 @@
 package net.silvertide.artifactory.util;
 
 import net.minecraft.world.item.ItemStack;
+import net.silvertide.artifactory.compat.CompatFlags;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
+import net.silvertide.silverlib.feature.breakage.BrokenItems;
 
 import java.util.Optional;
 
@@ -17,9 +19,16 @@ public final class AttunementSchemaUtil {
         if(override.isValidSchema()) return Optional.of(override);
 
         Optional<AttunementDataSource> source = AttunementDataSourceUtil.getAttunementDataSource(stack);
-        if(source.isPresent() && source.get().isValidSchema()) return Optional.of(source.get());
+        if(source.isPresent() && source.get().isValidSchema() && isAttunedOrMeetsMinQuality(stack, source.get())) return Optional.of(source.get());
 
         return Optional.empty();
+    }
+
+    private static boolean isAttunedOrMeetsMinQuality(ItemStack stack, AttunementDataSource source) {
+        if(DataComponentUtil.isActivelyAttuned(stack)) return true;
+        return source.minQuality()
+                .map(minQuality -> CompatFlags.QUALITY_LOADED && net.silvertide.artifactory.compat.QualityCompat.hasQualityAtLeast(stack, minQuality))
+                .orElse(true);
     }
 
     public static boolean hasValidSchema(ItemStack stack) {
@@ -27,7 +36,7 @@ public final class AttunementSchemaUtil {
     }
 
     public static boolean shouldApplyAttunementModifications(ItemStack stack) {
-        return DataComponentUtil.isActivelyAttuned(stack) && hasValidSchema(stack);
+        return DataComponentUtil.isActivelyAttuned(stack) && hasValidSchema(stack) && !BrokenItems.isBroken(stack);
     }
 
     public static Optional<AttunementSchema> getAttunementSchema(AttunedItem attunedItem) {

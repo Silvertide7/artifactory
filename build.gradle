@@ -140,6 +140,13 @@ configurations {
 dependencies {
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     localRuntime "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+
+    compileOnly "curse.maven:silverlib-1691772:${silverlib_version}"
+    localRuntime "curse.maven:silverlib-1691772:${silverlib_version}"
+
+    compileOnly "curse.maven:qualityapi-1686305:${qualityapi_version}"
+    localRuntime "curse.maven:qualityapi-1686305:${qualityapi_version}"
+
     // Curios Testing Mods
     localRuntime ("curse.maven:octo-lib-916747:6932487")
     localRuntime ("curse.maven:relics-mod-445274:6879532")
@@ -177,7 +184,7 @@ neoForge.ideSyncTask generateModMetadata
 publishMods {
     file = jar.archiveFile
     modLoaders.add("neoforge")
-    changelog = new File("$project.rootDir/CHANGELOG.md").getText('UTF-8')
+    changelog = new File("$project.rootDir/CHANGELOG.md").getText('UTF-8').split(/(?m)^(?=## )/).find { it.trim() }.trim()
     version = "${minecraft_version}-${mod_version}"
     type = STABLE
     displayName = "artifactory-${minecraft_version}-${mod_version}"
@@ -192,6 +199,9 @@ publishMods {
 
         clientRequired = true
         serverRequired = true
+
+        requires("silverlib")
+        optional("qualityapi", "curios")
     }
 
     discord {

@@ -7,6 +7,7 @@ import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.component.AttunementFlag;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementSchema;
+import net.silvertide.artifactory.component.PlayerAttunementData;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.storage.ArtifactorySavedData;
@@ -103,6 +104,10 @@ public final class AttunementUtil {
     // Soulbound is active if the soulbound flag is set and the player uuid matches the stack attuned to uuid.
     public static boolean isSoulboundActive(ServerPlayer player, ItemStack stack) {
         return isValidAttunementItem(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(attunementData -> attunementData.isSoulbound() && attunementData.attunedToUUID().equals(player.getUUID())).orElse(false);
+    }
+
+    public static boolean isResilientActive(ItemStack stack) {
+        return isValidAttunementItem(stack) && DataComponentUtil.getPlayerAttunementData(stack).map(PlayerAttunementData::isResilient).orElse(false);
     }
 
     public static boolean isAttunedToAnotherPlayer(ServerPlayer player, ItemStack stack) {

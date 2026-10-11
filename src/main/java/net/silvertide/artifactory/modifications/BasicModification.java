@@ -1,5 +1,6 @@
 package net.silvertide.artifactory.modifications;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.util.DataComponentUtil;
 
@@ -15,6 +16,7 @@ public class BasicModification implements AttunementModification {
         switch(modificationType) {
             case UNBREAKABLE -> applyUnbreakable(stack);
             case SOULBOUND -> applySoulbound(stack);
+            case RESILIENT -> applyResilient(stack);
         }
     }
 
@@ -24,6 +26,16 @@ public class BasicModification implements AttunementModification {
                 DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsSoulbound(true));
             }
         });
+    }
+
+    private void applyResilient(ItemStack stack) {
+        if(stack.has(DataComponents.MAX_DAMAGE)) {
+            DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData -> {
+                if(!attunementData.isResilient()) {
+                    DataComponentUtil.setPlayerAttunementData(stack, attunementData.withIsResilient(true));
+                }
+            });
+        }
     }
 
     private void applyUnbreakable(ItemStack stack) {
@@ -37,6 +49,7 @@ public class BasicModification implements AttunementModification {
         return switch(modificationType) {
             case UNBREAKABLE -> "Unbreakable";
             case SOULBOUND -> "Soulbound";
+            case RESILIENT -> "Resilient";
         };
     }
 }

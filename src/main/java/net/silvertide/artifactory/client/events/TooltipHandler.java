@@ -94,6 +94,10 @@ public class TooltipHandler {
                 textList.add(Component.translatable("hovertext.artifactory.trait_soulbound"));
             }
 
+            if(attunementData.isResilient() && stack.isDamageableItem()) {
+                textList.add(Component.translatable("hovertext.artifactory.trait_resilient"));
+            }
+
             if(attunementData.isInvulnerable()) {
                 textList.add(Component.translatable("hovertext.artifactory.trait_invulnerable"));
             }

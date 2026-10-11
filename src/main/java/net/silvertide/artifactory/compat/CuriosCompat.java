@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.TriState;
 import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.services.AttunementService;
@@ -61,16 +62,9 @@ public class CuriosCompat {
     }
 
     public static void keepCurios(DropRulesEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer) || serverPlayer instanceof FakePlayer) return;
 
-        CuriosApi.getCuriosInventory(serverPlayer).ifPresent(itemHandler -> {
-            for (int i = 0; i < itemHandler.getSlots(); ++i) {
-                ItemStack curiosStack = itemHandler.getEquippedCurios().getStackInSlot(i);
-                if(AttunementUtil.isSoulboundActive(serverPlayer, curiosStack)) {
-                    event.addOverride(stack -> stack == curiosStack, ICurio.DropRule.ALWAYS_KEEP);
-                }
-            }
-        });
+        event.addOverride(stack -> AttunementUtil.isSoulboundActive(serverPlayer, stack), ICurio.DropRule.ALWAYS_KEEP);
     }
 
     public static void onCurioAttributeModifierEvent(CurioAttributeModifierEvent event) {

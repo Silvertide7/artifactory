@@ -51,6 +51,7 @@ public final class ModificationService {
             PlayerAttunementData clearedPlayerAttunementData = attunementData
                     .withIsInvulnerable(false)
                     .withIsSoulbound(false)
+                    .withIsResilient(false)
                     .withAttributeModifications(new ArrayList<>());
 
             if(clearedPlayerAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {

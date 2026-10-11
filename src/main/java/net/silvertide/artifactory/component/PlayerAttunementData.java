@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, String attunedToName, boolean isSoulbound, boolean isInvulnerable, boolean isUnbreakable, List<AttributeModification> attributeModifications) {
+public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, String attunedToName, boolean isSoulbound, boolean isInvulnerable, boolean isUnbreakable, boolean isResilient, List<AttributeModification> attributeModifications) {
     public static final Codec<PlayerAttunementData> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerAttunementData> STREAM_CODEC;
 
@@ -22,6 +22,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 Codec.BOOL.fieldOf("is_soulbound").forGetter(PlayerAttunementData::isSoulbound),
                 Codec.BOOL.fieldOf("is_invulnerable").forGetter(PlayerAttunementData::isInvulnerable),
                 Codec.BOOL.fieldOf("is_unbreakable").forGetter(PlayerAttunementData::isUnbreakable),
+                Codec.BOOL.optionalFieldOf("is_resilient", false).forGetter(PlayerAttunementData::isResilient),
                 Codec.list(AttributeModification.CODEC).fieldOf("attribute_modifications").forGetter(PlayerAttunementData::attributeModifications))
             .apply(instance, PlayerAttunementData::new));
 
@@ -34,6 +35,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 boolean isSoulbound = buf.readBoolean();
                 boolean isInvulnerable = buf.readBoolean();
                 boolean isUnbreakable = buf.readBoolean();
+                boolean isResilient = buf.readBoolean();
 
                 List<AttributeModification> attributeModifications = new ArrayList<>();
                 int numModifications = buf.readVarInt();
@@ -42,7 +44,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                     attributeModifications.add(AttributeModification.STREAM_CODEC.decode(buf));
                 }
 
-                return new PlayerAttunementData(attunementUUID, attunedToUUID, attunedToName, isSoulbound, isInvulnerable, isUnbreakable, attributeModifications);
+                return new PlayerAttunementData(attunementUUID, attunedToUUID, attunedToName, isSoulbound, isInvulnerable, isUnbreakable, isResilient, attributeModifications);
             }
             @Override
             public void encode(@NotNull RegistryFriendlyByteBuf buf, @NotNull PlayerAttunementData playerAttunementData) {
@@ -52,6 +54,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 buf.writeBoolean(playerAttunementData.isSoulbound());
                 buf.writeBoolean(playerAttunementData.isInvulnerable());
                 buf.writeBoolean(playerAttunementData.isUnbreakable());
+                buf.writeBoolean(playerAttunementData.isResilient());
 
                 buf.writeVarInt(playerAttunementData.attributeModifications.size());
                 for(int i = 0; i < playerAttunementData.attributeModifications.size(); i++) {
@@ -70,6 +73,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 isSoulbound,
                 this.isInvulnerable(),
                 this.isUnbreakable(),
+                this.isResilient(),
                 this.attributeModifications());
     }
 
@@ -81,6 +85,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 this.isSoulbound(),
                 isInvulnerable,
                 this.isUnbreakable(),
+                this.isResilient(),
                 this.attributeModifications());
     }
 
@@ -92,6 +97,19 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 this.isSoulbound(),
                 this.isInvulnerable(),
                 isUnbreakable,
+                this.isResilient(),
+                this.attributeModifications());
+    }
+
+    public PlayerAttunementData withIsResilient(boolean isResilient) {
+        return new PlayerAttunementData(
+                this.attunementUUID(),
+                this.attunedToUUID(),
+                this.attunedToName(),
+                this.isSoulbound(),
+                this.isInvulnerable(),
+                this.isUnbreakable(),
+                isResilient,
                 this.attributeModifications());
     }
 
@@ -103,6 +121,7 @@ public record PlayerAttunementData(UUID attunementUUID, UUID attunedToUUID, Stri
                 this.isSoulbound(),
                 this.isInvulnerable(),
                 this.isUnbreakable(),
+                this.isResilient(),
                 attributeModifications);
     }
 }
