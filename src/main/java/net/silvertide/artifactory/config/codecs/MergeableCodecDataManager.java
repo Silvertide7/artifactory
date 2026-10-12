@@ -45,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementRequirements;
+import net.silvertide.artifactory.component.condition.AttunementCondition;
 import net.silvertide.artifactory.component.condition.AttunementConditions;
 import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
@@ -246,8 +247,13 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * @param data - The data to search for item requirements in
      */
     private static void warnIfMergeDroppedConditions(ResourceLocation id, List<AttunementDataSource> raws, AttunementDataSource merged) {
-        if (merged.attunementConditions().isEmpty() && raws.stream().anyMatch(raw -> !raw.attunementConditions().isEmpty())) {
-            LOGGER.warn("Artifactory - {} is configured by several packs and the one that won has no attunement_conditions, so another pack's conditions are ignored. Add \"replace\": true to the file whose conditions should apply.", id);
+        warnIfMergeDroppedConditionList(id, raws, merged, AttunementDataSource::attunementConditions, "attunement_conditions");
+        warnIfMergeDroppedConditionList(id, raws, merged, AttunementDataSource::appliesWhen, "applies_when");
+    }
+
+    private static void warnIfMergeDroppedConditionList(ResourceLocation id, List<AttunementDataSource> raws, AttunementDataSource merged, Function<AttunementDataSource, List<AttunementCondition>> conditionList, String fieldName) {
+        if (conditionList.apply(merged).isEmpty() && raws.stream().anyMatch(raw -> !conditionList.apply(raw).isEmpty())) {
+            LOGGER.warn("Artifactory - {} is configured by several packs and the one that won has no {}, so another pack's {} is ignored. Add \"replace\": true to the file whose {} should apply.", id, fieldName, fieldName, fieldName);
         }
     }
 

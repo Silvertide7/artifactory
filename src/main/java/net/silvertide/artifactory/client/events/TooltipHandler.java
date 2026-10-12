@@ -12,6 +12,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.component.AttunementSchema;
+import net.silvertide.artifactory.config.ClientConfigs;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.modifications.DurableModification;
 import net.silvertide.artifactory.services.DurabilityService;
@@ -33,7 +34,7 @@ public class TooltipHandler {
         ItemStack stack = event.getItemStack();
         if(stack.isEmpty()) return;
 
-        ClientAttunementUtil.getClientAttunementSchema(stack).ifPresent(attunementSchema -> {
+        ClientAttunementUtil.getClientAttunementSchema(stack).ifPresentOrElse(attunementSchema -> {
             if(ClientAttunementUtil.isValidAttunementItem(stack)) {
                     addTraitTooltips(event.getToolTip(), stack);
                     createAttunementHoverComponent(event.getToolTip(), attunementSchema, stack, event.getEntity());
@@ -45,7 +46,19 @@ public class TooltipHandler {
                 },
                     () -> addUnknownAttunementState(event.getToolTip(), attunementSchema.chance()));
             }
-        });
+        }, () -> addAppliesWhenHint(event.getToolTip(), stack));
+    }
+
+    private static void addAppliesWhenHint(List<Component> toolTips, ItemStack stack) {
+        if(!ClientConfigs.SHOW_APPLIES_WHEN_HINT.get()) return;
+        List<Component> unmetConditions = AttunementSchemaUtil.describeUnmetAppliesWhenConditions(stack);
+        if(unmetConditions.isEmpty()) return;
+        MutableComponent joinedConditions = Component.empty();
+        for(int i = 0; i < unmetConditions.size(); i++) {
+            if(i > 0) joinedConditions.append(", ");
+            joinedConditions.append(unmetConditions.get(i));
+        }
+        toolTips.add(Component.translatable("hovertext.artifactory.becomes_attunable_when", joinedConditions).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     private static void addUnknownAttunementState(List<Component> toolTips, double chance) {

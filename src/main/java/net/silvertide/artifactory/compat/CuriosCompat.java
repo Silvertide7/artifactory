@@ -83,6 +83,17 @@ public class CuriosCompat {
         curioAttributeModifierEvent.addModifier(attributeModification.attribute(), attributeModification.modifier());
     }
 
+    public static void revalidateEquippedCurios(ServerPlayer serverPlayer) {
+        CuriosApi.getCuriosInventory(serverPlayer).ifPresent(inv -> inv.getCurios().forEach((identifier, handler) -> {
+            for (int i = 0; i < handler.getSlots(); i++) {
+                ItemStack stack = handler.getStacks().getStackInSlot(i);
+                if (stack.isEmpty()) continue;
+                AttunementService.checkAndUpdateAttunementComponents(stack);
+                AttunementService.applyEffectsToPlayer(serverPlayer, stack, true);
+            }
+        }));
+    }
+
     public static void ejectInvalidCurios(ServerPlayer serverPlayer) {
         CuriosApi.getCuriosInventory(serverPlayer).ifPresent(inv -> {
             inv.getCurios().forEach((identifier, handler) -> {

@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.entity.player.*;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
+import net.silvertide.artifactory.compat.CompatFlags;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.services.PlayerMessenger;
@@ -112,6 +113,8 @@ public class ArtifactEvents {
                 AttunementService.checkAndUpdateAttunementComponents(armorStack);
                 AttunementService.applyEffectsToPlayer(serverPlayer, armorStack, true);
             }
+
+            if (CompatFlags.CURIOS_LOADED) net.silvertide.artifactory.compat.CuriosCompat.revalidateEquippedCurios(serverPlayer);
 
             List<ItemStack> handItems = List.of(serverPlayer.getMainHandItem(), serverPlayer.getOffhandItem());
             for(ItemStack handStack : handItems) {

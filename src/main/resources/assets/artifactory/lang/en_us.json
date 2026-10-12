@@ -13,6 +13,7 @@
   "hovertext.artifactory.trait_invulnerable": "Invulnerable",
   "hovertext.artifactory.trait_resilient": "Resilient",
   "hovertext.artifactory.trait_durable": "Durable ×%1$s",
+  "hovertext.artifactory.becomes_attunable_when": "Becomes attunable when: %1$s",
   "artifactory.condition.component_int_range.at_least": "Requires %1$s of at least %2$s",
   "artifactory.condition.component_int_range.at_most": "Requires %1$s of at most %2$s",
   "artifactory.condition.component_int_range.between": "Requires %1$s between %2$s and %3$s",

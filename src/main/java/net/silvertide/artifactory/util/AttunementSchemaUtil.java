@@ -7,6 +7,7 @@ import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.component.condition.AttunementCondition;
+import net.silvertide.artifactory.component.condition.AttunementConditions;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.silverlib.feature.breakage.BrokenItems;
@@ -22,16 +23,33 @@ public final class AttunementSchemaUtil {
         if(override.isValidSchema()) return Optional.of(override);
 
         Optional<AttunementDataSource> source = AttunementDataSourceUtil.getAttunementDataSource(stack);
-        if(source.isPresent() && source.get().isValidSchema() && isAttunedOrMeetsMinQuality(stack, source.get())) return Optional.of(source.get());
+        if(source.isPresent() && source.get().isValidSchema() && isAttunedOrApplies(stack, source.get())) return Optional.of(source.get());
 
         return Optional.empty();
     }
 
-    private static boolean isAttunedOrMeetsMinQuality(ItemStack stack, AttunementDataSource source) {
+    private static boolean isAttunedOrApplies(ItemStack stack, AttunementDataSource source) {
         if(DataComponentUtil.isActivelyAttuned(stack)) return true;
+        return meetsMinQuality(stack, source) && source.appliesWhen().stream().allMatch(condition -> condition.isMetBy(stack));
+    }
+
+    private static boolean meetsMinQuality(ItemStack stack, AttunementDataSource source) {
         return source.minQuality()
                 .map(minQuality -> CompatFlags.QUALITY_LOADED && net.silvertide.artifactory.compat.QualityCompat.hasQualityAtLeast(stack, minQuality))
                 .orElse(true);
+    }
+
+    public static List<Component> describeUnmetAppliesWhenConditions(ItemStack stack) {
+        if(DataComponentUtil.isActivelyAttuned(stack) || hasRolledNonAttunable(stack)) return List.of();
+        return AttunementDataSourceUtil.getAttunementDataSource(stack)
+                .filter(AttunementDataSource::isValidSchema)
+                .filter(source -> meetsMinQuality(stack, source))
+                .filter(source -> !AttunementConditions.isUnreadable(source.appliesWhen()))
+                .map(source -> source.appliesWhen().stream()
+                        .filter(condition -> !condition.isMetBy(stack))
+                        .map(AttunementCondition::failureDescription)
+                        .toList())
+                .orElse(List.of());
     }
 
     public static boolean meetsAttunementConditions(AttunementSchema attunementSchema, ItemStack stack) {
@@ -43,6 +61,10 @@ public final class AttunementSchemaUtil {
                 .filter(condition -> !condition.isMetBy(stack))
                 .map(AttunementCondition::failureDescription)
                 .toList();
+    }
+
+    private static boolean hasRolledNonAttunable(ItemStack stack) {
+        return DataComponentUtil.getAttunementFlag(stack).map(flag -> flag.discovered() && !flag.isAttunable()).orElse(false);
     }
 
     public static boolean hasValidSchema(ItemStack stack) {

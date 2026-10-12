@@ -12,6 +12,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.silvertide.artifactory.config.ClientConfigs;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.registry.*;
 import net.silvertide.artifactory.setup.CompatSetup;
@@ -33,6 +34,7 @@ public class Artifactory
         modEventBus.addListener(CompatSetup::init);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfigs.SPEC, String.format("%s-server.toml", Artifactory.MOD_ID));
+        modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfigs.SPEC, String.format("%s-client.toml", Artifactory.MOD_ID));
     }
 
     public void addPackFinders(AddPackFindersEvent event) {

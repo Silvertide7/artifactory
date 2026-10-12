@@ -11,7 +11,7 @@ import net.silvertide.artifactory.network.server_packets.SB_ToggleManageAttuneme
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Artifactory.MOD_ID)
 public class Networking {
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
 
     @SubscribeEvent
     public static void registerMessages(RegisterPayloadHandlersEvent event) {

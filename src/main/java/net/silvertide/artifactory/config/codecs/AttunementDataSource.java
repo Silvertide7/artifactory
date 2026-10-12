@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, List<String> applyToItems, boolean replace, Optional<Integer> minQuality, List<AttunementCondition> attunementConditions) implements AttunementSchema {
+public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel> attunementLevels, double chance, boolean useWithoutAttunement, List<String> applyToItems, boolean replace, Optional<Integer> minQuality, List<AttunementCondition> attunementConditions, List<AttunementCondition> appliesWhen) implements AttunementSchema {
     public static final Codec<AttunementDataSource> CODEC;
     public static final StreamCodec<RegistryFriendlyByteBuf, AttunementDataSource> STREAM_CODEC;
 
@@ -27,7 +27,8 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
                         Codec.list(Codec.STRING).optionalFieldOf("apply_to_items", List.of()).forGetter(AttunementDataSource::applyToItems),
                         Codec.BOOL.optionalFieldOf("replace", false).forGetter(AttunementDataSource::replace),
                         Codec.INT.optionalFieldOf("min_quality").forGetter(AttunementDataSource::minQuality),
-                        AttunementConditions.LIST_CODEC_FAILING_CLOSED.optionalFieldOf("attunement_conditions", List.of()).forGetter(AttunementDataSource::attunementConditions))
+                        AttunementConditions.LIST_CODEC_FAILING_CLOSED.optionalFieldOf("attunement_conditions", List.of()).forGetter(AttunementDataSource::attunementConditions),
+                        AttunementConditions.LIST_CODEC_FAILING_CLOSED.optionalFieldOf("applies_when", List.of()).forGetter(AttunementDataSource::appliesWhen))
                 .apply(instance, AttunementDataSource::new)
         );
 
@@ -54,7 +55,8 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
                 boolean replace = buf.readBoolean();
                 Optional<Integer> minQuality = buf.readBoolean() ? Optional.of(buf.readInt()) : Optional.empty();
                 List<AttunementCondition> attunementConditions = AttunementConditions.LIST_STREAM_CODEC.decode(buf);
-                return new AttunementDataSource(attunementSlotsUsed, attunementLevels, chance, useWithoutAttunement, applyToItems, replace, minQuality, attunementConditions);
+                List<AttunementCondition> appliesWhen = AttunementConditions.LIST_STREAM_CODEC.decode(buf);
+                return new AttunementDataSource(attunementSlotsUsed, attunementLevels, chance, useWithoutAttunement, applyToItems, replace, minQuality, attunementConditions, appliesWhen);
             }
 
             @Override
@@ -78,15 +80,16 @@ public record AttunementDataSource(int attunementSlotsUsed, List<AttunementLevel
                 buf.writeBoolean(attunementDataSource.minQuality().isPresent());
                 attunementDataSource.minQuality().ifPresent(buf::writeInt);
                 AttunementConditions.LIST_STREAM_CODEC.encode(buf, attunementDataSource.attunementConditions());
+                AttunementConditions.LIST_STREAM_CODEC.encode(buf, attunementDataSource.appliesWhen());
             }
         };
     }
 
     public AttunementDataSource withAttunementLevels(List<AttunementLevel> attunementLevels) {
-        return new AttunementDataSource(this.attunementSlotsUsed(), attunementLevels, this.chance(), this.useWithoutAttunement(), this.applyToItems, this.replace(), this.minQuality(), this.attunementConditions());
+        return new AttunementDataSource(this.attunementSlotsUsed(), attunementLevels, this.chance(), this.useWithoutAttunement(), this.applyToItems, this.replace(), this.minQuality(), this.attunementConditions(), this.appliesWhen());
     }
 
     public AttunementDataSource withChance(double chance) {
-        return new AttunementDataSource(this.attunementSlotsUsed(), this.attunementLevels(), chance, this.useWithoutAttunement(), this.applyToItems, this.replace(), this.minQuality(), this.attunementConditions());
+        return new AttunementDataSource(this.attunementSlotsUsed(), this.attunementLevels(), chance, this.useWithoutAttunement(), this.applyToItems, this.replace(), this.minQuality(), this.attunementConditions(), this.appliesWhen());
     }
 }
