@@ -488,6 +488,8 @@ public class AttunementScreen extends AbstractContainerScreen<AttunementMenu> {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.attuned_by_another_player", slotInformation.attunedToName()));
                 } else if(slotInformation.isPlayerAtMaxAttuneLevel()) {
                     requirementsList.add(Component.translatable("screen.tooltip.artifactory.item_in_slot_is_max_level"));
+                } else if(!slotInformation.unmetAttunementConditions().isEmpty()) {
+                    requirementsList.addAll(slotInformation.unmetAttunementConditions());
                 } else {
                     if(slotInformation.levelAchievedByPlayer() == 0 && slotInformation.numSlotsUsedByPlayer() + slotInformation.slotsUsed() > AttunementUtil.getMaxAttunementSlots(this.player)) {
                         requirementsList.add(Component.translatable("screen.tooltip.artifactory.not_enough_slots_available"));

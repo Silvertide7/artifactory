@@ -13,6 +13,13 @@
   "hovertext.artifactory.trait_invulnerable": "Invulnerable",
   "hovertext.artifactory.trait_resilient": "Resilient",
   "hovertext.artifactory.trait_durable": "Durable ×%1$s",
+  "artifactory.condition.component_int_range.at_least": "Requires %1$s of at least %2$s",
+  "artifactory.condition.component_int_range.at_most": "Requires %1$s of at most %2$s",
+  "artifactory.condition.component_int_range.between": "Requires %1$s between %2$s and %3$s",
+  "artifactory.condition.component_present.required": "Requires %1$s",
+  "artifactory.condition.component_present.forbidden": "Must not have %1$s",
+  "artifactory.condition.component_equals": "Requires %1$s to be %2$s",
+  "artifactory.condition.unreadable": "Attunement conditions could not be read (check the server log)",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use.",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",

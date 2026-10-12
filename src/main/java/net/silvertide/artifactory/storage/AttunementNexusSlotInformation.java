@@ -3,7 +3,9 @@ package net.silvertide.artifactory.storage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements) {
+import java.util.List;
+
+public record AttunementNexusSlotInformation(String itemName, String attunedToName, boolean attunedByAnotherPlayer, int slotsUsed, int xpConsumed, int xpThreshold, int numAttunementLevels, int levelAchievedByPlayer, int numSlotsUsedByPlayer, ItemRequirements itemRequirements, List<Component> unmetAttunementConditions) {
     public boolean isPlayerAtMaxAttuneLevel() {
         if(numAttunementLevels() == 0) {
             return levelAchievedByPlayer() >= 1;

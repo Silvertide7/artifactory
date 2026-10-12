@@ -72,6 +72,7 @@ public final class AttunementUtil {
         if(stack.isEmpty() || !isValidAttunementItem(stack)) return false;
 
         return AttunementSchemaUtil.getAttunementSchema(stack).map(attunementSchema -> {
+            if(!AttunementSchemaUtil.meetsAttunementConditions(attunementSchema, stack)) return false;
             if(isItemAttunedToPlayer(player, stack)) {
                 int levelAchieved = getLevelOfAttunementAchieved(stack);
                 int maxLevel = AttunementSchemaUtil.getNumAttunementLevels(stack);
@@ -188,7 +189,8 @@ public final class AttunementUtil {
                     numLevels,
                     levelOfAttunementAchievedByPlayer,
                     getAttunementSlotsUsed(player),
-                    itemRequirements);
+                    itemRequirements,
+                    AttunementSchemaUtil.describeUnmetAttunementConditions(attunementSchema, stack));
         }).orElse(null);
     }
 }

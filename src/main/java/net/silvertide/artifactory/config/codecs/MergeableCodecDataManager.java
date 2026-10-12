@@ -45,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementRequirements;
+import net.silvertide.artifactory.component.condition.AttunementConditions;
 import net.silvertide.artifactory.storage.ItemRequirements;
 import net.silvertide.artifactory.util.ResourceLocationUtil;
 import org.apache.logging.log4j.LogManager;
@@ -132,7 +133,9 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
                 }
             }
             if (!raws.isEmpty()) {
-                map.put(id, merger.apply(raws));
+                AttunementDataSource merged = merger.apply(raws);
+                warnIfMergeDroppedConditions(id, raws, merged);
+                map.put(id, merged);
             }
         }
 
@@ -242,10 +245,26 @@ public class MergeableCodecDataManager extends SimplePreparableReloadListener<Ma
      * in the game. If it can't create an ItemStack of them then it will remove it.
      * @param data - The data to search for item requirements in
      */
+    private static void warnIfMergeDroppedConditions(ResourceLocation id, List<AttunementDataSource> raws, AttunementDataSource merged) {
+        if (merged.attunementConditions().isEmpty() && raws.stream().anyMatch(raw -> !raw.attunementConditions().isEmpty())) {
+            LOGGER.warn("Artifactory - {} is configured by several packs and the one that won has no attunement_conditions, so another pack's conditions are ignored. Add \"replace\": true to the file whose conditions should apply.", id);
+        }
+    }
+
+    private static boolean conditionsCanBlockAllUse(AttunementDataSource dataSource) {
+        return !dataSource.useWithoutAttunement()
+                && !dataSource.attunementConditions().isEmpty()
+                && !AttunementConditions.isUnreadable(dataSource.attunementConditions());
+    }
+
     private Map<ResourceLocation, AttunementDataSource> sanitizeItemRequirements(Map<ResourceLocation, AttunementDataSource> data) {
         Map<ResourceLocation, AttunementDataSource> sanitizedData = new HashMap<>();
+        Set<AttunementDataSource> configsWarnedAboutBlockingConditions = Collections.newSetFromMap(new IdentityHashMap<>());
         for(Map.Entry<ResourceLocation, AttunementDataSource> entry : data.entrySet()) {
             AttunementDataSource dataSource = entry.getValue();
+            if(conditionsCanBlockAllUse(dataSource) && configsWarnedAboutBlockingConditions.add(dataSource)) {
+                Artifactory.LOGGER.warn("Artifactory - {} - has attunement_conditions and use_without_attunement false: until its conditions pass, nobody can use or attune this item.", entry.getKey());
+            }
             if(!dataSource.useWithoutAttunement() && dataSource.chance() != 1.0D){
                 dataSource = dataSource.withChance(1.0D);
                 Artifactory.LOGGER.warn("Artifactory - {} - chance is not valid, must have a chance of 1.0D if use_without_attunement is false. Setting to 1.0D.", entry.getKey());

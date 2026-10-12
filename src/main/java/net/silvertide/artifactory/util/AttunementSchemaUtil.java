@@ -1,14 +1,17 @@
 package net.silvertide.artifactory.util;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.silvertide.artifactory.compat.CompatFlags;
 import net.silvertide.artifactory.component.AttunementLevel;
 import net.silvertide.artifactory.component.AttunementOverride;
 import net.silvertide.artifactory.component.AttunementSchema;
+import net.silvertide.artifactory.component.condition.AttunementCondition;
 import net.silvertide.artifactory.config.codecs.AttunementDataSource;
 import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.silverlib.feature.breakage.BrokenItems;
 
+import java.util.List;
 import java.util.Optional;
 
 public final class AttunementSchemaUtil {
@@ -29,6 +32,17 @@ public final class AttunementSchemaUtil {
         return source.minQuality()
                 .map(minQuality -> CompatFlags.QUALITY_LOADED && net.silvertide.artifactory.compat.QualityCompat.hasQualityAtLeast(stack, minQuality))
                 .orElse(true);
+    }
+
+    public static boolean meetsAttunementConditions(AttunementSchema attunementSchema, ItemStack stack) {
+        return attunementSchema.attunementConditions().stream().allMatch(condition -> condition.isMetBy(stack));
+    }
+
+    public static List<Component> describeUnmetAttunementConditions(AttunementSchema attunementSchema, ItemStack stack) {
+        return attunementSchema.attunementConditions().stream()
+                .filter(condition -> !condition.isMetBy(stack))
+                .map(AttunementCondition::failureDescription)
+                .toList();
     }
 
     public static boolean hasValidSchema(ItemStack stack) {

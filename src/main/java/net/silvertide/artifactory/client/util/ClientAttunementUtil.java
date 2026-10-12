@@ -136,7 +136,8 @@ public final class ClientAttunementUtil {
                     numLevels,
                     levelOfAttunementAchievedByPlayer,
                     ClientAttunementUtil.getAttunementSlotsUsed(),
-                    itemRequirements);
+                    itemRequirements,
+                    AttunementSchemaUtil.describeUnmetAttunementConditions(attunementSchema, stack));
         }).orElse(null);
     }
 }

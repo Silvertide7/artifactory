@@ -3,6 +3,7 @@ package net.silvertide.artifactory.client.events;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,6 +15,7 @@ import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.ServerConfigs;
 import net.silvertide.artifactory.modifications.DurableModification;
 import net.silvertide.artifactory.services.DurabilityService;
+import net.silvertide.artifactory.util.AttunementSchemaUtil;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.client.util.GUIUtil;
@@ -34,7 +36,7 @@ public class TooltipHandler {
         ClientAttunementUtil.getClientAttunementSchema(stack).ifPresent(attunementSchema -> {
             if(ClientAttunementUtil.isValidAttunementItem(stack)) {
                     addTraitTooltips(event.getToolTip(), stack);
-                    createAttunementHoverComponent(event.getToolTip(), attunementSchema, stack);
+                    createAttunementHoverComponent(event.getToolTip(), attunementSchema, stack, event.getEntity());
             } else {
                 DataComponentUtil.getAttunementFlag(stack).ifPresentOrElse(attunementFlag -> {
                     if(!attunementFlag.discovered()) {
@@ -56,7 +58,7 @@ public class TooltipHandler {
         }
     }
 
-    private static void createAttunementHoverComponent(List<Component> toolTips, AttunementSchema attunementSchema, ItemStack stack) {
+    private static void createAttunementHoverComponent(List<Component> toolTips, AttunementSchema attunementSchema, ItemStack stack, Player viewer) {
         MutableComponent toolTip;
         if (AttunementUtil.isItemAttunedToAPlayer(stack)) {
             toolTip = createAttunedHoverText(stack);
@@ -69,6 +71,17 @@ public class TooltipHandler {
             }
         }
         toolTips.add(toolTip);
+        if (canStillAttuneOrAscend(viewer, stack)) {
+            AttunementSchemaUtil.describeUnmetAttunementConditions(attunementSchema, stack)
+                    .forEach(unmetCondition -> toolTips.add(unmetCondition.copy().withStyle(ChatFormatting.RED)));
+        }
+    }
+
+    private static boolean canStillAttuneOrAscend(Player viewer, ItemStack stack) {
+        if (viewer == null || ClientAttunementUtil.isAttunedToAnotherPlayer(viewer, stack)) return false;
+        int numAttunementLevels = ClientAttunementUtil.getNumAttunementLevels(stack);
+        int levelAchieved = ClientAttunementUtil.getLevelOfAttunementAchievedByPlayer(viewer, stack);
+        return levelAchieved == 0 || levelAchieved < numAttunementLevels;
     }
 
     private static MutableComponent createAttunedHoverText(ItemStack stack) {
