@@ -52,6 +52,7 @@ public final class ModificationService {
                     .withIsInvulnerable(false)
                     .withIsSoulbound(false)
                     .withIsResilient(false)
+                    .withDurabilityMultiplier(1.0F)
                     .withAttributeModifications(new ArrayList<>());
 
             if(clearedPlayerAttunementData.isUnbreakable() && DataComponentUtil.isUnbreakable(stack)) {

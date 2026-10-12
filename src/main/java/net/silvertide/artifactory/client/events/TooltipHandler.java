@@ -12,6 +12,8 @@ import net.silvertide.artifactory.Artifactory;
 import net.silvertide.artifactory.client.util.ClientAttunementUtil;
 import net.silvertide.artifactory.component.AttunementSchema;
 import net.silvertide.artifactory.config.ServerConfigs;
+import net.silvertide.artifactory.modifications.DurableModification;
+import net.silvertide.artifactory.services.DurabilityService;
 import net.silvertide.artifactory.util.AttunementUtil;
 import net.silvertide.artifactory.util.DataComponentUtil;
 import net.silvertide.artifactory.client.util.GUIUtil;
@@ -96,6 +98,10 @@ public class TooltipHandler {
 
             if(attunementData.isResilient() && stack.isDamageableItem()) {
                 textList.add(Component.translatable("hovertext.artifactory.trait_resilient"));
+            }
+
+            if(DurabilityService.isDurabilityMultiplierActive(attunementData.durabilityMultiplier()) && stack.isDamageableItem() && DataComponentUtil.isActivelyAttuned(stack)) {
+                textList.add(Component.translatable("hovertext.artifactory.trait_durable", DurableModification.formatMultiplier(attunementData.durabilityMultiplier())));
             }
 
             if(attunementData.isInvulnerable()) {

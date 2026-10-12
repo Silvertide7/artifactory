@@ -12,6 +12,7 @@
   "hovertext.artifactory.trait_soulbound": "Soulbound",
   "hovertext.artifactory.trait_invulnerable": "Invulnerable",
   "hovertext.artifactory.trait_resilient": "Resilient",
+  "hovertext.artifactory.trait_durable": "Durable ×%1$s",
 
   "playermessage.artifactory.item_not_usable": "Must attune to item to use.",
   "playermessage.artifactory.item_not_equippable": "Must attune to item to equip.",

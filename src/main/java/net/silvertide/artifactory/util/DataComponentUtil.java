@@ -69,6 +69,7 @@ public final class DataComponentUtil {
                         false,
                         false,
                         false,
+                        1.0F,
                         new ArrayList<>()
                 )
         );

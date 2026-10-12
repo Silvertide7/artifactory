@@ -7,6 +7,7 @@ import net.silvertide.artifactory.storage.AttunedItem;
 import net.silvertide.artifactory.util.AttunementSchemaUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClientAttunedItems {
     private ClientAttunedItems() {}
@@ -62,19 +63,11 @@ public class ClientAttunedItems {
                 if("NONE".equals(modLevelInformation[1])) {
                     levelDescription.append("None");
                 } else {
-                    // Split it apart into individual modification codes
-                    String[] modificationCodes = modLevelInformation[1].split(",");
-                    for(int i = 0; i < modificationCodes.length; i++) {
-                        String modificationCode = modificationCodes[i];
-
-                        // This code should successfully create a modification. We will then use that modifications toString
-                        // to get the relevant information.
-                        Optional<AttunementModification> modification = ModificationFactory.createAttunementModification(modificationCode);
-                        if(modification.isPresent()) {
-                            levelDescription.append(modification.get());
-                            if(i != modificationCodes.length - 1) levelDescription.append(", ");
-                        }
-                    }
+                    levelDescription.append(Arrays.stream(modLevelInformation[1].split(","))
+                            .map(ModificationFactory::createAttunementModification)
+                            .flatMap(Optional::stream)
+                            .map(AttunementModification::toString)
+                            .collect(Collectors.joining(", ")));
                 }
 
                 results.add(levelDescription.toString());
