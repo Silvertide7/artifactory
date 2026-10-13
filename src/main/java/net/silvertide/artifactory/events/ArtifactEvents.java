@@ -179,7 +179,7 @@ public class ArtifactEvents {
         ItemStack stack = attributeModifierEvent.getItemStack();
         if(AttunementSchemaUtil.shouldApplyAttunementModifications(stack)) {
             DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData ->
-                    attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(attributeModifierEvent)));
+                    attunementData.attributeModifications().forEach(modification -> modification.addAttributeModifier(attributeModifierEvent, attunementData.attunementUUID())));
         }
     }
 }

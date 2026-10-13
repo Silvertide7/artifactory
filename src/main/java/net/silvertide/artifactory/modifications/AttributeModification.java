@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public record AttributeModification(Holder<Attribute> attribute, AttributeModifier modifier, EquipmentSlotGroup slot) implements AttunementModification {
     public static final Codec<AttributeModification> CODEC;
@@ -89,8 +90,13 @@ public record AttributeModification(Holder<Attribute> attribute, AttributeModifi
         return null;
     }
 
-    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent) {
-        itemAttributeModifierEvent.addModifier(this.attribute, this.modifier, this.slot());
+    public void addAttributeModifier(ItemAttributeModifierEvent itemAttributeModifierEvent, UUID attunementUUID) {
+        itemAttributeModifierEvent.addModifier(this.attribute, modifierUniqueToAttunement(attunementUUID), this.slot());
+    }
+
+    public AttributeModifier modifierUniqueToAttunement(UUID attunementUUID) {
+        ResourceLocation idUniqueToAttunement = this.modifier.id().withSuffix("_" + attunementUUID);
+        return new AttributeModifier(idUniqueToAttunement, this.modifier.amount(), this.modifier.operation());
     }
 
     private static AttributeModifier buildAttributeModifier(String resourceLocation, double value, int operation) {

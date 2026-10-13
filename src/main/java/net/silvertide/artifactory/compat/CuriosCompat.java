@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.TriState;
-import net.silvertide.artifactory.modifications.AttributeModification;
 import net.silvertide.artifactory.services.AttunementService;
 import net.silvertide.artifactory.services.PlayerMessenger;
 import net.silvertide.artifactory.util.*;
@@ -75,12 +74,9 @@ public class CuriosCompat {
         ItemStack stack = event.getItemStack();
         if(AttunementSchemaUtil.shouldApplyAttunementModifications(stack)) {
             DataComponentUtil.getPlayerAttunementData(stack).ifPresent(attunementData ->
-                    attunementData.attributeModifications().forEach(modification -> addAttributeModifier(event, modification)));
+                    attunementData.attributeModifications().forEach(modification ->
+                            event.addModifier(modification.attribute(), modification.modifierUniqueToAttunement(attunementData.attunementUUID()))));
         }
-    }
-
-    public static void addAttributeModifier(CurioAttributeModifierEvent curioAttributeModifierEvent, AttributeModification attributeModification) {
-        curioAttributeModifierEvent.addModifier(attributeModification.attribute(), attributeModification.modifier());
     }
 
     public static void revalidateEquippedCurios(ServerPlayer serverPlayer) {
